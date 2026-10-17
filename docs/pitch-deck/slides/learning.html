@@ -1,0 +1,36 @@
+<section id="learning" data-transition="fade" style="background:#F3F1EA;color:#3E4A55;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#0B6B63">Feedback loop</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#0E1A24">One rating changes the next decision</h2>
+</div>
+<div style="display:flex;gap:40px;align-items:center">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5E6B76">Before · TN-02 via CAR-001</p>
+<p style="font-family:'Space Grotesk', Arial, sans-serif;font-size:120px;font-weight:700;line-height:1;color:#5E6B76;text-decoration:line-through">₹18,500</p>
+</div>
+<x-shape kind="arrow-right" style="width:96px;height:48px;background:#F2A541"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">After · TN-03 via CAR-002</p>
+<p style="font-family:'Space Grotesk', Arial, sans-serif;font-size:120px;font-weight:700;line-height:1;color:#0B6B63">₹12,000</p>
+</div>
+</div>
+<div style="display:flex;gap:24px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:28px 32px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">The rating</h3>
+<p style="font-size:26px;line-height:1.4">“Too expensive, we had slack”</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:28px 32px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">The stored rule</h3>
+<p style="font-size:26px;line-height:1.4">Save ≥ ₹5,000 for ≤ 90 min later, within both deadlines</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:28px 32px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">The limits</h3>
+<p style="font-size:26px;line-height:1.4">Scoped, expiring, ranking only. Text is never run as instructions</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#5E6B76">Reproduced on every CI run by make demo</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5E6B76">11</p>
+</div>
+<aside>The Critic turns a human rating into a typed preference: if we can save at least five thousand rupees by arriving at most ninety minutes later, still inside both deadlines, prefer the cheaper carrier. It’s scoped to the customer and cargo profile, it expires, and it only re-ranks plans that already passed every hard check. Free-text feedback is stored as data, never executed. The cost drop from 18,500 to 12,000 rupees on a comparable incident is reproduced by make demo on every CI run.</aside>
+</section>

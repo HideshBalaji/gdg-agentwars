@@ -1,0 +1,50 @@
+<section id="guardrails" data-transition="fade" style="background:#0E1A24;color:#E8EEF2;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#4FD1C5">Guardrails</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#F3F1EA">Personal data never reaches the model or the logs</h2>
+</div>
+<div style="display:flex;gap:12px;align-items:center">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#13283A;border-radius:12px;padding:24px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:30px;font-weight:600;color:#F3F1EA">Input</h3>
+<p style="font-size:24px;line-height:1.35;color:#B9C7D2">Incident, chat, feedback</p>
+</div>
+<x-shape kind="arrow-right" style="width:44px;height:26px;background:#4FD1C5"></x-shape>
+<div style="flex:1.4;display:flex;flex-direction:column;gap:8px;background:#F2A541;border-radius:12px;padding:24px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:30px;font-weight:600;color:#0E1A24">PII redaction</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;line-height:1.35;color:#2A2416">phone · Aadhaar · PAN · card · email → [PHONE]</p>
+</div>
+<x-shape kind="arrow-right" style="width:44px;height:26px;background:#4FD1C5"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#13283A;border-radius:12px;padding:24px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:30px;font-weight:600;color:#F3F1EA">Store + Gemini</h3>
+<p style="font-size:24px;line-height:1.35;color:#B9C7D2">Only redacted text</p>
+</div>
+<x-shape kind="arrow-right" style="width:44px;height:26px;background:#4FD1C5"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#13283A;border-radius:12px;padding:24px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:30px;font-weight:600;color:#F3F1EA">Output filter</h3>
+<p style="font-size:24px;line-height:1.35;color:#B9C7D2">Agent replies re-checked</p>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:20px">
+<div style="display:flex;gap:20px;align-items:center;background:#13283A;border-radius:12px;padding:24px 28px">
+<x-icon name="Warning" style="color:#F2A541;width:40px;height:40px"></x-icon>
+<p style="font-size:26px;line-height:1.35;color:#E8EEF2">Evidence and feedback are data, never instructions</p>
+</div>
+<div style="display:flex;gap:20px;align-items:center;background:#13283A;border-radius:12px;padding:24px 28px">
+<x-icon name="Key" style="color:#F2A541;width:40px;height:40px"></x-icon>
+<p style="font-size:26px;line-height:1.35;color:#E8EEF2">Bearer auth on every API and MCP call</p>
+</div>
+<div style="display:flex;gap:20px;align-items:center;background:#13283A;border-radius:12px;padding:24px 28px">
+<x-icon name="Verified" style="color:#F2A541;width:40px;height:40px"></x-icon>
+<p style="font-size:26px;line-height:1.35;color:#E8EEF2">Every simulated action is labelled simulated</p>
+</div>
+<div style="display:flex;gap:20px;align-items:center;background:#13283A;border-radius:12px;padding:24px 28px">
+<x-icon name="Lock" style="color:#F2A541;width:40px;height:40px"></x-icon>
+<p style="font-size:26px;line-height:1.35;color:#E8EEF2">Redaction events log the type, never the value</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#7F93A3">Deterministic redaction, tested against both SQLite stores and the event stream</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#7F93A3">13</p>
+</div>
+<aside>Drivers and customers type real things into chat — phone numbers, ID numbers. A deterministic redaction layer runs at the API boundary before anything is stored, and again in an ADK callback before any text reaches Gemini, so the model never sees raw personal data. Agent replies are filtered on the way out too. We redact Indian and international phone numbers, Aadhaar, PAN, Luhn-checked card numbers and emails, and log only the type that was redacted. Tests assert the raw values never appear in either database or the event stream — and that logistics IDs like TN-07 aren’t falsely redacted.</aside>
+</section>
