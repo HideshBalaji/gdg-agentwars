@@ -1,0 +1,25 @@
+{
+  "asset_id": "synthetic_temperature_display",
+  "path": "data/photos/synthetic_temperature_display.png",
+  "classification": "synthetic_render_not_photo",
+  "generator": "Pillow, original training display drawing",
+  "license": "CC0-1.0",
+  "sha256": "80f0c58e70644decc858710bd59ff3eba4f4c300c2588ff7ad4e1575a72e980d",
+  "expected_extraction": {
+    "truck_id": "TN-07",
+    "shipment_id": "SHP-001",
+    "probe_temp_c": 6.5,
+    "range_c": [
+      2,
+      8
+    ],
+    "observed_at": "2026-10-17T02:00:00+05:30",
+    "fridge_state": "simulated_stopped"
+  },
+  "not_supported": [
+    "Actual sensor observations",
+    "Medically safe cargo",
+    "A real failure"
+  ],
+  "synthetic": true
+}

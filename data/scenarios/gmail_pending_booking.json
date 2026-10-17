@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "fixture_id": "GMAIL-PENDING-BOOKING",
+  "execution_status": "not_executed",
+  "scripted_responses_are": "Invented provider scripts, NOT actual tool or agent-run observations.",
+  "incident_ref": "breakdown.json#/incident",
+  "scenario_override": "CAR-003 API outage prevents API confirmation; email is offered as unconfirmed channel, not a magical outage cure.",
+  "scripted_provider_results": [
+    {
+      "tool": "send_booking_email",
+      "arguments": {
+        "to": "dispatch3@carrier.invalid",
+        "shipment_id": "SHP-001",
+        "truck_id": "TN-10"
+      },
+      "result": {
+        "http_status": 202,
+        "message_id": "MOCK-MSG-001",
+        "booking_status": "pending_provider_confirmation",
+        "mock_transport_label": "Gmail-like demo; no real account or mail was accessed"
+      }
+    }
+  ],
+  "expected_outcomes": {
+    "state": "pending_provider_confirmation",
+    "reservation_id": null,
+    "must_not": [
+      "Mark email sent as booking confirmed",
+      "Change active ASN-001 on email send",
+      "Claim rescue completed"
+    ],
+    "next_action": "Seek explicit carrier confirmation before cold deadline while retaining confirmed-channel alternatives TN-02/TN-03."
+  }
+}

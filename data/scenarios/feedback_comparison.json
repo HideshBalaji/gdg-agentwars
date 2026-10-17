@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "fixture_id": "FEEDBACK-COMPARISON",
+  "execution_status": "not_executed",
+  "scripted_responses_are": "Invented provider scripts, NOT actual tool or agent-run observations.",
+  "incident_ref": "breakdown.json#/incident",
+  "comparison_source": "data/feedback/comparable_pair.json",
+  "rules_source": "data/feedback/preference_rules.json",
+  "scripted_provider_results": [
+    {
+      "tool": "get_quote",
+      "truck_id": "TN-02",
+      "result": {
+        "http_status": 200,
+        "quote_id": "Q-FAST-001",
+        "amount": 18500,
+        "currency": "INR",
+        "expires_at": "2026-10-17T02:15:00+05:30"
+      }
+    },
+    {
+      "tool": "get_quote",
+      "truck_id": "TN-03",
+      "result": {
+        "http_status": 200,
+        "quote_id": "Q-CHEAP-001",
+        "amount": 12000,
+        "currency": "INR",
+        "expires_at": "2026-10-17T02:15:00+05:30"
+      }
+    }
+  ],
+  "expected_outcomes": {
+    "before_memory": "TN-02 proposed",
+    "after_memory": "TN-03 proposed",
+    "delivery_delay_min": 75,
+    "savings_inr": 6500,
+    "cold_deadline_not_relaxed": true,
+    "both_require_booking_confirmation": true,
+    "actual_agent_runs": null
+  }
+}

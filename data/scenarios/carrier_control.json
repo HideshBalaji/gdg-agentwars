@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "fixture_id": "CARRIER-CONTROL",
+  "classification": "synthetic_contract_fixture",
+  "execution_status": "not_executed",
+  "notice": "Illustrative HTTP contracts for the future local mock service, not endpoints implemented by this data collection. No live carrier is contacted.",
+  "carrier_id": "CAR-001",
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/kill",
+      "body": {},
+      "expected_state": "unavailable",
+      "subsequent_booking_result": {"http_status": 503, "error": "carrier_1_outage"},
+      "scenario_to_load": "data/scenarios/outage_fallback.json"
+    },
+    {
+      "method": "POST",
+      "path": "/revive",
+      "body": {},
+      "expected_state": "available",
+      "subsequent_booking_result": "Resume normal availability; actual booking still requires a valid quote and reservation confirmation."
+    }
+  ],
+  "boundaries": [
+    "Kill/revive belong to the mock carrier, not to Google APIs or real providers.",
+    "Service state must reset between independent scenario replays.",
+    "An outage after a reservation request can leave confirmation ambiguous; do not assume the booking failed or blindly create another one.",
+    "The fixture records desired behavior only; healing has not been run through ADK."
+  ]
+}

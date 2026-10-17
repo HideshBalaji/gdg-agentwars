@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "fixture_id": "OUTAGE-FALLBACK",
+  "execution_status": "not_executed",
+  "scripted_responses_are": "Invented provider scripts, NOT actual tool or agent-run observations.",
+  "incident_ref": "breakdown.json#/incident",
+  "scripted_provider_results": [
+    {
+      "tool": "get_quote",
+      "truck_id": "TN-02",
+      "result": {
+        "http_status": 503,
+        "error": "carrier_1_outage"
+      }
+    },
+    {
+      "tool": "get_quote",
+      "truck_id": "TN-10",
+      "result": {
+        "http_status": 504,
+        "error": "carrier_3_timeout"
+      }
+    },
+    {
+      "tool": "get_quote",
+      "truck_id": "TN-03",
+      "result": {
+        "http_status": 200,
+        "quote_id": "Q-CHEAP-001",
+        "amount": 12000,
+        "currency": "INR",
+        "expires_at": "2026-10-17T02:15:00+05:30"
+      }
+    }
+  ],
+  "expected_outcomes": {
+    "selected_fallback": "TN-03",
+    "cold_restored_at": "2026-10-17T02:50:00+05:30",
+    "delivery_complete_at": "2026-10-17T08:50:00+05:30",
+    "cost_inr": 12000,
+    "state": "proposed_pending_booking",
+    "thermal_slack_min": 10,
+    "business_slack_min": 10,
+    "handling_rule": "No success claim until confirmed reservation and transfer; fallback quote alone is not execution."
+  }
+}

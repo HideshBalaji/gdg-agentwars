@@ -1,0 +1,332 @@
+{
+  "schema_version": "1.0",
+  "dataset_kind": "collected_public_reference_catalog",
+  "collection_completed_at": "2026-10-17T07:52:40Z",
+  "accessed_at_semantics": "Collection-session completion timestamp, not the publisher's update date or the fixed simulation clock.",
+  "verification_method": "Each catalog URL was opened with the web reader and returned substantive official content, except the explicitly identified title-only portal. Notes are original paraphrases; linked pages are not mirrored. Redirect destinations are used where observed. Download evidence is in download_provenance.json.",
+  "sources": [
+    {
+      "id": "REF-ADK-PYTHON",
+      "title": "Python Quickstart for ADK",
+      "url": "https://adk.dev/get-started/python/",
+      "publisher": "Google, Agent Development Kit",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_python_quickstart",
+      "license_or_reuse_notes": "Link and original paraphrase only. No documentation license inferred from the SDK license.",
+      "what_it_enables": "Install google-adk, create an agent package, configure model authentication, and use development CLI/web interfaces. The old google.github.io/adk-docs address redirected here."
+    },
+    {
+      "id": "REF-ADK-MCP",
+      "title": "Model Context Protocol tools",
+      "url": "https://adk.dev/tools-custom/mcp-tools/",
+      "publisher": "Google, Agent Development Kit",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_integration_documentation",
+      "license_or_reuse_notes": "Link and original paraphrase only; no copied documentation or sample code.",
+      "what_it_enables": "Connect an ADK agent to MCP tools using McpToolset, configure stdio or HTTP connections, and limit exposed tools. The former /mcp/ page is a redirect to this resource."
+    },
+    {
+      "id": "REF-ADK-CALLBACKS",
+      "title": "Types of Callbacks",
+      "url": "https://adk.dev/callbacks/types-of-callbacks/",
+      "publisher": "Google, Agent Development Kit",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_lifecycle_documentation",
+      "license_or_reuse_notes": "Link and original paraphrase only; displayed code carries its own Apache-2.0 notice, not assumed to license all page material.",
+      "what_it_enables": "Understand agent, model, and tool hooks, callback context, overrides, and Python keyword parameter requirements before designing safety gates."
+    },
+    {
+      "id": "REF-ADK-LOOP",
+      "title": "Loop template workflow agent",
+      "url": "https://adk.dev/agents/workflow-agents/loop-agents/",
+      "publisher": "Google, Agent Development Kit",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_workflow_documentation",
+      "license_or_reuse_notes": "Link and original paraphrase only; no copied page or code.",
+      "what_it_enables": "Understand ordered repeated sub-agent execution, explicit termination/escalation, and max_iterations. The current page also points to newer graph/dynamic workflows; it is not a recommendation to select a particular SDK version."
+    },
+    {
+      "id": "REF-GEMINI-MODELS",
+      "title": "Models | Gemini API",
+      "url": "https://ai.google.dev/gemini-api/docs/models",
+      "publisher": "Google AI for Developers",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "live_model_catalog",
+      "license_or_reuse_notes": "Page footer: CC BY 4.0 content and Apache-2.0 code samples, except as otherwise noted. Only link and original notes retained.",
+      "what_it_enables": "Select a currently documented model and inspect stable, preview, experimental, alias, and deprecation information. No model ID or project availability is frozen into this dataset."
+    },
+    {
+      "id": "REF-GEMINI-LIMITS",
+      "title": "Rate limits | Gemini API",
+      "url": "https://ai.google.dev/gemini-api/docs/rate-limits",
+      "publisher": "Google AI for Developers",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "live_quota_documentation",
+      "license_or_reuse_notes": "Page footer: CC BY 4.0 content and Apache-2.0 samples, except as otherwise noted. Link and original notes only.",
+      "what_it_enables": "Understand project-level rate limiting and use the linked authenticated AI Studio view for actual account/model limits. No numeric quota, free-tier entitlement, or capacity guarantee is asserted here."
+    },
+    {
+      "id": "REF-FASTMCP",
+      "title": "FastMCP Quickstart",
+      "url": "https://gofastmcp.com/getting-started/quickstart",
+      "publisher": "Prefect / FastMCP maintainers",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_python_quickstart",
+      "license_or_reuse_notes": "Link and original paraphrase only. The project repository is Apache-2.0; no separate website-content license is assumed.",
+      "what_it_enables": "Build Python MCP tools, run stdio or HTTP servers, and call tools through an asynchronous client. No package version is prescribed."
+    },
+    {
+      "id": "REF-FASTMCP-REPO",
+      "title": "PrefectHQ/fastmcp",
+      "url": "https://github.com/jlowin/fastmcp",
+      "publisher": "Prefect / FastMCP maintainers",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_source_repository",
+      "license_or_reuse_notes": "Repository reports Apache License 2.0. Follow LICENSE and notices if copying code; no repository files copied here.",
+      "what_it_enables": "Find the maintained project, source, releases, license, and migration guides. Reader resolved the historical jlowin URL to PrefectHQ/fastmcp."
+    },
+    {
+      "id": "REF-MAPS-ROUTES",
+      "title": "Routes API",
+      "url": "https://developers.google.com/maps/documentation/routes/",
+      "publisher": "Google Maps Platform",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_api_overview",
+      "license_or_reuse_notes": "Documentation footer: CC BY 4.0 content and Apache-2.0 samples except as noted. API outputs have separate Maps terms; page license is not permission to redistribute Maps datasets.",
+      "what_it_enables": "Plan route and route-matrix requests for rescue ETA and onward delivery separately. This catalog does not contain live route results or guarantee truck suitability, restrictions, traffic, or availability."
+    },
+    {
+      "id": "REF-MAPS-SETUP",
+      "title": "Set up the Routes API",
+      "url": "https://developers.google.com/maps/documentation/routes/get-api-key",
+      "publisher": "Google Maps Platform",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_account_setup",
+      "license_or_reuse_notes": "Documentation footer: CC BY 4.0 content and Apache-2.0 samples except as noted. Link and original notes only.",
+      "what_it_enables": "Locate account/billing prerequisites, API enablement, and authenticated request setup. Keys must be restricted and obtained by the user outside this repository."
+    },
+    {
+      "id": "REF-MAPS-PLACES",
+      "title": "About the Places API (New)",
+      "url": "https://developers.google.com/maps/documentation/places/web-service/op-overview",
+      "publisher": "Google Maps Platform",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_api_overview",
+      "license_or_reuse_notes": "Documentation footer: CC BY 4.0 content and Apache-2.0 samples except as noted. Place records/photos and API results have separate terms; none collected here.",
+      "what_it_enables": "Find search and Place Details APIs for discovering possible service providers. A place result does not establish refrigeration capability, vaccine acceptance, capacity, opening status, or agreement to assist."
+    },
+    {
+      "id": "REF-MAPS-WEATHER",
+      "title": "Weather API",
+      "url": "https://developers.google.com/maps/documentation/weather",
+      "publisher": "Google Maps Platform",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_api_overview",
+      "license_or_reuse_notes": "Documentation footer: CC BY 4.0 content and Apache-2.0 samples except as noted. No API output copied; service terms remain separate.",
+      "what_it_enables": "Locate current conditions, forecast, history, alerts, and production setup documentation. No live or historical weather observation is asserted by the demo."
+    },
+    {
+      "id": "REF-GMAIL-PYTHON",
+      "title": "Gmail API Python quickstart",
+      "url": "https://developers.google.com/workspace/gmail/api/quickstart/python",
+      "publisher": "Google Workspace for Developers",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_python_oauth_quickstart",
+      "license_or_reuse_notes": "Footer: CC BY 4.0 content and Apache-2.0 samples except as noted. Link and original notes only; no credentials or user data obtained.",
+      "what_it_enables": "Set up the Python client libraries, enabled Gmail API, desktop OAuth client, and interactive consent. Its readonly example scope must not be mistaken for send permission."
+    },
+    {
+      "id": "REF-GMAIL-SCOPES",
+      "title": "Choose Gmail API scopes",
+      "url": "https://developers.google.com/workspace/gmail/api/auth/scopes",
+      "publisher": "Google Workspace for Developers",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_oauth_scope_reference",
+      "license_or_reuse_notes": "Footer: CC BY 4.0 content and Apache-2.0 samples except as noted. Link and original notes only.",
+      "what_it_enables": "Choose gmail.send for sending only rather than unrestricted mailbox access; review sensitive/restricted scope and verification implications."
+    },
+    {
+      "id": "REF-CALENDAR-PYTHON",
+      "title": "Google Calendar API Python quickstart",
+      "url": "https://developers.google.com/workspace/calendar/api/quickstart/python",
+      "publisher": "Google Workspace for Developers",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_python_oauth_quickstart",
+      "license_or_reuse_notes": "Footer: CC BY 4.0 content and Apache-2.0 samples except as noted. No credentials or calendar records copied.",
+      "what_it_enables": "Install the Python client and configure Calendar OAuth. The sample uses calendar.readonly and cannot create rescue or delivery events unchanged."
+    },
+    {
+      "id": "REF-CALENDAR-SCOPES",
+      "title": "Choose Google Calendar API scopes",
+      "url": "https://developers.google.com/workspace/calendar/api/auth",
+      "publisher": "Google Workspace for Developers",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_oauth_scope_reference",
+      "license_or_reuse_notes": "Footer: CC BY 4.0 content and Apache-2.0 samples except as noted. Link and original notes only.",
+      "what_it_enables": "Select calendar.events.owned for owned-calendar events, or calendar.events when authorized shared-calendar events are required; avoid full calendar administration scope."
+    },
+    {
+      "id": "REF-SHEETS-PYTHON",
+      "title": "Google Sheets API Python quickstart",
+      "url": "https://developers.google.com/workspace/sheets/api/quickstart/python",
+      "publisher": "Google Workspace for Developers",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_python_oauth_quickstart",
+      "license_or_reuse_notes": "Footer: CC BY 4.0 content and Apache-2.0 samples except as noted. No sample spreadsheet or account records copied.",
+      "what_it_enables": "Set up the Python Sheets client and OAuth. Its spreadsheets.readonly example cannot write an incident audit sheet."
+    },
+    {
+      "id": "REF-SHEETS-SCOPES",
+      "title": "Choose Google Sheets API scopes",
+      "url": "https://developers.google.com/workspace/sheets/api/scopes",
+      "publisher": "Google Workspace for Developers",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_oauth_scope_reference",
+      "license_or_reuse_notes": "Footer: CC BY 4.0 content and Apache-2.0 samples except as noted. Link and original notes only.",
+      "what_it_enables": "Use recommended drive.file for app-created or specifically app-authorized files, or spreadsheets when broader Sheets read/write access is truly needed. Scopes are file-level, not tab-level."
+    },
+    {
+      "id": "REF-OAUTH-CONSENT",
+      "title": "Configure the OAuth consent screen and choose scopes",
+      "url": "https://developers.google.com/workspace/guides/configure-oauth-consent",
+      "publisher": "Google Workspace for Developers",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_oauth_setup",
+      "license_or_reuse_notes": "Footer: CC BY 4.0 content and Apache-2.0 samples except as noted. Link and original notes only.",
+      "what_it_enables": "Configure audience, consent screen, test users, and least-privilege scopes. Internal audience is not available to every personal-account project; use the audience appropriate to the user's organization."
+    },
+    {
+      "id": "REF-SQLITE",
+      "title": "SQLite In 5 Minutes Or Less",
+      "url": "https://www.sqlite.org/quickstart.html",
+      "publisher": "SQLite project",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_database_quickstart",
+      "license_or_reuse_notes": "SQLite's copyright page explicitly dedicates deliverable code and documentation to the public domain. Only link and original notes retained.",
+      "what_it_enables": "Optional local file-backed persistence without a cloud account. This is a reference, not a created database or implementation."
+    },
+    {
+      "id": "REF-SQLITE-REUSE",
+      "title": "SQLite Copyright",
+      "url": "https://www.sqlite.org/copyright.html",
+      "publisher": "SQLite project",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_reuse_policy",
+      "license_or_reuse_notes": "Public-domain dedication described by SQLite; build scripts may have other licenses. Jurisdictions not recognizing public-domain dedication may need separate legal review.",
+      "what_it_enables": "Check the scope and caveats of SQLite's reuse terms without assuming every third-party component has the same terms."
+    },
+    {
+      "id": "REF-PYTHON-SQLITE",
+      "title": "sqlite3 — DB-API 2.0 interface for SQLite databases",
+      "url": "https://docs.python.org/3/library/sqlite3.html",
+      "publisher": "Python Software Foundation",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_python_library_reference",
+      "license_or_reuse_notes": "Link and original paraphrase only; no PSF documentation copied. Do not apply SQLite's public-domain dedication to Python documentation.",
+      "what_it_enables": "Use connections, parameter binding, commits, and transaction-control documentation appropriate to the installed Python version."
+    },
+    {
+      "id": "REF-FIRESTORE",
+      "title": "Get started with Firestore Standard edition using server client libraries",
+      "url": "https://firebase.google.com/docs/firestore/quickstart-server",
+      "publisher": "Google Firebase",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_optional_database_quickstart",
+      "license_or_reuse_notes": "Link and original paraphrase only; no service credentials, project database, or source code copied.",
+      "what_it_enables": "Find Python firebase-admin setup and authenticated server access for optional cloud persistence. Server credentials are privileged; configure IAM rather than relying on mobile/web security rules to constrain them."
+    },
+    {
+      "id": "REF-CDC-TOOLKIT",
+      "title": "Vaccine Storage and Handling Toolkit, July 2026",
+      "url": "https://www.cdc.gov/vaccines/hcp/downloads/storage-handling-toolkit.pdf",
+      "publisher": "U.S. Centers for Disease Control and Prevention (CDC)",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_cold_chain_pdf",
+      "license_or_reuse_notes": "Source: CDC. Unmodified government guidance retained under CDC's public-domain content reuse policy: attribution, no endorsement, no substantive alteration, and notice of free original access. Third-party material and marks are not separately licensed; international copyright can differ. See REF-CDC-REUSE and README.md.",
+      "local_copy": "cdc_vaccine_storage_handling_toolkit.pdf",
+      "what_it_enables": "Read authoritative storage, temperature monitoring, excursion documentation, and emergency transport guidance offline. U.S. guidance is not an Indian regulatory rule or cargo-specific release decision."
+    },
+    {
+      "id": "REF-CDC-LANDING",
+      "title": "Vaccine Storage and Handling",
+      "url": "https://www.cdc.gov/vaccines/hcp/storage-handling/index.html",
+      "publisher": "U.S. Centers for Disease Control and Prevention (CDC)",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_cold_chain_guidance_index",
+      "license_or_reuse_notes": "Link and original paraphrase only. CDC public-domain policy has exceptions for third-party material, images, and marks.",
+      "what_it_enables": "Find the current toolkit, resources, updates, and product-specific guidance. The page identifies the toolkit update as July 14, 2026. Revisit before operational use."
+    },
+    {
+      "id": "REF-CDC-REUSE",
+      "title": "Use of Agency Materials",
+      "url": "https://www.cdc.gov/other/agencymaterials.html",
+      "publisher": "U.S. Centers for Disease Control and Prevention (CDC)",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_reuse_policy",
+      "license_or_reuse_notes": "Policy requires attribution, prominent non-endorsement, unchanged substantive content, and notice that the original is freely available. Exceptions include third-party content and protected logos; international laws can differ.",
+      "what_it_enables": "Understand the conditions for keeping the original CDC PDF and why images/logos must not be extracted for promotional reuse."
+    },
+    {
+      "id": "REF-WHO-COLDCHAIN",
+      "title": "Immunization in practice: a practical guide for health staff — 2025 update",
+      "url": "https://www.who.int/publications/i/item/9789240113275",
+      "publisher": "World Health Organization",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_training_publication",
+      "license_or_reuse_notes": "Publication page displays CC BY-NC-SA 3.0 IGO. Link and original notes only; the noncommercial/share-alike conditions are not assumed compatible with arbitrary downstream use.",
+      "what_it_enables": "Locate the updated guide and Module 2, The vaccine cold chain, which the publication page identifies as substantially revised. No WHO text or PDF mirrored."
+    },
+    {
+      "id": "REF-INDIA-GUIDELINES",
+      "title": "Guidelines — Immunization",
+      "url": "https://nhm.gov.in/index1.php?lang=1&level=3&sublinkid=944&lid=378",
+      "publisher": "National Health Mission, Ministry of Health & Family Welfare, Government of India",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_india_guidance_index",
+      "license_or_reuse_notes": "Link and original paraphrase only. Full-copy permission for the listed handbooks was not established; no Indian government document mirrored.",
+      "what_it_enables": "Find official India-relevant immunization handbooks, operational guidelines, and vaccine-management assessments. The index links Medical Officers and Health Workers handbooks; direct PDF reader attempts aborted, so their contents are not claimed as read."
+    },
+    {
+      "id": "REF-INDIA-COLDCHAIN-CONTEXT",
+      "title": "Immunization — Vaccine Logistics & Cold Chain Management",
+      "url": "https://nhm.gov.in/index1.php?lang=1&level=2&sublinkid=824&lid=220",
+      "publisher": "National Health Mission, Ministry of Health & Family Welfare, Government of India",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_india_program_context",
+      "license_or_reuse_notes": "Link and original paraphrase only; no full-copy permission assumed.",
+      "what_it_enables": "Understand India's official context for eVIN stock/logistics/temperature tracking and NCCMIS equipment tracking. The page includes historical rollout descriptions; they are not asserted as current coverage statistics."
+    },
+    {
+      "id": "REF-INDIA-NCCVMRC",
+      "title": "National Cold Chain Vaccine Management and Resource Centre",
+      "url": "https://nccmis.mohfw.gov.in/",
+      "publisher": "Ministry of Health & Family Welfare, Government of India",
+      "accessed_at": "2026-10-17T07:52:40Z",
+      "resource_type": "official_india_resource_portal",
+      "license_or_reuse_notes": "Link only; copying terms not established.",
+      "what_it_enables": "Locate the official cold-chain resource portal. Reader verified the page title only; dynamic contents and any authenticated resources were not inspected."
+    }
+  ],
+  "retrieval_limitations": [
+    {
+      "url": "https://www.mohfw.gov.in/sites/default/files/Unit4ColdChainandLogisticsManagement.pdf",
+      "observed_result": "Web reader returned HTTP 404. Not treated as a verified reachable source; official NHM guideline index retained instead."
+    },
+    {
+      "url": "https://www.mohfw.gov.in/sites/default/files/Routine%20Immunization%20Manual%20For%20Health%20Workers.pdf",
+      "observed_result": "Web reader returned HTTP 404. Not retained as an available document."
+    },
+    {
+      "url": "https://mohfw.gov.in/sites/default/files/National%20AEFI%20Surveillance%20and%20Response%20Operational%20Guidelines%202024_0.pdf",
+      "observed_result": "Web reader redirected to www.mohfw.gov.in and returned HTTP 404. No content claims retained."
+    },
+    {
+      "url": "https://nhm.gov.in/New_Updates_2018/NHM_Components/Immunization/Guildelines_for_immunization/Immunization_Handbook_for_Medical_Officers%202017.pdf",
+      "observed_result": "Listed by official NHM guideline index. Reader reported application/pdf but binary fetch aborted; full text not read, copying terms not established, no local copy retained."
+    },
+    {
+      "url": "https://nhm.gov.in/New_Updates_2018/NHM_Components/Immunization/Guildelines_for_immunization/Immunization_Handbook_for_Health_Workers-English.pdf",
+      "observed_result": "Listed by official NHM guideline index. Reader reported application/pdf but binary fetch aborted; full text not read, copying terms not established, no local copy retained."
+    }
+  ]
+}

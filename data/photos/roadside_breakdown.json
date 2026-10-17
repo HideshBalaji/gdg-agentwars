@@ -1,0 +1,32 @@
+{
+  "asset_id": "roadside_breakdown",
+  "path": "data/photos/roadside_breakdown.jpg",
+  "classification": "external_illustrative_photo",
+  "title": "Lagged Lorry.jpg",
+  "creator": "KamauxKamau",
+  "creator_url": "https://commons.wikimedia.org/wiki/User:KamauxKamau",
+  "source_page": "https://commons.wikimedia.org/wiki/File:Lagged_Lorry.jpg",
+  "download_url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bc/Lagged_Lorry.jpg/500px-Lagged_Lorry.jpg",
+  "original_url": "https://upload.wikimedia.org/wikipedia/commons/b/bc/Lagged_Lorry.jpg",
+  "license": "CC-BY-SA-4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "accessed_on": "2026-10-17",
+  "sha256": "49f10cbe30201dc7af9fe22037a56558f9bd035d5009ca0ec0e26a0e8613f653",
+  "bytes": 87977,
+  "content_type": "image/jpeg",
+  "original_location": "Kenya, not Hosur",
+  "changes": "Wikimedia-generated 500px thumbnail, resized from original; no further changes.",
+  "source_caption": "Broken down lorry by the roadside; source describes brick cargo and repair activity.",
+  "expected_visible_facts": [
+    "Roadside truck.",
+    "Open cab door and people beside the truck; the source caption, not the pixels alone, supplies the breakdown context."
+  ],
+  "not_supported": [
+    "Exact mechanical diagnosis",
+    "Refrigeration failure",
+    "A reefer truck or vaccine cargo",
+    "Any seed vehicle or driver identity",
+    "Incident location in India"
+  ],
+  "scenario_binding": "Independent visual example only. Not canonical TN-07 or authentic evidence of the synthetic incident."
+}
