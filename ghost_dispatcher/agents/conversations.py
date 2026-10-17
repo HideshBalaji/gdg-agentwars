@@ -10,6 +10,7 @@ from google.adk.sessions.sqlite_session_service import SqliteSessionService
 from google.genai import types
 
 from ghost_dispatcher.agents.team import build_team
+from ghost_dispatcher.services import grounding
 from ghost_dispatcher.services.store import DomainError
 
 
@@ -84,17 +85,20 @@ class Conversations:
             record["messages"].append({"role": "user", "text": message.text})
             self.service.store.put("conversation", conversation_id, record)
             replies = []
+            tool_results = []
             async for event in self.runner.run_async(
                 user_id="demo",
                 session_id=conversation_id,
                 new_message=types.Content(role="user", parts=parts),
                 run_config=RunConfig(max_llm_calls=24),
             ):
+                tool_results += [r.response for r in event.get_function_responses() if r.response]
                 if event.is_final_response() and event.content:
                     content = "\n".join(p.text for p in event.content.parts or [] if p.text)
                     if content:
-                        replies.append({"role": "agent", "agent": event.author, "text": content})
-                        self.service.store.emit(record["incident_id"], "message", replies[-1])
+                        reply = self._grounded(record["incident_id"], event.author, content, tool_results)
+                        replies.append(reply)
+                        self.service.store.emit(record["incident_id"], "message", reply)
             session = await self.sessions.get_session(
                 app_name="ghost_dispatcher", user_id="demo", session_id=conversation_id
             )
@@ -107,6 +111,21 @@ class Conversations:
                 "replies": replies,
                 "simulated": self.service.settings.mode == "offline",
             }
+
+    def _grounded(self, incident_id, agent, text, tool_results):
+        """Truthfulness guardrail: every ID, cost, time and status claim must be backed
+        by this turn's tool results or the stored incident; otherwise say so."""
+        evidence = [
+            *tool_results,
+            self.service.incident(incident_id).model_dump(mode="json"),
+            self.service.store.list("preference"),
+        ]
+        result = grounding.check(text, evidence)
+        if not result.grounded:
+            missing = ", ".join(f"{c.value}" for c in result.unsupported)
+            text += f"\n\n[Guardrail] Not backed by tool results: {missing}. Treat as unverified."
+        self.service.store.emit(incident_id, "grounding", {"agent": agent, **result.to_dict()})
+        return {"role": "agent", "agent": agent, "text": text, "grounding": result.to_dict()}
 
     async def close(self):
         await self.runner.close()

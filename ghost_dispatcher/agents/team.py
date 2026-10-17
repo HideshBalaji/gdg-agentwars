@@ -6,6 +6,7 @@ from google.adk.tools.tool_context import ToolContext
 
 from ghost_dispatcher.agents.offline import OfflineModel
 from ghost_dispatcher.models.contracts import Feedback
+from ghost_dispatcher.services import guardrails
 from ghost_dispatcher.services.store import DomainError
 from ghost_dispatcher.services.validation import violations
 
@@ -28,6 +29,8 @@ Honor explicit switches. Explain transfers and carry the objective, incident and
 Do not change operational facts through conversation; use the validated tools. On missing evidence,
 ask a concise question. Never claim uploaded media was interpreted by Gemini in offline mode.
 Use execute_rescue only when the user requests execution. A planned rescue is not an executed rescue.
+Never repeat personal data (phone numbers, emails, government ID, card or bank numbers) from messages,
+evidence or tool results; refer to it as redacted. Quote IDs, costs and times only from tool results.
 """
 
 
@@ -126,6 +129,53 @@ def build_team(service):
             tool_context.state["handover_count"] = count + 1
         return None
 
+    # ---- PII guardrails at the model boundary (input and output) ----
+
+    def note(ctx, stage, counts):
+        incident = ctx.state.get("incident_id")
+        if counts and incident:
+            service.store.emit(incident, "guardrail", {"stage": stage, **guardrails.summary(counts)})
+
+    def redact_parts(parts, counts):
+        for part in parts or []:
+            if part.text:
+                part.text = guardrails.redact(part.text, counts)
+            if part.function_call and part.function_call.args:
+                part.function_call.args = guardrails.redact(dict(part.function_call.args), counts)
+            if part.function_response and part.function_response.response:
+                part.function_response.response = guardrails.redact(
+                    dict(part.function_response.response), counts
+                )
+
+    def before_model(callback_context, llm_request):
+        """Nothing personal is sent to Gemini: redact history, user text and tool results."""
+        counts = guardrails.Counter()
+        for content in llm_request.contents or []:
+            redact_parts(content.parts, counts)
+        note(callback_context, "model_input", counts)
+
+    def after_model(callback_context, llm_response):
+        """Nothing personal comes back out: redact model text and tool arguments."""
+        if not llm_response.content:
+            return None
+        counts = guardrails.Counter()
+        redact_parts(llm_response.content.parts, counts)
+        note(callback_context, "model_output", counts)
+        return llm_response if counts else None
+
+    def after_tool(tool, args, tool_context, tool_response):
+        """Tool results are redacted before the model or the session store sees them."""
+        counts = guardrails.Counter()
+        clean = guardrails.redact(tool_response, counts)
+        note(tool_context, "tool_output", counts)
+        return clean if counts else None
+
+    guards = {
+        "before_model_callback": before_model,
+        "after_model_callback": after_model,
+        "after_tool_callback": after_tool,
+    }
+
     def on_error(tool, args, tool_context, error):
         failures = dict(tool_context.state.get("tool_failures", {}))
         failures[tool.name] = failures.get(tool.name, 0) + 1
@@ -175,6 +225,7 @@ def build_team(service):
                 before_agent_callback=before_agent,
                 before_tool_callback=before_tool,
                 on_tool_error_callback=on_error,
+                **guards,
                 disallow_transfer_to_parent=False,
                 disallow_transfer_to_peers=False,
             )
@@ -188,12 +239,14 @@ def build_team(service):
                 model=model("planning_step"),
                 instruction="Call plan_rescue once and report its result.",
                 tools=[plan_rescue],
+                **guards,
             ),
             LlmAgent(
                 name="validation_step",
                 model=model("validation_step"),
                 instruction="Call validate_and_exit once. On failure explain the required correction.",
                 tools=[validate_and_exit],
+                **guards,
             ),
         ],
     )
@@ -209,6 +262,7 @@ def build_team(service):
         before_agent_callback=before_agent,
         before_tool_callback=before_tool,
         on_tool_error_callback=on_error,
+        **guards,
     )
     if settings.mode == "live":
         from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams

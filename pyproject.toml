@@ -17,11 +17,14 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "ruff>=0.6"]
+# ADK AgentEvaluator (pandas, rouge, Vertex eval SDK); needed for `make eval`.
+eval = ["google-adk[eval]==2.12.0"]
 
 [project.scripts]
 ghost-api = "ghost_dispatcher.api:main"
 ghost-mcp = "mcp_server.server:main"
 ghost-demo = "ghost_dispatcher.demo:main"
+ghost-eval = "ghost_dispatcher.evaluation.run:main"
 
 [build-system]
 requires = ["hatchling"]

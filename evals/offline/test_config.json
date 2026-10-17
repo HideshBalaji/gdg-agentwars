@@ -1,0 +1,11 @@
+{
+  "criteria": {
+    "tool_trajectory_avg_score": { "threshold": 1.0, "match_type": "EXACT" },
+    "groundedness": 1.0,
+    "pii_free": 1.0
+  },
+  "custom_metrics": {
+    "groundedness": { "code_config": { "name": "ghost_dispatcher.evaluation.metrics.groundedness" } },
+    "pii_free": { "code_config": { "name": "ghost_dispatcher.evaluation.metrics.pii_free" } }
+  }
+}

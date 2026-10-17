@@ -2,15 +2,21 @@ PY ?= python3
 VENV ?= .venv
 BIN = $(VENV)/bin
 
-.PHONY: setup test lint docker-build docker-test api mcp carrier demo ui-setup ui ui-build ui-preview verify clean
+.PHONY: setup test lint eval eval-live docker-build docker-test api mcp carrier demo ui-setup ui ui-build ui-preview verify clean
 
 setup:  ## Create .venv and install the project with dev tools
 	$(PY) -m venv $(VENV)
 	$(BIN)/pip install -U pip
-	$(BIN)/pip install -e ".[dev]"
+	$(BIN)/pip install -e ".[dev,eval]"
 
 test:  ## Run the test suite (no API keys needed)
 	$(BIN)/pytest -q
+
+eval:  ## Agent evals + guardrails: ADK trajectory/groundedness/PII, leak test, hallucination set
+	$(BIN)/ghost-eval
+
+eval-live:  ## Same evals on real Gemini plus the hallucinations_v1 judge (needs live .env)
+	$(BIN)/ghost-eval --live
 
 lint:  ## Lint with ruff
 	$(BIN)/ruff check ghost_dispatcher mcp_server mock_services tests
@@ -39,7 +45,7 @@ ui-build:  ## Typecheck and build the control room into ui/dist
 ui-preview:  ## Serve the built control room, http://localhost:4173
 	npm --prefix ui run preview
 
-verify: lint test demo ui-build  ## Everything an evaluator needs: lint, tests, offline demo, UI build
+verify: lint test eval demo ui-build  ## Everything an evaluator needs: lint, tests, evals, offline demo, UI build
 
 docker-build:  ## Build the container image
 	docker compose build

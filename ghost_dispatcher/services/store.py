@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from ghost_dispatcher.models.contracts import Event
+from ghost_dispatcher.services.guardrails import redact
 
 
 class DomainError(Exception):
@@ -80,6 +81,8 @@ class Store:
         return [json.loads(row["payload"]) for row in rows]
 
     def emit(self, incident_id, event_type, data):
+        # Output guardrail: nothing personal reaches the event stream or the UI.
+        data = redact(data)
         with self.connection() as db:
             cursor = db.execute(
                 "INSERT INTO events(incident_id,type,at,data) VALUES(?,?,?,?)",

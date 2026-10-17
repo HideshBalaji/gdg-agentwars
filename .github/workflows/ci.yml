@@ -20,11 +20,13 @@ jobs:
           cache: pip
           cache-dependency-path: pyproject.toml
       - name: Install
-        run: pip install -e ".[dev]"
+        run: pip install -e ".[dev,eval]"
       - name: Lint
         run: ruff check ghost_dispatcher mcp_server mock_services tests
       - name: Test
         run: pytest -q
+      - name: Agent evals and guardrails
+        run: ghost-eval
       - name: Offline agent demo
         run: ghost-demo
 

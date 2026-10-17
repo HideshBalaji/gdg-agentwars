@@ -35,9 +35,9 @@ All cargo, carrier bookings and Google actions in offline mode are **simulated a
 ```bash
 git clone https://github.com/HideshBalaji/gdg-agentwars.git
 cd gdg-agentwars
-make setup      # creates .venv and installs the Python package + dev tools
+make setup      # creates .venv and installs the Python package + dev and eval tools
 make ui-setup   # installs the control room's npm dependencies (npm ci)
-make verify     # lint + 42 tests + offline agent demo + UI typecheck/build
+make verify     # lint + 71 tests + agent evals + offline agent demo + UI typecheck/build
 ```
 
 `make verify` must exit 0. It runs:
@@ -45,7 +45,8 @@ make verify     # lint + 42 tests + offline agent demo + UI typecheck/build
 | Step | Command | What it proves |
 |---|---|---|
 | Lint | `make lint` | `ruff` passes on all Python sources |
-| Tests | `make test` | `pytest`: domain rules, API, real local MCP transport, ADK handovers, carrier fallback, feedback, persistence |
+| Tests | `make test` | `pytest`: domain rules, API, real local MCP transport, ADK handovers, carrier fallback, feedback, persistence, PII guardrails, groundedness |
+| Agent evals | `make eval` | ADK `AgentEvaluator` on the real team (exact tool trajectory, groundedness, PII-free), an end-to-end PII leak test over API/events/both databases, a labelled hallucination set, and per-reply groundedness in a 6-turn conversation. See [docs/GUARDRAILS_AND_EVALS.md](docs/GUARDRAILS_AND_EVALS.md) |
 | Offline demo | `make demo` | A real ADK conversation (deterministic model double) hands over to Route & Risk, the primary carrier is killed, the rescue finishes through a backup, then feedback lowers the cost of a comparable incident |
 | UI build | `make ui-build` | TypeScript typecheck + production build of the control room into `ui/dist` |
 
@@ -312,6 +313,7 @@ Backend settings come from environment variables (copy `.env.example` to `.env` 
 |---|---|---|
 | `GHOST_MODE` | `offline` | `offline` (deterministic, no external calls) or `live` (Gemini through ADK) |
 | `GHOST_API_TOKEN` | `ghost-demo` | Bearer token for `/api/*` and MCP. Live mode requires a private value of ≥ 24 chars |
+| `GHOST_PII_MODE` | `redact` | `redact` replaces personal data with `[REDACTED:KIND]` and continues; `block` rejects requests containing it with 422 |
 | `GHOST_DATABASE` | `runs/ghost.sqlite` | SQLite file; use a fresh path to replay demos |
 | `GHOST_DATASET` / `GHOST_DATA_DIR` / `GHOST_SEED_FILE` | `collected` / `data` / empty | Team-collected pack (10 trucks, 20 shipments, 3 carriers, 3 hubs), the `builtin` developer fixture, or a custom normalized seed |
 | `GHOST_UI_ORIGIN` | `http://localhost:3000` | CORS origin if the UI calls the API directly instead of through the Vite proxy |
@@ -350,12 +352,14 @@ The step-by-step guide, OAuth scopes and reconciliation rules are in [docs/BACKE
 ```bash
 make test        # pytest, offline
 make lint        # ruff
+make eval        # agent evals + PII/groundedness guardrails → runs/eval-report.json
+make eval-live   # same on real Gemini + hallucinations_v1 LLM judge (needs live .env)
 make demo        # offline end-to-end agent demo (also scripts/demo.sh)
 make ui-build    # UI typecheck + build
-make verify      # all of the above
+make verify      # lint, test, eval, demo, ui-build
 ```
 
-CI (`.github/workflows/ci.yml`) runs on every push to `main` and every pull request: Python lint, tests and the offline demo on 3.12; the UI typecheck and build on Node 20; and a container build that runs the tests.
+CI (`.github/workflows/ci.yml`) runs on every push to `main` and every pull request: Python lint, tests, agent evals and the offline demo on 3.12; the UI typecheck and build on Node 20; and a container build that runs the tests.
 
 ```bash
 docker compose build
@@ -392,6 +396,9 @@ docker compose run --rm app   # runs pytest inside the container
 | MCP integration | `logistics-mcp` (official MCP SDK) with 8 tools, authenticated, used by ADK specialists | `make mcp`; `tests/test_mcp.py` drives the real transport |
 | Feedback loop | Rating → scoped preference → changed ranking | Live UI: 👎 → **Run comparable incident** → *Decision changed by feedback* (₹18,500 → ₹12,000); `make demo`; `tests/test_api.py::test_demo_reset_replays_comparable_incident_with_learned_preference` |
 | Self-healing | Carrier killed mid-booking → retries → circuit → fallback → recovered; validation loop; tool repair | Live mode **KILL NOW** → Healing Log; `make demo` prints `healing_events` |
+| PII guardrails (input and output) | Phone, email, Aadhaar, card, PAN and UPI redacted at API input (or rejected with 422 in `GHOST_PII_MODE=block`), in ADK `before_model`/`after_tool`/`after_model` callbacks, MCP outputs, the event stream and JSON responses; `guardrail` events record kind and count only | `make eval` → `pii_end_to_end` (zero leaks across API, SSE and both SQLite stores); `tests/test_guardrails.py`; [docs/GUARDRAILS_AND_EVALS.md](docs/GUARDRAILS_AND_EVALS.md) |
+| Agent evaluation (groundedness, truthfulness) | ADK eval sets with exact tool-trajectory plus custom `groundedness` and `pii_free` metrics; every reply is checked at runtime against its tool results and flagged if unsupported; `hallucinations_v1` judge on live runs | `make eval` (4 suites, CI-gated); `make eval-live`; reply `grounding` field and `grounding` SSE events |
+| Multi-agent orchestration | Root dispatcher + 7 specialists via ADK `transfer_to_agent` (capped, allow-listed), `LoopAgent` plan/validate (≤ 3), shared session state, MCP tools for specialists | `tests/test_agents.py`; trajectory metric in `make eval` |
 | A–Z instructions | This README, [AGENTS.md](AGENTS.md), `make verify`, CI, Docker | Section 1 |
 
 ---
@@ -404,9 +411,13 @@ ghost_dispatcher/        # ADK package and FastAPI backend
 ├── api.py               # REST + SSE contract used by the UI (make api)
 ├── agents/              # team.py (8 agents), conversations.py (ADK runner/sessions), offline model double
 ├── models/contracts.py  # shared Pydantic contracts
-├── services/            # dispatcher (plan/execute/feedback), validation, recovery, store, seeds
+├── services/            # dispatcher (plan/execute/feedback), validation, recovery, store, seeds,
+│                        # guardrails.py (PII), grounding.py (truthfulness)
+├── http_guard.py        # PII middleware: block/redact JSON input, redact JSON output
+├── evaluation/          # ADK eval agent, custom metrics, `make eval` runner
 ├── tools/               # carriers, routing, Google adapters (offline + live)
 └── demo.py              # make demo
+evals/                   # ADK eval sets + config, labelled grounding cases
 mcp_server/server.py     # logistics-mcp (make mcp)
 mock_services/           # carrier API with /kill and /revive (make carrier)
 ui/                      # React + Vite + Tailwind + Framer Motion control room (make ui)
@@ -415,7 +426,7 @@ ui/                      # React + Vite + Tailwind + Framer Motion control room 
 └── src/lib/demo/        # scripted demo engine and breakdown scenario
 data/                    # collected synthetic fleet, scenarios, sensor traces, media, references
 tests/                   # pytest suite
-docs/                    # BACKEND.md (API/data/live setup), evidence.md
+docs/                    # BACKEND.md (API/data/live setup), GUARDRAILS_AND_EVALS.md, evidence.md
 PLAN.md                  # design, team split, demo script
 AGENTS.md                # exact commands for automated evaluators
 ```

@@ -15,6 +15,7 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from ghost_dispatcher.agents.conversations import Conversations
 from ghost_dispatcher.agents.team import AGENTS
 from ghost_dispatcher.config import Settings
+from ghost_dispatcher.http_guard import PiiGuardMiddleware
 from ghost_dispatcher.models.contracts import (
     ChatReply,
     Conversation,
@@ -26,6 +27,7 @@ from ghost_dispatcher.models.contracts import (
     Message,
     Plan,
 )
+from ghost_dispatcher.services import guardrails
 from ghost_dispatcher.services.dispatcher import DispatcherService
 from ghost_dispatcher.services.store import DomainError
 
@@ -54,12 +56,19 @@ def create_app(settings=None):
 
     app = FastAPI(title="Ghost Dispatcher API", version="1.0.0", lifespan=lifespan)
     app.state.service = service
+    app.add_middleware(PiiGuardMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[settings.origin],
         allow_methods=["GET", "POST"],
         allow_headers=["Authorization", "Content-Type", "Last-Event-ID"],
     )
+
+    def record_redactions(incident_id, field):
+        if counts := guardrails.collected():
+            service.store.emit(
+                incident_id, "guardrail", {"stage": "input", "field": field, **guardrails.summary(counts)}
+            )
 
     def authenticate(authorization: str = Header(default="")):
         if not hmac.compare_digest(authorization, f"Bearer {settings.token}"):
@@ -85,7 +94,12 @@ def create_app(settings=None):
 
     @app.get("/health")
     def health():
-        return {"status": "ok", "mode": settings.mode, "schema_version": 1}
+        return {
+            "status": "ok",
+            "mode": settings.mode,
+            "schema_version": 1,
+            "pii_mode": guardrails.mode(),
+        }
 
     @app.get("/api/agents", dependencies=protected)
     def agents():
@@ -101,7 +115,9 @@ def create_app(settings=None):
 
     @app.post("/api/incidents", dependencies=protected, status_code=201, response_model=Incident)
     def create_incident(request: IncidentCreate):
-        return service.create_incident(request)
+        incident = service.create_incident(request)
+        record_redactions(incident.id, "description")
+        return incident
 
     @app.get("/api/incidents/{incident_id}", dependencies=protected, response_model=Incident)
     def incident(incident_id: str):
@@ -119,7 +135,9 @@ def create_app(settings=None):
 
     @app.post("/api/incidents/{incident_id}/feedback", dependencies=protected, status_code=201)
     def feedback(incident_id: str, request: Feedback):
-        return service.feedback(incident_id, request)
+        result = service.feedback(incident_id, request)
+        record_redactions(incident_id, "feedback.reason")
+        return result
 
     @app.get("/api/preferences", dependencies=protected)
     def preferences():
@@ -186,7 +204,10 @@ def create_app(settings=None):
         response_model=ChatReply,
     )
     async def send(conversation_id: str, request: Message):
-        return await conversations.send(conversation_id, request)
+        reply = await conversations.send(conversation_id, request)
+        incident_id = service.store.get("conversation", conversation_id)["incident_id"]
+        record_redactions(incident_id, "message.text")
+        return reply
 
     @app.get("/api/incidents/{incident_id}/events", dependencies=protected)
     async def events(

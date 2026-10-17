@@ -1,0 +1,188 @@
+{
+  "eval_set_id": "ghost_dispatcher_offline",
+  "name": "Ghost Dispatcher offline agent evals",
+  "description": "Trajectory, groundedness and PII checks on the real ADK team with the deterministic offline model.",
+  "eval_cases": [
+    {
+      "eval_id": "plan_rescue",
+      "conversation": [
+        {
+          "invocation_id": "plan_rescue-1",
+          "user_content": {
+            "parts": [
+              {
+                "text": "Plan a rescue for this breakdown."
+              }
+            ],
+            "role": "user"
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "args": {
+                  "agent_name": "route_risk"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {},
+                "name": "plan_rescue"
+              }
+            ],
+            "tool_responses": [],
+            "intermediate_responses": []
+          },
+          "creation_timestamp": 0.0
+        }
+      ],
+      "session_input": {
+        "app_name": "ghost_dispatcher",
+        "user_id": "eval",
+        "state": {
+          "incident_id": "eval-incident-001",
+          "active_agent": "dispatcher",
+          "handover_count": 0
+        }
+      },
+      "creation_timestamp": 0.0,
+      "final_session_state": {}
+    },
+    {
+      "eval_id": "pii_in_message",
+      "conversation": [
+        {
+          "invocation_id": "pii_in_message-1",
+          "user_content": {
+            "parts": [
+              {
+                "text": "Plan a rescue. Driver phone +91 98765 43210, Aadhaar 1234 5678 9012, card 4111 1111 1111 1111, email ravi.k@example.com."
+              }
+            ],
+            "role": "user"
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "args": {
+                  "agent_name": "route_risk"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {},
+                "name": "plan_rescue"
+              }
+            ],
+            "tool_responses": [],
+            "intermediate_responses": []
+          },
+          "creation_timestamp": 0.0
+        }
+      ],
+      "session_input": {
+        "app_name": "ghost_dispatcher",
+        "user_id": "eval",
+        "state": {
+          "incident_id": "eval-incident-001",
+          "active_agent": "dispatcher",
+          "handover_count": 0
+        }
+      },
+      "creation_timestamp": 0.0,
+      "final_session_state": {}
+    },
+    {
+      "eval_id": "switch_to_validator",
+      "conversation": [
+        {
+          "invocation_id": "switch_to_validator-1",
+          "user_content": {
+            "parts": [
+              {
+                "text": "Switch to validator. Is the current plan valid?"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "args": {
+                  "agent_name": "validator"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {},
+                "name": "validate_current_plan"
+              }
+            ],
+            "tool_responses": [],
+            "intermediate_responses": []
+          },
+          "creation_timestamp": 0.0
+        }
+      ],
+      "session_input": {
+        "app_name": "ghost_dispatcher",
+        "user_id": "eval",
+        "state": {
+          "incident_id": "eval-incident-001",
+          "active_agent": "dispatcher",
+          "handover_count": 0
+        }
+      },
+      "creation_timestamp": 0.0,
+      "final_session_state": {}
+    },
+    {
+      "eval_id": "feedback_too_expensive",
+      "conversation": [
+        {
+          "invocation_id": "feedback_too_expensive-1",
+          "user_content": {
+            "parts": [
+              {
+                "text": "Too expensive, we had slack. Prefer the cheaper carrier."
+              }
+            ],
+            "role": "user"
+          },
+          "intermediate_data": {
+            "tool_uses": [
+              {
+                "args": {
+                  "agent_name": "critic"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {
+                  "rating": "down",
+                  "reason": "too expensive, we had slack. prefer the cheaper carrier.",
+                  "prefer_cheaper_when_slack": true
+                },
+                "name": "record_feedback"
+              }
+            ],
+            "tool_responses": [],
+            "intermediate_responses": []
+          },
+          "creation_timestamp": 0.0
+        }
+      ],
+      "session_input": {
+        "app_name": "ghost_dispatcher",
+        "user_id": "eval",
+        "state": {
+          "incident_id": "eval-incident-001",
+          "active_agent": "dispatcher",
+          "handover_count": 0
+        }
+      },
+      "creation_timestamp": 0.0,
+      "final_session_state": {}
+    }
+  ],
+  "creation_timestamp": 0.0
+}

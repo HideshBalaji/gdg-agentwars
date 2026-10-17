@@ -1,6 +1,8 @@
 """Authenticated MCP transport; shares typed operations with the HTTP API."""
 
+import functools
 import hmac
+import inspect
 
 import httpx
 from mcp.server.fastmcp import FastMCP
@@ -9,11 +11,27 @@ from starlette.responses import JSONResponse
 
 from ghost_dispatcher.config import Settings
 from ghost_dispatcher.services.dispatcher import DispatcherService
+from ghost_dispatcher.services.guardrails import redact
 from ghost_dispatcher.services.store import DomainError
 
 
 def build_mcp(service):
     mcp = FastMCP("logistics-mcp", stateless_http=True, json_response=True)
+
+    def tool(fn):
+        """Register an MCP tool whose result is PII-redacted before it leaves the server."""
+        if inspect.iscoroutinefunction(fn):
+
+            @functools.wraps(fn)
+            async def wrapper(*args, **kwargs):
+                return redact(await fn(*args, **kwargs))
+        else:
+
+            @functools.wraps(fn)
+            def wrapper(*args, **kwargs):
+                return redact(fn(*args, **kwargs))
+
+        return mcp.tool()(wrapper)
 
     async def write(path, payload=None):
         # Mutations go to the API worker so HTTP and MCP share incident locks.
@@ -24,12 +42,12 @@ def build_mcp(service):
             response.raise_for_status()
             return response.json()
 
-    @mcp.tool()
+    @tool
     def get_shipment(shipment_id: str) -> dict:
         """Retrieve current cargo, temperature constraints, deadline and assigned truck."""
         return service.store.get("shipment", shipment_id)
 
-    @mcp.tool()
+    @tool
     def list_trucks_near(
         lat: float, lng: float, radius_km: float = 100, needs_reefer: bool = True
     ) -> list[dict]:
@@ -38,12 +56,12 @@ def build_mcp(service):
             raise ValueError("radius_km must be between 0 and 500")
         return service.trucks_near(lat, lng, radius_km, needs_reefer)
 
-    @mcp.tool()
+    @tool
     def get_temperature_history(truck_id: str) -> list[dict]:
         """Read timestamped temperature evidence; do not infer medical safety."""
         return service.store.get("truck", truck_id)["temperature_history"]
 
-    @mcp.tool()
+    @tool
     def find_cold_hubs_near(lat: float, lng: float) -> list[dict]:
         """Return demo receiving hubs with available capacity."""
         from ghost_dispatcher.models.contracts import Location
@@ -57,7 +75,7 @@ def build_mcp(service):
             and distance_km(location, Location.model_validate(row["location"])) <= 500
         ]
 
-    @mcp.tool()
+    @tool
     def list_carriers(region: str | None = None) -> list[dict]:
         """List configured carriers and their expiring circuit-breaker status."""
         availability = service.recovery.availability()
@@ -67,7 +85,7 @@ def build_mcp(service):
             if region is None or row["region"] == region
         ]
 
-    @mcp.tool()
+    @tool
     async def assign_load(incident_id: str, truck_id: str) -> dict:
         """Execute an incident's validated plan; no arbitrary stock or vehicle changes."""
         incident = service.incident(incident_id)
@@ -75,7 +93,7 @@ def build_mcp(service):
             raise DomainError("plan_mismatch", "Create a matching validated plan first")
         return await write(f"/api/incidents/{incident_id}/execute")
 
-    @mcp.tool()
+    @tool
     def book_dock_slot(incident_id: str) -> dict:
         """Read the dock reservation receipt. Reservation is atomic with load assignment."""
         incident = service.incident(incident_id)
@@ -83,7 +101,7 @@ def build_mcp(service):
             raise DomainError("assignment_required", "Execute the validated assignment first")
         return incident.actions["assignment"]
 
-    @mcp.tool()
+    @tool
     async def log_incident(shipment_id: str, description: str) -> dict:
         """Create a breakdown incident. Existing action history cannot be overwritten."""
         return await write(

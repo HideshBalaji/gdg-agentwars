@@ -3,9 +3,13 @@
 from datetime import datetime
 from typing import Annotated, Literal
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
+from pydantic import AfterValidator, AwareDatetime, BaseModel, ConfigDict, Field, model_validator
+
+from ghost_dispatcher.services.guardrails import guard_input
 
 Identifier = Annotated[str, Field(pattern=r"^[A-Za-z0-9_-]{1,80}$")]
+# Free text from people: personal data is redacted on parse, before storage or Gemini.
+SafeText = Annotated[str, AfterValidator(guard_input)]
 AgentName = Literal[
     "dispatcher", "intake", "route_risk", "negotiator", "comms", "validator", "watchdog", "critic"
 ]
@@ -122,7 +126,7 @@ class Seed(Contract):
 class IncidentCreate(Contract):
     shipment_id: Identifier
     type: Literal["truck_breakdown", "fridge_failure", "customer_unavailable", "damaged_delivery"]
-    description: str = Field(min_length=1, max_length=4000)
+    description: SafeText = Field(min_length=1, max_length=4000)
     evidence_ids: list[Identifier] = Field(default_factory=list, max_length=10)
 
 
@@ -163,12 +167,12 @@ class Incident(IncidentCreate):
 
 class Feedback(Contract):
     rating: Literal["up", "down"]
-    reason: str = Field(min_length=1, max_length=1000)
+    reason: SafeText = Field(min_length=1, max_length=1000)
     prefer_cheaper_when_slack: bool = False
 
 
 class Message(Contract):
-    text: str = Field(min_length=1, max_length=8000)
+    text: SafeText = Field(min_length=1, max_length=8000)
     evidence_ids: list[Identifier] = Field(default_factory=list, max_length=10)
     target_agent: AgentName | None = None
 

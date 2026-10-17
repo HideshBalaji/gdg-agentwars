@@ -11,9 +11,9 @@ The agent/backend core, collected dataset adapter, offline demo, API, MCP, recov
 Requires Python 3.12+, Node.js 18+ with npm, and `make`, or Docker (Python only).
 
 ```bash
-make setup      # create .venv and install the project with dev tools
+make setup      # create .venv and install the project with dev and eval tools
 make ui-setup   # npm ci for the control room in ui/
-make verify     # lint + tests + offline demo + UI typecheck/build; must exit 0
+make verify     # lint + tests + agent evals + offline demo + UI typecheck/build; must exit 0
 ```
 
 Individual steps, each must exit 0:
@@ -21,6 +21,7 @@ Individual steps, each must exit 0:
 ```bash
 make lint       # ruff
 make test       # pytest (offline, no keys)
+make eval       # ADK evals (trajectory, groundedness, PII-free) + PII leak test + hallucination set; report in runs/eval-report.json
 make demo       # offline ADK handover, carrier outage recovery, feedback cost change
 make ui-build   # tsc --noEmit && vite build in ui/
 ```
