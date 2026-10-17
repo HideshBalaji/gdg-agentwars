@@ -30,6 +30,8 @@ import { fmtTime, uid } from '../lib/format';
 import { apply, nowIso, useStore, type FeedItem } from '../lib/store';
 import { COMPARABLE, rate, runComparable, startBreakdown, toggleCarrier } from '../lib/actions';
 import { liveSend } from '../lib/live';
+import { blockIfPii } from '../lib/pii';
+import { demoReply } from '../lib/demo/chat';
 import { ACCEPT_ATTR, addFiles, addSamples, fmtBytes, removePending, takeReady, toggleRecording } from '../lib/evidence';
 import { AgentAvatar, Button, Card, EmptyState, Kbd, Pill, Segmented, type Tone } from './ui';
 
@@ -415,12 +417,17 @@ export function Composer() {
     if (!text) return;
     if (useStore.getState().mode === 'live') void liveSend(text);
     else {
+      // Same rule as the backend: refuse personal data instead of showing it.
+      if (blockIfPii(text, 'chat')) {
+        setDraft('');
+        return;
+      }
       const attachments = takeReady();
       apply({ type: 'message', message: { id: uid('m'), at: nowIso(), role: 'user', text, attachments: attachments.length ? attachments : undefined } });
       if (useStore.getState().incident) attachments.forEach((ev) => apply({ type: 'incident.evidence', evidence: ev }));
       if (attachments.length) {
         apply({ type: 'message', message: { id: uid('m'), at: nowIso(), role: 'agent', agent: 'intake', text: 'Received. Demo mode keeps evidence in the browser; switch to Live to upload it to the backend, where Gemini Intake reads it.' } });
-      }
+      } else demoReply(text);
     }
     setDraft('');
   };

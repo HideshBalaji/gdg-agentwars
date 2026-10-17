@@ -11,6 +11,7 @@ import { ACCEPT_ATTR, addFiles, addSamples, fmtBytes, removePending, toggleRecor
 import { ActionRow, Attachment, ChaosCallout, HealingRow, QualityBadge, RatingCard } from './Activity';
 import { Comparison, Plans } from './Panels';
 import { MapPanel } from './MapView';
+import { CHAT_REPLY } from '../lib/demo/chat';
 import { MetricsCard, useTick } from './Metrics';
 import { AgentAvatar, Button, Kbd, Pill } from './ui';
 
@@ -229,7 +230,7 @@ function StepBody({ stage, live }: { stage: Stage; live: boolean }) {
   const s = useStore();
   const inc = s.incident!;
   const quote = (agents: AgentId[]) => {
-    const msgs = messagesIn(stage, s, (m) => m.role === 'agent' && !!m.agent && agents.includes(m.agent));
+    const msgs = messagesIn(stage, s, (m) => m.role === 'agent' && !!m.agent && agents.includes(m.agent) && m.author !== CHAT_REPLY);
     const m = msgs[msgs.length - 1];
     return m ? <Quote message={m} /> : live ? <Waiting /> : null;
   };
@@ -530,6 +531,16 @@ function SafetySummary() {
   const avg = (k: 'groundedness' | 'truthfulness') => evaluations.length ? Math.round((evaluations.reduce((n, e) => n + e[k], 0) / evaluations.length) * 100) : 100;
   const flagged = evaluations.filter((e) => e.hallucinated).length;
   const simulated = evaluations.some((e) => e.simulated);
+  if (!evaluations.length) {
+    return (
+      <div className="flex items-start gap-2 rounded-lg border border-line bg-surface p-3 text-xs">
+        <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green" />
+        <span className="text-fg-2">
+          PII guardrail: {guardrails.length} event{guardrails.length === 1 ? '' : 's'} ({[...new Set(guardrails.flatMap((g) => g.types))].join(', ')}). Reply quality checks (groundedness, truthfulness) run on the live backend.
+        </span>
+      </div>
+    );
+  }
   return (
     <div className="rounded-lg border border-line bg-surface p-3 text-xs">
       <div className="flex items-center gap-2 font-medium text-fg"><ShieldCheck className="h-3.5 w-3.5 text-green" />Safety and quality</div>

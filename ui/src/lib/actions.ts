@@ -9,6 +9,7 @@ import { CARRIER_SYSTEMS } from './meta';
 import { apply, nowIso, recordRating, resetAll, resetIncident, setHealth, useStore } from './store';
 import { makeCtx, type Run } from './demo/engine';
 import { breakdown } from './demo/breakdown';
+import { blockIfPii } from './pii';
 import { COMPARABLE, liveComparable, liveHealth, liveRate, liveStart, liveToggleCarrier } from './live';
 
 export { COMPARABLE };
@@ -67,6 +68,8 @@ export const toggleSpeed = () => useStore.setState((s) => ({ speed: s.speed === 
 export async function rate(thumbs: 'up' | 'down', reason: string) {
   // Live mode echoes the rating only after the backend accepts it (the PII guardrail may refuse it).
   if (isLive()) return liveRate(thumbs, reason);
+  // Demo mode applies the backend's rule in the browser: the rating box stays open to fix it.
+  if (blockIfPii(reason, 'feedback')) return;
   apply({ type: 'message', message: { id: uid('m'), at: nowIso(), role: 'user', text: `${thumbs === 'up' ? 'Good call' : 'Needs work'}: ${reason}` } });
   recordRating({ thumbs, reason });
   const ctx = makeCtx({ cancelled: false, cleanups: [] });
