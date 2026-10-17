@@ -65,8 +65,9 @@ export function resetView() {
 export const toggleSpeed = () => useStore.setState((s) => ({ speed: s.speed === 1 ? 2 : 1 }));
 
 export async function rate(thumbs: 'up' | 'down', reason: string) {
-  apply({ type: 'message', message: { id: uid('m'), at: nowIso(), role: 'user', text: `${thumbs === 'up' ? 'Good call' : 'Needs work'}: ${reason}` } });
+  // Live mode echoes the rating only after the backend accepts it (the PII guardrail may refuse it).
   if (isLive()) return liveRate(thumbs, reason);
+  apply({ type: 'message', message: { id: uid('m'), at: nowIso(), role: 'user', text: `${thumbs === 'up' ? 'Good call' : 'Needs work'}: ${reason}` } });
   recordRating({ thumbs, reason });
   const ctx = makeCtx({ cancelled: false, cleanups: [] });
   await ctx.handover('critic', 'Learn from the rating');

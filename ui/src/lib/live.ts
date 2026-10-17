@@ -2,11 +2,11 @@
  * Live mode: talks to the FastAPI backend (ghost_dispatcher/api.py, see docs/BACKEND.md)
  * through the Vite proxy and maps its SSE events onto the UI's GhostEvents.
  */
-import type { AgentId, Evidence, LatLng, Plan, Place, Stage, SystemId } from './contract';
+import type { AgentId, Evaluation, Evidence, LatLng, Plan, Place, Stage, SystemId } from './contract';
 import { STAGES } from './contract';
 import { fmtInr, fmtTime, uid } from './format';
 import { MAP_H, MAP_W, project } from './geo';
-import { apply, nowIso, recordRating, resetIncident, toast, useStore, type Choice } from './store';
+import { addGuardrail, apply, attachEvaluation, nowIso, recordRating, resetIncident, toast, useStore, type Choice } from './store';
 import { takeReady, uploading } from './evidence';
 
 const TOKEN = import.meta.env.VITE_API_TOKEN || 'ghost-demo';
@@ -31,6 +31,10 @@ function advance(stage: Stage) {
 }
 /** Set while a comparable incident runs: the rated incident's first choice. */
 let compareBaseline: Choice | null = null;
+/** Evaluations that arrived before the reply they score, keyed by agent. */
+const pendingEval = new Map<AgentId, Evaluation>();
+const piiBlocked = (e: unknown) => /^pii_blocked:/.test((e as Error).message ?? '');
+const blockedNote = (e: unknown) => (e as Error).message.replace(/^pii_blocked:\s*/, '');
 
 async function api<T = any>(path: string, init: RequestInit = {}): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
@@ -91,8 +95,9 @@ function toPlan(c: any, attempt: number): Plan {
 function prettify(text: string) {
   const body = text.replace(/^\[SIMULATED[^\]]*\]\s*/, '');
   try {
-    const raw = JSON.parse(body);
-    // Replies carry either a plan or a whole incident (with its plan).
+    const parsed = JSON.parse(body);
+    // Replies carry a plan, an incident (with its plan), or {"incident": {...}} from newer backends.
+    const raw = parsed?.incident && typeof parsed.incident === 'object' ? { ...parsed.incident, ...(parsed.plan ? { plan: parsed.plan } : {}) } : parsed;
     const p = raw?.chosen ? raw : raw?.plan;
     const status = raw?.status && raw?.plan ? `Incident ${raw.status}. ` : '';
     if (p?.chosen) {
@@ -231,9 +236,33 @@ function handle(type: string, data: any) {
     case 'handover':
       apply({ type: 'agent.handover', to: agentOf(data.to), reason: data.reason ?? 'handover' });
       return;
-    case 'message':
-      apply({ type: 'message', message: { id: uid('msg'), at: nowIso(), role: 'agent', agent: agentOf(data.agent), text: prettify(String(data.text ?? '')) } });
+    case 'message': {
+      const id = uid('msg');
+      const agent = agentOf(data.agent);
+      apply({ type: 'message', message: { id, at: nowIso(), role: 'agent', agent, text: prettify(String(data.text ?? '')) } });
+      const pending = pendingEval.get(agent);
+      if (pending) {
+        pendingEval.delete(agent);
+        attachEvaluation(id, pending);
+      }
       return;
+    }
+    case 'guardrail':
+      addGuardrail({ id: data.id ?? uid('guard'), surface: String(data.surface ?? 'input'), action: data.action === 'blocked' ? 'blocked' : 'redacted', types: data.types ?? [], count: data.count ?? 0, engine: data.engine, degraded: !!data.degraded, at: data.at ?? nowIso() });
+      return;
+    case 'evaluation': {
+      // Attach to the newest reply from that agent that has no evaluation yet; it may arrive first.
+      const evaluation: Evaluation = {
+        id: data.id ?? uid('eval'), agent: String(data.agent ?? ''), groundedness: Number(data.groundedness ?? 1), truthfulness: Number(data.truthfulness ?? 1),
+        hallucinated: !!data.hallucinated, claims: data.claims ?? 0, state_checks: data.state_checks ?? 0,
+        unsupported: data.unsupported ?? [], contradictions: data.contradictions ?? [], simulated: !!data.simulated,
+      };
+      const agent = agentOf(evaluation.agent);
+      const target = [...useStore.getState().feed].reverse().find((f) => f.kind === 'message' && f.message.role === 'agent' && f.message.agent === agent && !f.message.evaluation);
+      if (target && target.kind === 'message') attachEvaluation(target.message.id, evaluation);
+      else pendingEval.set(agent, evaluation);
+      return;
+    }
     case 'feedback.saved':
       loadPreferences(data.reason);
       return;
@@ -444,30 +473,35 @@ export async function liveSend(text: string, silent = false) {
   }
   const evidence = silent ? [] : takeReady();
   const evidenceIds = evidence.map((e) => e.backend_id).filter((id): id is string => !!id);
-  apply({ type: 'message', message: { id: uid('msg'), at: nowIso(), role: 'user', text: silent ? `${text} (auto)` : text, attachments: evidence.length ? evidence : undefined } });
-  for (const e of evidence) apply({ type: 'incident.evidence', evidence: e });
   const asked = useStore.getState().owner;
   apply({ type: 'agent.status', agent: asked, status: 'thinking' });
   try {
     const reply = await api<any>(`/api/conversations/${conversationId}/messages`, { method: 'POST', body: JSON.stringify({ text, evidence_ids: evidenceIds }) });
+    // Shown only after the backend accepted it, so text refused by the PII guardrail never appears.
+    apply({ type: 'message', message: { id: uid('msg'), at: nowIso(), role: 'user', text: silent ? `${text} (auto)` : text, attachments: evidence.length ? evidence : undefined } });
+    for (const e of evidence) apply({ type: 'incident.evidence', evidence: e });
     apply({ type: 'agent.status', agent: asked, status: 'idle' });
     apply({ type: 'agent.handover', to: agentOf(reply.active_agent), reason: 'Specialist owns the conversation' });
     // Replies are also streamed as `message` events; only render them here if streaming missed them.
     apply({ type: 'agent.status', agent: agentOf(reply.active_agent), status: 'idle' });
   } catch (e) {
     apply({ type: 'agent.status', agent: asked, status: 'idle' });
-    toast({ tone: 'bad', title: 'Chat failed', body: (e as Error).message });
+    if (piiBlocked(e)) {
+      apply({ type: 'message', message: { id: uid('msg'), at: nowIso(), role: 'system', text: `PII guardrail blocked your message: ${blockedNote(e)}` } });
+      toast({ tone: 'info', title: 'Message not sent', body: 'It contained personal information' });
+    } else toast({ tone: 'bad', title: 'Chat failed', body: (e as Error).message });
   }
 }
 
 export async function liveRate(thumbs: 'up' | 'down', reason: string) {
-  recordRating({ thumbs, reason });
-  apply({ type: 'agent.handover', to: 'critic', reason: 'Learn from the rating' });
   try {
     await api(`/api/incidents/${incidentId}/feedback`, {
       method: 'POST',
       body: JSON.stringify({ rating: thumbs, reason, prefer_cheaper_when_slack: /expens|cost|cheap|price/i.test(reason) }),
     });
+    recordRating({ thumbs, reason });
+    apply({ type: 'message', message: { id: uid('m'), at: nowIso(), role: 'user', text: `${thumbs === 'up' ? 'Good call' : 'Needs work'}: ${reason}` } });
+    apply({ type: 'agent.handover', to: 'critic', reason: 'Learn from the rating' });
     const cost = /expens|cost|cheap|price/i.test(reason);
     apply({
       type: 'message',
@@ -480,7 +514,10 @@ export async function liveRate(thumbs: 'up' | 'down', reason: string) {
       },
     });
   } catch (e) {
-    toast({ tone: 'bad', title: 'Feedback failed', body: (e as Error).message });
+    if (piiBlocked(e)) {
+      apply({ type: 'message', message: { id: uid('msg'), at: nowIso(), role: 'system', text: `PII guardrail blocked the feedback: ${blockedNote(e)}` } });
+      toast({ tone: 'info', title: 'Feedback not saved', body: 'Remove the personal information and rate again' });
+    } else toast({ tone: 'bad', title: 'Feedback failed', body: (e as Error).message });
   }
 }
 

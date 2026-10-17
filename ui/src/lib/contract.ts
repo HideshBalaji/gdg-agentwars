@@ -157,6 +157,34 @@ export interface ChatMessage {
   text: string;
   attachments?: Evidence[];
   quick_replies?: string[];
+  /** Deterministic quality check of an agent reply (live backend `evaluation` event). */
+  evaluation?: Evaluation;
+}
+
+/** Backend `evaluation` event: is an agent reply backed by tool results and the store? */
+export interface Evaluation {
+  id: string;
+  agent: string;
+  groundedness: number;
+  truthfulness: number;
+  hallucinated: boolean;
+  claims: number;
+  state_checks: number;
+  unsupported: { kind: string; value: string; reason?: string }[];
+  contradictions: { claim: string; store: string }[];
+  simulated: boolean;
+}
+
+/** Backend `guardrail` event: personal data blocked or redacted. Values are never included. */
+export interface GuardrailEvent {
+  id: string;
+  surface: string;
+  action: 'blocked' | 'redacted';
+  types: string[];
+  count: number;
+  engine?: string;
+  degraded?: boolean;
+  at: string;
 }
 
 export interface ToolCall {

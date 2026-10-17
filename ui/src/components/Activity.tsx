@@ -16,6 +16,7 @@ import {
   Power,
   RotateCcw,
   Send,
+  ShieldCheck,
   ThumbsDown,
   ThumbsUp,
   TriangleAlert,
@@ -23,7 +24,7 @@ import {
   X,
   Zap,
 } from 'lucide-react';
-import type { ActionReceipt, Evidence, HealingEvent, ToolCall } from '../lib/contract';
+import type { ActionReceipt, Evaluation, Evidence, HealingEvent, ToolCall } from '../lib/contract';
 import { AGENTS, SYSTEMS } from '../lib/meta';
 import { fmtTime, uid } from '../lib/format';
 import { apply, nowIso, useStore, type FeedItem } from '../lib/store';
@@ -50,7 +51,7 @@ export function Activity({ className }: { className?: string }) {
     if (filter === 'all') return true;
     if (filter === 'agents') return f.kind === 'message' || f.kind === 'handover';
     if (filter === 'tools') return f.kind === 'tool' || f.kind === 'action';
-    return f.kind === 'healing' || (f.kind === 'tool' && tools[f.id]?.status === 'error');
+    return f.kind === 'healing' || f.kind === 'guardrail' || (f.kind === 'tool' && tools[f.id]?.status === 'error');
   });
 
   // Stay pinned to the newest event; only the reader scrolling up unpins it.
@@ -104,7 +105,7 @@ export function Activity({ className }: { className?: string }) {
                 { value: 'all', label: 'All' },
                 { value: 'agents', label: 'Agents' },
                 { value: 'tools', label: 'Tools' },
-                { value: 'recovery', label: 'Recovery' },
+                { value: 'recovery', label: 'Safety' },
               ]}
             />
           </div>
@@ -167,10 +168,11 @@ function Item({ item }: { item: FeedItem }) {
   if (item.kind === 'tool') return <ToolRow id={item.id} />;
   if (item.kind === 'healing') return <HealingRow id={item.id} />;
   if (item.kind === 'action') return <ActionRow id={item.id} />;
+  if (item.kind === 'guardrail') return <GuardrailRow id={item.id} />;
   const m = item.message;
   if (m.role === 'system') {
     const error = /^Backend:|failed/i.test(m.text);
-    const alert = /^Driver app/.test(m.text);
+    const alert = /^Driver app|^PII guardrail/.test(m.text);
     return (
       <div className={clsx('my-1.5 flex gap-2 rounded-md border px-2.5 py-2 text-xs', error ? 'border-red/30 bg-red/[0.06] text-fg' : alert ? 'border-amber/30 bg-amber/[0.06] text-fg' : 'border-line bg-surface-2/50 text-fg-2')}>
         {error ? <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red" /> : alert ? <TriangleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber" /> : <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-fg-3" />}
@@ -199,6 +201,7 @@ function Item({ item }: { item: FeedItem }) {
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-1.5 text-xs">
           {author}
+          {m.evaluation && <QualityBadge evaluation={m.evaluation} />}
           <time className="ml-auto shrink-0 font-mono text-[10px] text-fg-4">{fmtTime(m.at)}</time>
         </div>
         <p className="mt-0.5 whitespace-pre-wrap text-sm text-fg-2">{m.text}</p>
@@ -474,5 +477,56 @@ function IconButton({ label, onClick, active, children }: { label: string; onCli
       className={clsx('inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors', active ? 'animate-pulse bg-red/15 text-red' : 'text-fg-3 hover:bg-surface-3 hover:text-fg')}>
       {children}
     </button>
+  );
+}
+
+const SURFACE: Record<string, string> = {
+  incident: 'incident description',
+  chat: 'chat message',
+  feedback: 'feedback',
+  upload: 'uploaded file',
+  model_input: 'Gemini input',
+  model_output: 'agent reply',
+  tool_output: 'tool result',
+  tool_args: 'tool arguments',
+};
+
+/** Personal data blocked at entry or redacted before a model, tool or reply. Never shows values. */
+export function GuardrailRow({ id, indent = true }: { id: string; indent?: boolean }) {
+  const g = useStore((s) => s.guardrails.find((x) => x.id === id));
+  if (!g) return null;
+  const blocked = g.action === 'blocked';
+  return (
+    <div className={clsx('my-1.5 flex items-start gap-2 rounded-md border px-2.5 py-2 text-xs', indent && 'ml-[30px]', blocked ? 'border-amber/30 bg-amber/[0.05]' : 'border-line bg-surface')}>
+      <ShieldCheck className={clsx('mt-0.5 h-3.5 w-3.5 shrink-0', blocked ? 'text-amber' : 'text-green')} />
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="font-medium text-fg">PII {blocked ? 'blocked' : 'redacted'}</span>
+          <span className="text-fg-3">in {SURFACE[g.surface] ?? g.surface.replace(/_/g, ' ')}</span>
+          {g.types.map((t) => <Pill key={t} tone={blocked ? 'amber' : 'neutral'}>{t}</Pill>)}
+        </div>
+        <div className="mt-0.5 text-fg-3">
+          {blocked ? 'Refused before anything was stored or sent to a model.' : 'Removed before it reached Gemini or a reply.'} Values are never logged.
+          {g.degraded && ' Detector running in degraded mode.'}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Groundedness/truthfulness check of an agent reply, from the backend's deterministic evaluator. */
+export function QualityBadge({ evaluation: e }: { evaluation: Evaluation }) {
+  const pct = (n: number) => `${Math.round(n * 100)}%`;
+  const details = [
+    `Groundedness ${pct(e.groundedness)} (${e.claims} claim${e.claims === 1 ? '' : 's'} checked against tool results)`,
+    `Truthfulness ${pct(e.truthfulness)} (${e.state_checks} state check${e.state_checks === 1 ? '' : 's'})`,
+    ...e.unsupported.map((u) => `Unsupported ${u.kind}: ${u.value}${u.reason ? ` (${u.reason})` : ''}`),
+    ...e.contradictions.map((c) => `Contradiction: "${c.claim}" vs store: ${c.store}`),
+    e.simulated ? 'Offline run: checks the deterministic model double, not real Gemini.' : '',
+  ].filter(Boolean).join('\n');
+  return e.hallucinated ? (
+    <Pill tone="amber" title={details}><TriangleAlert className="h-3 w-3" />Unverified claim</Pill>
+  ) : (
+    <Pill tone="green" title={details}><ShieldCheck className="h-3 w-3" />Grounded {pct(e.groundedness)}</Pill>
   );
 }

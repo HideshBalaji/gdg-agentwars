@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import clsx from 'clsx';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, ChevronDown, FileText, FolderOpen, Loader2, Mic, Paperclip, Play, RotateCcw, ScrollText, Sparkles, TriangleAlert, X } from 'lucide-react';
+import { Check, ChevronDown, FileText, FolderOpen, Loader2, Mic, Paperclip, Play, RotateCcw, ScrollText, ShieldCheck, Sparkles, TriangleAlert, X } from 'lucide-react';
 import { STAGES, type AgentId, type ChatMessage, type Stage } from '../lib/contract';
 import { AGENTS, SYSTEMS } from '../lib/meta';
 import { fmtDur, fmtInr, fmtTime } from '../lib/format';
 import { nowMs, useStore, type State } from '../lib/store';
 import { runComparable, startBreakdown, switchMode } from '../lib/actions';
 import { ACCEPT_ATTR, addFiles, addSamples, fmtBytes, removePending, toggleRecording } from '../lib/evidence';
-import { ActionRow, Attachment, ChaosCallout, HealingRow, RatingCard } from './Activity';
+import { ActionRow, Attachment, ChaosCallout, HealingRow, QualityBadge, RatingCard } from './Activity';
 import { Comparison, Plans } from './Panels';
 import { MapPanel } from './MapView';
 import { MetricsCard, useTick } from './Metrics';
@@ -248,6 +248,7 @@ function StepBody({ stage, live }: { stage: Stage; live: boolean }) {
       return (
         <>
           {quote(['intake'])}
+          <PrivacyNote />
           {inc.facts.length > 0 && (
             <dl className="divide-y divide-line overflow-hidden rounded-lg border border-line bg-surface">
               {inc.facts.map((f) => (
@@ -329,6 +330,7 @@ function LearnBody() {
           <p className="mt-1 text-fg-3">{s.outcome.actions} actions · {s.outcome.healed} recovery steps · all simulated</p>
         </div>
       )}
+      <SafetySummary />
       <RatingCard />
       {s.comparison && <Comparison />}
       {critic && <Quote message={critic} />}
@@ -349,7 +351,7 @@ function Quote({ message }: { message: ChatMessage }) {
     <div className="flex gap-2.5 rounded-lg border border-line bg-surface p-3">
       {message.agent && <AgentAvatar agent={message.agent} size={20} />}
       <div className="min-w-0 text-xs">
-        <div className="flex items-baseline gap-1.5"><span className="font-medium text-fg">{a?.name}</span><span className="text-fg-4">{a?.model}</span></div>
+        <div className="flex flex-wrap items-center gap-1.5"><span className="font-medium text-fg">{a?.name}</span><span className="text-fg-4">{a?.model}</span>{message.evaluation && <QualityBadge evaluation={message.evaluation} />}</div>
         <p className="mt-0.5 text-sm text-fg-2">{message.text}</p>
       </div>
     </div>
@@ -500,6 +502,47 @@ export function EvidencePicker() {
           {fmtBytes(sizes)} ready · {mode === 'live' ? 'uploaded to the backend and attached when the incident opens' : 'used as the driver report when the demo starts'}
         </p>
       )}
+    </div>
+  );
+}
+
+/** Live backend only: what the PII guardrail did on this incident (types and counts, never values). */
+function PrivacyNote() {
+  const guardrails = useStore((s) => s.guardrails);
+  if (!guardrails.length) return null;
+  const types = [...new Set(guardrails.flatMap((g) => g.types))];
+  const blocked = guardrails.filter((g) => g.action === 'blocked').length;
+  return (
+    <div className="flex items-start gap-2 rounded-lg border border-line bg-surface p-3 text-xs">
+      <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green" />
+      <span className="text-fg-2">
+        PII guardrail: {guardrails.length} event{guardrails.length === 1 ? '' : 's'} ({types.join(', ') || 'personal data'}){blocked ? `, ${blocked} blocked at entry` : ''}. Nothing personal was stored or sent to Gemini; only types and counts are logged.
+      </span>
+    </div>
+  );
+}
+
+/** Live backend only: deterministic quality checks over every agent reply, plus guardrail activity. */
+function SafetySummary() {
+  const evaluations = useStore((s) => s.evaluations);
+  const guardrails = useStore((s) => s.guardrails);
+  if (!evaluations.length && !guardrails.length) return null;
+  const avg = (k: 'groundedness' | 'truthfulness') => evaluations.length ? Math.round((evaluations.reduce((n, e) => n + e[k], 0) / evaluations.length) * 100) : 100;
+  const flagged = evaluations.filter((e) => e.hallucinated).length;
+  const simulated = evaluations.some((e) => e.simulated);
+  return (
+    <div className="rounded-lg border border-line bg-surface p-3 text-xs">
+      <div className="flex items-center gap-2 font-medium text-fg"><ShieldCheck className="h-3.5 w-3.5 text-green" />Safety and quality</div>
+      <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-4">
+        <div><dt className="text-fg-3">Replies checked</dt><dd className="font-mono text-fg">{evaluations.length}</dd></div>
+        <div><dt className="text-fg-3">Groundedness</dt><dd className="font-mono text-fg">{avg('groundedness')}%</dd></div>
+        <div><dt className="text-fg-3">Truthfulness</dt><dd className="font-mono text-fg">{avg('truthfulness')}%</dd></div>
+        <div><dt className="text-fg-3">Unverified</dt><dd className={clsx('font-mono', flagged ? 'text-amber' : 'text-fg')}>{flagged}</dd></div>
+      </dl>
+      <p className="mt-2 text-fg-4">
+        {guardrails.length ? `${guardrails.length} PII guardrail event${guardrails.length === 1 ? '' : 's'}. ` : 'No personal data detected. '}
+        {simulated ? 'Offline run: checks score the deterministic model double, not real Gemini.' : 'Scored against tool results and the operational store.'}
+      </p>
     </div>
   );
 }

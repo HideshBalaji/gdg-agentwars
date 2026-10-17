@@ -5,6 +5,8 @@ import type {
   ChatMessage,
   Check,
   Evidence,
+  Evaluation,
+  GuardrailEvent,
   GhostEvent,
   HealingEvent,
   Health,
@@ -35,6 +37,7 @@ export type FeedItem =
   | { kind: 'tool'; id: string }
   | { kind: 'healing'; id: string }
   | { kind: 'action'; id: string }
+  | { kind: 'guardrail'; id: string }
   | { kind: 'handover'; id: string; from: AgentId; to: AgentId; reason: string; at: string };
 
 /** Evidence chosen in the composer, before it is attached to an incident or message. */
@@ -120,6 +123,9 @@ export interface State {
   comparison: { before: Choice; after: Choice; preferences: string[] } | null;
   /** When each loop stage started (sim time), for the step list. */
   stageTimes: Partial<Record<Stage, string>>;
+  /** Live backend only: PII guardrail activity and per-reply quality checks. */
+  guardrails: GuardrailEvent[];
+  evaluations: Evaluation[];
 }
 
 export const DEFAULT_FOCUS = { center: { lat: 12.79, lng: 77.86 }, zoom: 1 };
@@ -160,6 +166,8 @@ const incidentScope = () => ({
   typing: null,
   comparison: null,
   stageTimes: {} as Partial<Record<Stage, string>>,
+  guardrails: [] as GuardrailEvent[],
+  evaluations: [] as Evaluation[],
 });
 
 /** 02:06:40 IST, the night of the demo. */
@@ -420,4 +428,20 @@ export function pushUserMessage(text: string, attachments?: ChatMessage['attachm
   const message: ChatMessage = { id: uid('msg'), at: nowIso(), role: 'user', text, attachments };
   apply({ type: 'message', message });
   return message;
+}
+
+/** Records a guardrail event and shows it in the agent log. */
+export function addGuardrail(g: GuardrailEvent) {
+  set((s) => ({
+    guardrails: [...s.guardrails.filter((x) => x.id !== g.id), g],
+    feed: s.feed.some((f) => f.kind === 'guardrail' && f.id === g.id) ? s.feed : [...s.feed, { kind: 'guardrail', id: g.id }],
+  }));
+}
+
+/** Attaches a quality evaluation to an existing chat message. */
+export function attachEvaluation(messageId: string, evaluation: Evaluation) {
+  set((s) => ({
+    evaluations: [...s.evaluations.filter((e) => e.id !== evaluation.id), evaluation],
+    feed: s.feed.map((f) => (f.kind === 'message' && f.message.id === messageId ? { ...f, message: { ...f.message, evaluation } } : f)),
+  }));
 }
