@@ -45,8 +45,12 @@ class Conversations:
         lock = self.locks.setdefault(conversation_id, asyncio.Lock())
         async with lock:
             record = self.service.store.get("conversation", conversation_id)
-            self.service.guardrails.screen_input(
-                message.text, surface="chat", incident_id=record["incident_id"]
+            message = message.model_copy(
+                update={
+                    "text": self.service.guardrails.redact_input(
+                        message.text, surface="chat", incident_id=record["incident_id"]
+                    )
+                }
             )
             session = await self.sessions.get_session(
                 app_name="ghost_dispatcher", user_id="demo", session_id=conversation_id

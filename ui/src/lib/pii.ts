@@ -1,10 +1,10 @@
 /**
- * Browser-side PII check for Demo mode, mirroring the backend's RegexDetector
- * (ghost_dispatcher/guardrails/pii.py): same patterns, checksums and type names.
- * Live mode relies on the backend, which refuses such input with HTTP 422.
+ * Browser-side PII redaction for Demo mode, mirroring the backend's RegexDetector
+ * (ghost_dispatcher/guardrails/pii.py): same patterns, checksums, type names and
+ * [REDACTED:<TYPE>] markers. Live mode relies on the backend, which redacts the same way.
  */
 import { uid } from './format';
-import { addGuardrail, apply, nowIso, toast } from './store';
+import { addGuardrail, nowIso, toast } from './store';
 
 // Word-ish boundaries keep identifiers such as TN-07, SHP-001 or hex IDs from matching.
 const B = '(?<![\\w+@])';
@@ -81,8 +81,8 @@ interface Finding {
   end: number;
 }
 
-/** Types of personal data found in `text` (values are never returned). */
-export function detectPii(text: string): string[] {
+/** Merged spans of personal data in `text`. */
+function findPii(text: string): Finding[] {
   const findings: Finding[] = [];
   for (const [kind, pattern] of Object.entries(PATTERNS)) {
     for (const m of text.matchAll(pattern)) {
@@ -104,26 +104,31 @@ export function detectPii(text: string): string[] {
     }
     merged.push({ ...f });
   }
-  return [...new Set(merged.map((f) => f.type))].sort();
+  return merged;
+}
+
+/** Types of personal data found in `text` (values are never returned). */
+export function detectPii(text: string): string[] {
+  return [...new Set(findPii(text).map((f) => f.type))].sort();
+}
+
+/** `text` with each finding replaced by [REDACTED:<TYPE>], plus the types found. */
+export function redactPii(text: string): { text: string; types: string[] } {
+  const findings = findPii(text);
+  let redacted = text;
+  for (const f of [...findings].reverse()) redacted = `${redacted.slice(0, f.start)}[REDACTED:${f.type}]${redacted.slice(f.end)}`;
+  return { text: redacted, types: findings.map((f) => f.type) };
 }
 
 /**
- * Demo mode: refuse text containing personal data, exactly like the backend's 422,
- * and record a guardrail event. Returns true when the text was blocked.
+ * Demo mode: redact personal data like the backend does, and record a guardrail event.
+ * Returns the text to show and use from here on.
  */
-export function blockIfPii(text: string, surface: 'chat' | 'feedback'): boolean {
-  const types = detectPii(text);
-  if (!types.length) return false;
-  addGuardrail({ id: uid('guard'), surface, action: 'blocked', types, count: types.length, engine: 'regex (browser, demo mode)', at: nowIso() });
-  apply({
-    type: 'message',
-    message: {
-      id: uid('msg'),
-      at: nowIso(),
-      role: 'system',
-      text: `PII guardrail blocked your ${surface === 'chat' ? 'message' : 'feedback'}: Personal information is not accepted (${types.join(', ')}). Remove it and refer to people by ID, e.g. DRV-007 or CUS-001.`,
-    },
-  });
-  toast({ tone: 'info', title: surface === 'chat' ? 'Message not sent' : 'Feedback not saved', body: 'It contained personal information' });
-  return true;
+export function redactIfPii(text: string, surface: 'chat' | 'feedback'): string {
+  const { text: redacted, types } = redactPii(text);
+  if (types.length) {
+    addGuardrail({ id: uid('guard'), surface, action: 'redacted', types: [...new Set(types)].sort(), count: types.length, engine: 'regex (browser, demo mode)', at: nowIso() });
+    toast({ tone: 'info', title: 'Personal information redacted', body: 'Refer to people by ID, e.g. DRV-007' });
+  }
+  return redacted;
 }

@@ -30,7 +30,7 @@ import { fmtTime, uid } from '../lib/format';
 import { apply, nowIso, useStore, type FeedItem } from '../lib/store';
 import { COMPARABLE, rate, runComparable, startBreakdown, toggleCarrier } from '../lib/actions';
 import { liveSend } from '../lib/live';
-import { blockIfPii } from '../lib/pii';
+import { redactIfPii } from '../lib/pii';
 import { demoReply } from '../lib/demo/chat';
 import { ACCEPT_ATTR, addFiles, addSamples, fmtBytes, removePending, takeReady, toggleRecording } from '../lib/evidence';
 import { AgentAvatar, Button, Card, EmptyState, Kbd, Pill, Segmented, type Tone } from './ui';
@@ -413,15 +413,12 @@ export function Composer() {
   const file = useRef<HTMLInputElement>(null);
 
   const send = () => {
-    const text = draft.trim() || (pending.length ? 'Evidence attached' : '');
-    if (!text) return;
-    if (useStore.getState().mode === 'live') void liveSend(text);
+    const typed = draft.trim() || (pending.length ? 'Evidence attached' : '');
+    if (!typed) return;
+    if (useStore.getState().mode === 'live') void liveSend(typed);
     else {
-      // Same rule as the backend: refuse personal data instead of showing it.
-      if (blockIfPii(text, 'chat')) {
-        setDraft('');
-        return;
-      }
+      // Same rule as the backend: personal data is redacted before it is shown or used.
+      const text = redactIfPii(typed, 'chat');
       const attachments = takeReady();
       apply({ type: 'message', message: { id: uid('m'), at: nowIso(), role: 'user', text, attachments: attachments.length ? attachments : undefined } });
       if (useStore.getState().incident) attachments.forEach((ev) => apply({ type: 'incident.evidence', evidence: ev }));

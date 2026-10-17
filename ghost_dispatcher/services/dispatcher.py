@@ -144,7 +144,13 @@ class DispatcherService:
         self.store.put("incident", incident.id, incident.model_dump(mode="json"))
 
     def create_incident(self, request: IncidentCreate):
-        self.guardrails.screen_input(request.description, surface="incident_description")
+        request = request.model_copy(
+            update={
+                "description": self.guardrails.redact_input(
+                    request.description, surface="incident_description"
+                )
+            }
+        )
         self.store.get("shipment", request.shipment_id)
         for evidence_id in request.evidence_ids:
             self.store.get("evidence", evidence_id)
@@ -528,7 +534,13 @@ class DispatcherService:
 
     def feedback(self, incident_id, feedback: Feedback):
         self.incident(incident_id)
-        self.guardrails.screen_input(feedback.reason, surface="feedback", incident_id=incident_id)
+        feedback = feedback.model_copy(
+            update={
+                "reason": self.guardrails.redact_input(
+                    feedback.reason, surface="feedback", incident_id=incident_id
+                )
+            }
+        )
         result = {
             "id": uuid4().hex,
             "incident_id": incident_id,
