@@ -1,0 +1,248 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "records": [
+    {
+      "hub_id": "HUB-001",
+      "name": "Fictional Hosur Cold Hub",
+      "location": {
+        "lat": 12.7409,
+        "lng": 77.8253
+      },
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "availability": "open",
+      "opening_hours": {
+        "timezone": "Asia/Kolkata",
+        "daily_open": "00:00",
+        "daily_close": "24:00"
+      },
+      "cold_storage_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "cold_capacity_kg": 5000,
+      "remaining_cold_capacity_kg": 2000,
+      "handling_minutes": {
+        "transfer": 15,
+        "receive": 10
+      },
+      "dock_slots": [
+        {
+          "dock_slot_id": "DOCK-HOSUR-TRANSFER",
+          "starts_at": "2026-10-17T02:15:00+05:30",
+          "ends_at": "2026-10-17T03:00:00+05:30",
+          "status": "available",
+          "purpose": "Optional hub transfer; canonical rescue instead uses roadside transfer"
+        }
+      ],
+      "contact_email": "hub1@warehouse.invalid"
+    },
+    {
+      "hub_id": "HUB-002",
+      "name": "Fictional Corridor Cold Hub",
+      "location": {
+        "lat": 12.9366,
+        "lng": 78.5094
+      },
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "availability": "open",
+      "opening_hours": {
+        "timezone": "Asia/Kolkata",
+        "daily_open": "00:00",
+        "daily_close": "24:00"
+      },
+      "cold_storage_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "cold_capacity_kg": 5000,
+      "remaining_cold_capacity_kg": 2000,
+      "handling_minutes": {
+        "transfer": 15,
+        "receive": 10
+      },
+      "dock_slots": [
+        {
+          "dock_slot_id": "DOCK-CORRIDOR-001",
+          "starts_at": "2026-10-17T04:00:00+05:30",
+          "ends_at": "2026-10-17T06:00:00+05:30",
+          "status": "available"
+        }
+      ],
+      "contact_email": "hub2@warehouse.invalid"
+    },
+    {
+      "hub_id": "HUB-003",
+      "name": "Fictional Chennai Receiving Hub",
+      "location": {
+        "lat": 13.0827,
+        "lng": 80.2707
+      },
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "availability": "open",
+      "opening_hours": {
+        "timezone": "Asia/Kolkata",
+        "daily_open": "00:00",
+        "daily_close": "24:00"
+      },
+      "cold_storage_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "cold_capacity_kg": 5000,
+      "remaining_cold_capacity_kg": 2000,
+      "handling_minutes": {
+        "transfer": 15,
+        "receive": 10
+      },
+      "dock_slots": [
+        {
+          "dock_slot_id": "DOCK-CHENNAI-001",
+          "starts_at": "2026-10-17T07:00:00+05:30",
+          "ends_at": "2026-10-17T09:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-001"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-002",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-002"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-003",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-003"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-004",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-004"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-005",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-005"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-006",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-006"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-007",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-007"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-008",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-008"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-009",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-009"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-010",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-010"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-011",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-011"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-012",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-012"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-013",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-013"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-014",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-014"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-015",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-015"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-016",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-016"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-017",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-017"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-018",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-018"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-019",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-019"
+        },
+        {
+          "dock_slot_id": "DOCK-CHENNAI-020",
+          "starts_at": "2026-10-17T09:00:00+05:30",
+          "ends_at": "2026-10-17T12:00:00+05:30",
+          "status": "reserved_for_shipment",
+          "shipment_id": "SHP-020"
+        }
+      ],
+      "contact_email": "hub3@warehouse.invalid"
+    }
+  ]
+}

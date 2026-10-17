@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "fixture_id": "NO-REEFER-REJECTION",
+  "execution_status": "not_executed",
+  "scripted_responses_are": "Invented provider scripts, NOT actual tool or agent-run observations.",
+  "incident_ref": "breakdown.json#/incident",
+  "candidate_option_id": "OPT-TN-04",
+  "validation_input": {
+    "required": true,
+    "installed": false
+  },
+  "scripted_provider_results": [],
+  "expected_outcomes": {
+    "decision": "reject_before_booking",
+    "reason_code": "reefer_required",
+    "must_not": "Do not book or treat low price / proximity as overriding hard eligibility."
+  }
+}

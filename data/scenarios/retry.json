@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "fixture_id": "RETRY",
+  "execution_status": "not_executed",
+  "scripted_responses_are": "Invented provider scripts, NOT actual tool or agent-run observations.",
+  "incident_ref": "breakdown.json#/incident",
+  "scripted_provider_results": [
+    {
+      "sequence": 1,
+      "tool": "reserve_truck",
+      "arguments": {
+        "shipment_id": "SHP-001",
+        "truck_id": "TN-02",
+        "quote_id": "Q-FAST-001",
+        "idempotency_key": "INC-001-SHP-001-TN-02"
+      },
+      "result": {
+        "http_status": 503,
+        "error": "temporary_unavailable",
+        "retry_after_seconds": 5
+      }
+    },
+    {
+      "sequence": 2,
+      "tool": "reserve_truck",
+      "arguments": {
+        "shipment_id": "SHP-001",
+        "truck_id": "TN-02",
+        "quote_id": "Q-FAST-001",
+        "idempotency_key": "INC-001-SHP-001-TN-02"
+      },
+      "result": {
+        "http_status": 200,
+        "reservation_id": "MOCK-RSV-001",
+        "status": "confirmed"
+      }
+    }
+  ],
+  "expected_outcomes": {
+    "attempt_limit": 2,
+    "same_idempotency_key": true,
+    "expected_reservations": 1,
+    "state_after_first_result": "pending_retry_not_confirmed",
+    "state_after_second_scripted_result": "mock_confirmed_only",
+    "retry_timing": "5 seconds, included inside rounded pickup ETA; no extra minutes added"
+  }
+}

@@ -1,0 +1,582 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "records": [
+    {
+      "shipment_id": "SHP-001",
+      "declared_value": {"amount": 1200000, "currency": "INR"},
+      "priority": "critical",
+      "safe_minutes_out_of_range": 20,
+      "customer_id": "CUS-001",
+      "cargo_profile_id": "CG-VACCINE-TRAINING",
+      "description": "Inert fictional vaccine training units",
+      "mass_kg": 600,
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 01",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-001"
+      },
+      "delivery_deadline": "2026-10-17T09:00:00+05:30",
+      "cold_control_deadline": "2026-10-17T03:00:00+05:30",
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit_interrupted",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": "data/documents/SHP-001_manifest.pdf"
+    },
+    {
+      "shipment_id": "SHP-002",
+      "declared_value": {"amount": 120000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": null,
+      "customer_id": "CUS-002",
+      "cargo_profile_id": "CG-AMBIENT-TRAINING",
+      "description": "Synthetic training consignment 02",
+      "mass_kg": 400,
+      "temperature_range_c": null,
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 02",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-002"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit_interrupted",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    },
+    {
+      "shipment_id": "SHP-003",
+      "declared_value": {"amount": 130000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": 30,
+      "customer_id": "CUS-003",
+      "cargo_profile_id": "CG-CHILLED-TRAINING",
+      "description": "Synthetic training consignment 03",
+      "mass_kg": 300,
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 03",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-003"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    },
+    {
+      "shipment_id": "SHP-004",
+      "declared_value": {"amount": 140000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": 30,
+      "customer_id": "CUS-004",
+      "cargo_profile_id": "CG-CHILLED-TRAINING",
+      "description": "Synthetic training consignment 04",
+      "mass_kg": 400,
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 04",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-004"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    },
+    {
+      "shipment_id": "SHP-005",
+      "declared_value": {"amount": 150000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": 30,
+      "customer_id": "CUS-005",
+      "cargo_profile_id": "CG-CHILLED-TRAINING",
+      "description": "Synthetic training consignment 05",
+      "mass_kg": 200,
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 05",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-005"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    },
+    {
+      "shipment_id": "SHP-006",
+      "declared_value": {"amount": 160000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": 30,
+      "customer_id": "CUS-001",
+      "cargo_profile_id": "CG-CHILLED-TRAINING",
+      "description": "Synthetic training consignment 06",
+      "mass_kg": 300,
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 01",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-006"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    },
+    {
+      "shipment_id": "SHP-007",
+      "declared_value": {"amount": 170000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": 30,
+      "customer_id": "CUS-002",
+      "cargo_profile_id": "CG-CHILLED-TRAINING",
+      "description": "Synthetic training consignment 07",
+      "mass_kg": 400,
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 02",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-007"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    },
+    {
+      "shipment_id": "SHP-008",
+      "declared_value": {"amount": 180000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": 30,
+      "customer_id": "CUS-003",
+      "cargo_profile_id": "CG-CHILLED-TRAINING",
+      "description": "Synthetic training consignment 08",
+      "mass_kg": 400,
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 03",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-008"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    },
+    {
+      "shipment_id": "SHP-009",
+      "declared_value": {"amount": 190000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": null,
+      "customer_id": "CUS-004",
+      "cargo_profile_id": "CG-AMBIENT-TRAINING",
+      "description": "Synthetic training consignment 09",
+      "mass_kg": 300,
+      "temperature_range_c": null,
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 04",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-009"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    },
+    {
+      "shipment_id": "SHP-010",
+      "declared_value": {"amount": 200000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": null,
+      "customer_id": "CUS-005",
+      "cargo_profile_id": "CG-AMBIENT-TRAINING",
+      "description": "Synthetic training consignment 10",
+      "mass_kg": 300,
+      "temperature_range_c": null,
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 05",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-010"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    },
+    {
+      "shipment_id": "SHP-011",
+      "declared_value": {"amount": 210000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": 30,
+      "customer_id": "CUS-001",
+      "cargo_profile_id": "CG-CHILLED-TRAINING",
+      "description": "Synthetic training consignment 11",
+      "mass_kg": 500,
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 01",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-011"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    },
+    {
+      "shipment_id": "SHP-012",
+      "declared_value": {"amount": 220000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": 30,
+      "customer_id": "CUS-002",
+      "cargo_profile_id": "CG-CHILLED-TRAINING",
+      "description": "Synthetic training consignment 12",
+      "mass_kg": 500,
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 02",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-012"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    },
+    {
+      "shipment_id": "SHP-013",
+      "declared_value": {"amount": 230000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": 30,
+      "customer_id": "CUS-003",
+      "cargo_profile_id": "CG-CHILLED-TRAINING",
+      "description": "Synthetic training consignment 13",
+      "mass_kg": 200,
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 03",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-013"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    },
+    {
+      "shipment_id": "SHP-014",
+      "declared_value": {"amount": 240000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": 30,
+      "customer_id": "CUS-004",
+      "cargo_profile_id": "CG-CHILLED-TRAINING",
+      "description": "Synthetic training consignment 14",
+      "mass_kg": 200,
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 04",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-014"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    },
+    {
+      "shipment_id": "SHP-015",
+      "declared_value": {"amount": 250000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": 30,
+      "customer_id": "CUS-005",
+      "cargo_profile_id": "CG-CHILLED-TRAINING",
+      "description": "Synthetic training consignment 15",
+      "mass_kg": 200,
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 05",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-015"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    },
+    {
+      "shipment_id": "SHP-016",
+      "declared_value": {"amount": 260000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": 30,
+      "customer_id": "CUS-001",
+      "cargo_profile_id": "CG-CHILLED-TRAINING",
+      "description": "Synthetic training consignment 16",
+      "mass_kg": 300,
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 01",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-016"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    },
+    {
+      "shipment_id": "SHP-017",
+      "declared_value": {"amount": 270000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": 30,
+      "customer_id": "CUS-002",
+      "cargo_profile_id": "CG-CHILLED-TRAINING",
+      "description": "Synthetic training consignment 17",
+      "mass_kg": 400,
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 02",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-017"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    },
+    {
+      "shipment_id": "SHP-018",
+      "declared_value": {"amount": 280000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": 30,
+      "customer_id": "CUS-003",
+      "cargo_profile_id": "CG-CHILLED-TRAINING",
+      "description": "Synthetic training consignment 18",
+      "mass_kg": 300,
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 03",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-018"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    },
+    {
+      "shipment_id": "SHP-019",
+      "declared_value": {"amount": 290000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": 30,
+      "customer_id": "CUS-004",
+      "cargo_profile_id": "CG-CHILLED-TRAINING",
+      "description": "Synthetic training consignment 19",
+      "mass_kg": 200,
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 04",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-019"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    },
+    {
+      "shipment_id": "SHP-020",
+      "declared_value": {"amount": 300000, "currency": "INR"},
+      "priority": "routine",
+      "safe_minutes_out_of_range": 30,
+      "customer_id": "CUS-005",
+      "cargo_profile_id": "CG-CHILLED-TRAINING",
+      "description": "Synthetic training consignment 20",
+      "mass_kg": 200,
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "origin_hub_id": "HUB-001",
+      "destination": {
+        "name": "Fictional Training Receiver 05",
+        "location": {
+          "lat": 13.0827,
+          "lng": 80.2707
+        },
+        "dock_slot_id": "DOCK-CHENNAI-020"
+      },
+      "delivery_deadline": "2026-10-17T12:00:00+05:30",
+      "cold_control_deadline": null,
+      "deadline_note": "SHP-001 cold deadline is scenario projection, separate from business delivery deadline; other cargo has no incident thermal projection.",
+      "status": "in_transit",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "manifest_path": null
+    }
+  ]
+}

@@ -1,0 +1,348 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "records": [
+    {
+      "truck_id": "TN-01",
+      "carrier_id": "CAR-001",
+      "driver_id": "DRV-001",
+      "location": {
+        "lat": 12.8,
+        "lng": 78.1
+      },
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "availability": "available_for_additional_load",
+      "available_from": "2026-10-17T02:00:00+05:30",
+      "reefer": {
+        "installed": true,
+        "operational": true,
+        "supported_range_c": {
+          "min": 0,
+          "max": 10
+        }
+      },
+      "capacity_kg": 2000,
+      "assigned_mass_kg": 700,
+      "remaining_capacity_kg": 1300,
+      "driver_remaining_duty_hours": 8.0,
+      "pricing": {
+        "currency": "INR",
+        "minimum": 6000,
+        "base": 2000,
+        "per_km": 35,
+        "formula": "max(minimum, base + per_km * rescue_route_km)",
+        "includes": "Simulated all-in rescue route charge; no separate tax or toll."
+      },
+      "candidate_note": "Not dispatched: already committed; no rescue detour window",
+      "rescue_detour_allowed": false
+    },
+    {
+      "truck_id": "TN-02",
+      "carrier_id": "CAR-001",
+      "driver_id": "DRV-002",
+      "location": {
+        "lat": 12.77,
+        "lng": 77.85
+      },
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "availability": "available_for_additional_load",
+      "available_from": "2026-10-17T02:00:00+05:30",
+      "reefer": {
+        "installed": true,
+        "operational": true,
+        "supported_range_c": {
+          "min": 0,
+          "max": 10
+        }
+      },
+      "capacity_kg": 1800,
+      "assigned_mass_kg": 500,
+      "remaining_capacity_kg": 1300,
+      "driver_remaining_duty_hours": 7.5,
+      "pricing": {
+        "currency": "INR",
+        "minimum": 10000,
+        "base": 1500,
+        "per_km": 50,
+        "formula": "max(minimum, base + per_km * rescue_route_km)",
+        "includes": "Simulated all-in rescue route charge; no separate tax or toll."
+      },
+      "candidate_note": "Fast expensive valid reefer",
+      "rescue_detour_allowed": true
+    },
+    {
+      "truck_id": "TN-03",
+      "carrier_id": "CAR-002",
+      "driver_id": "DRV-003",
+      "location": {
+        "lat": 12.85,
+        "lng": 77.9
+      },
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "availability": "available_for_additional_load",
+      "available_from": "2026-10-17T02:00:00+05:30",
+      "reefer": {
+        "installed": true,
+        "operational": true,
+        "supported_range_c": {
+          "min": 0,
+          "max": 10
+        }
+      },
+      "capacity_kg": 2000,
+      "assigned_mass_kg": 800,
+      "remaining_capacity_kg": 1200,
+      "driver_remaining_duty_hours": 8.0,
+      "pricing": {
+        "currency": "INR",
+        "minimum": 8000,
+        "base": 1800,
+        "per_km": 30,
+        "formula": "max(minimum, base + per_km * rescue_route_km)",
+        "includes": "Simulated all-in rescue route charge; no separate tax or toll."
+      },
+      "candidate_note": "Slower cheaper valid reefer",
+      "rescue_detour_allowed": true
+    },
+    {
+      "truck_id": "TN-04",
+      "carrier_id": "CAR-002",
+      "driver_id": "DRV-004",
+      "location": {
+        "lat": 12.76,
+        "lng": 77.84
+      },
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "availability": "available_for_additional_load",
+      "available_from": "2026-10-17T02:00:00+05:30",
+      "reefer": {
+        "installed": false,
+        "operational": false,
+        "supported_range_c": null
+      },
+      "capacity_kg": 2000,
+      "assigned_mass_kg": 600,
+      "remaining_capacity_kg": 1400,
+      "driver_remaining_duty_hours": 8.0,
+      "pricing": {
+        "currency": "INR",
+        "minimum": 6000,
+        "base": 2000,
+        "per_km": 35,
+        "formula": "max(minimum, base + per_km * rescue_route_km)",
+        "includes": "Simulated all-in rescue route charge; no separate tax or toll."
+      },
+      "candidate_note": "Reject: no reefer",
+      "rescue_detour_allowed": true
+    },
+    {
+      "truck_id": "TN-05",
+      "carrier_id": "CAR-002",
+      "driver_id": "DRV-005",
+      "location": {
+        "lat": 12.78,
+        "lng": 77.83
+      },
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "availability": "available_for_additional_load",
+      "available_from": "2026-10-17T02:00:00+05:30",
+      "reefer": {
+        "installed": true,
+        "operational": true,
+        "supported_range_c": {
+          "min": 0,
+          "max": 10
+        }
+      },
+      "capacity_kg": 1200,
+      "assigned_mass_kg": 1000,
+      "remaining_capacity_kg": 200,
+      "driver_remaining_duty_hours": 8.0,
+      "pricing": {
+        "currency": "INR",
+        "minimum": 6000,
+        "base": 2000,
+        "per_km": 35,
+        "formula": "max(minimum, base + per_km * rescue_route_km)",
+        "includes": "Simulated all-in rescue route charge; no separate tax or toll."
+      },
+      "candidate_note": "Reject: 200 kg remaining < 600 kg",
+      "rescue_detour_allowed": true
+    },
+    {
+      "truck_id": "TN-06",
+      "carrier_id": "CAR-002",
+      "driver_id": "DRV-006",
+      "location": {
+        "lat": 12.8,
+        "lng": 77.9
+      },
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "availability": "available_for_additional_load",
+      "available_from": "2026-10-17T02:00:00+05:30",
+      "reefer": {
+        "installed": true,
+        "operational": true,
+        "supported_range_c": {
+          "min": 0,
+          "max": 10
+        }
+      },
+      "capacity_kg": 1800,
+      "assigned_mass_kg": 400,
+      "remaining_capacity_kg": 1400,
+      "driver_remaining_duty_hours": 0.5,
+      "pricing": {
+        "currency": "INR",
+        "minimum": 6000,
+        "base": 2000,
+        "per_km": 35,
+        "formula": "max(minimum, base + per_km * rescue_route_km)",
+        "includes": "Simulated all-in rescue route charge; no separate tax or toll."
+      },
+      "candidate_note": "Reject: 0.5 duty hours insufficient",
+      "rescue_detour_allowed": true
+    },
+    {
+      "truck_id": "TN-07",
+      "carrier_id": "CAR-001",
+      "driver_id": "DRV-007",
+      "location": {
+        "lat": 12.7409,
+        "lng": 77.8253
+      },
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "availability": "broken_down",
+      "available_from": "2026-10-17T02:00:00+05:30",
+      "reefer": {
+        "installed": true,
+        "operational": false,
+        "supported_range_c": {
+          "min": 0,
+          "max": 10
+        }
+      },
+      "capacity_kg": 2000,
+      "assigned_mass_kg": 1000,
+      "remaining_capacity_kg": 1000,
+      "driver_remaining_duty_hours": 8.0,
+      "pricing": {
+        "currency": "INR",
+        "minimum": 6000,
+        "base": 2000,
+        "per_km": 35,
+        "formula": "max(minimum, base + per_km * rescue_route_km)",
+        "includes": "Simulated all-in rescue route charge; no separate tax or toll."
+      },
+      "candidate_note": "Incident vehicle; cannot rescue itself",
+      "rescue_detour_allowed": false
+    },
+    {
+      "truck_id": "TN-08",
+      "carrier_id": "CAR-003",
+      "driver_id": "DRV-008",
+      "location": {
+        "lat": 12.79,
+        "lng": 77.9
+      },
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "availability": "maintenance",
+      "available_from": "2026-10-17T05:00:00+05:30",
+      "reefer": {
+        "installed": true,
+        "operational": false,
+        "supported_range_c": {
+          "min": 0,
+          "max": 10
+        }
+      },
+      "capacity_kg": 1800,
+      "assigned_mass_kg": 500,
+      "remaining_capacity_kg": 1300,
+      "driver_remaining_duty_hours": 8.0,
+      "pricing": {
+        "currency": "INR",
+        "minimum": 6000,
+        "base": 2000,
+        "per_km": 35,
+        "formula": "max(minimum, base + per_km * rescue_route_km)",
+        "includes": "Simulated all-in rescue route charge; no separate tax or toll."
+      },
+      "candidate_note": "Unavailable maintenance",
+      "rescue_detour_allowed": false
+    },
+    {
+      "truck_id": "TN-09",
+      "carrier_id": "CAR-003",
+      "driver_id": "DRV-009",
+      "location": {
+        "lat": 13.0,
+        "lng": 79.1
+      },
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "availability": "available_for_additional_load",
+      "available_from": "2026-10-17T02:00:00+05:30",
+      "reefer": {
+        "installed": true,
+        "operational": true,
+        "supported_range_c": {
+          "min": 0,
+          "max": 10
+        }
+      },
+      "capacity_kg": 2000,
+      "assigned_mass_kg": 700,
+      "remaining_capacity_kg": 1300,
+      "driver_remaining_duty_hours": 8.0,
+      "pricing": {
+        "currency": "INR",
+        "minimum": 6000,
+        "base": 2000,
+        "per_km": 35,
+        "formula": "max(minimum, base + per_km * rescue_route_km)",
+        "includes": "Simulated all-in rescue route charge; no separate tax or toll."
+      },
+      "candidate_note": "Reject: pickup ETA exceeds cold-control deadline",
+      "rescue_detour_allowed": true
+    },
+    {
+      "truck_id": "TN-10",
+      "carrier_id": "CAR-003",
+      "driver_id": "DRV-010",
+      "location": {
+        "lat": 12.79,
+        "lng": 77.87
+      },
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "availability": "available_for_additional_load",
+      "available_from": "2026-10-17T02:00:00+05:30",
+      "reefer": {
+        "installed": true,
+        "operational": true,
+        "supported_range_c": {
+          "min": 0,
+          "max": 10
+        }
+      },
+      "capacity_kg": 2000,
+      "assigned_mass_kg": 400,
+      "remaining_capacity_kg": 1600,
+      "driver_remaining_duty_hours": 8.0,
+      "pricing": {
+        "currency": "INR",
+        "minimum": 6000,
+        "base": 2000,
+        "per_km": 35,
+        "formula": "max(minimum, base + per_km * rescue_route_km)",
+        "includes": "Simulated all-in rescue route charge; no separate tax or toll."
+      },
+      "candidate_note": "Physically feasible but scripted provider outage in outage fixtures",
+      "rescue_detour_allowed": true
+    }
+  ]
+}

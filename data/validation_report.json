@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0",
+  "verified_at": "2026-10-17T07:56:32.372254+00:00",
+  "verification_kind": "local_data_loading_and_independent_deterministic_fixture_replay",
+  "status": "passed",
+  "checks": [
+    {
+      "name": "operational_records",
+      "status": "passed",
+      "counts": {
+        "trucks": 10,
+        "shipments": 20,
+        "active_assignments": 20,
+        "drivers": 10,
+        "customers": 5,
+        "hubs": 3,
+        "carriers": 3
+      },
+      "observed": "Parsed seed tables; checked unique keys, foreign keys, one active assignment per shipment, mass conservation, driver links, synthetic excursion-budget inheritance and no cold cargo initially assigned to a truck lacking reefer equipment."
+    },
+    {
+      "name": "rescue_options",
+      "status": "passed",
+      "results": {
+        "OPT-TN-02": "eligible",
+        "OPT-TN-03": "eligible",
+        "OPT-TN-10": "eligible",
+        "OPT-TN-04": "reject_no_reefer",
+        "OPT-TN-05": "reject_capacity",
+        "OPT-TN-06": "reject_hours",
+        "OPT-TN-09": "reject_cold_deadline"
+      },
+      "observed": "Recomputed route pricing, arrival/restoration/delivery times, duty budgets, reefer/capacity eligibility and receiving-slot coverage from fixture fields."
+    },
+    {
+      "name": "independent_fixture_replay",
+      "status": "passed",
+      "before_preference": "TN-02",
+      "after_preference": "TN-03",
+      "savings_inr": 6500,
+      "delivery_delay_min": 75,
+      "fallback_after_scripted_outage": "TN-03",
+      "in_memory_transfer_mass_conserved": true,
+      "observed": "Loaded fixture inputs into a temporary independent Python calculation; selected feasible options using the documented rule. This does not exercise ADK, Gemini, critic extraction or an HTTP carrier service."
+    },
+    {
+      "name": "sensor_traces",
+      "status": "passed",
+      "trace_count": 6,
+      "samples": 186,
+      "baseline_slope_c_per_min": 0.025,
+      "baseline_minutes_to_upper_boundary": 60,
+      "rapid_elapsed_above_range_min": 5,
+      "already_above_range_minimum_exposure_min": 30,
+      "missing_trace_staleness_min": 10,
+      "observed": "Parsed CSV observations; checked timestamp order/intervals, quality labels, finite values, independent linear fit, known exposure subtraction, uncertainty and exclusion of hypothetical future recovery data."
+    },
+    {
+      "name": "media",
+      "status": "passed",
+      "images_decoded": 5,
+      "wav_files_decoded": 4,
+      "synthetic_pdfs_text_extracted": 2,
+      "observed": "Decoded every collected image; visually inspected original-photo contact sheet and roadside thumbnail. Decoded all WAV PCM frames, checked format/duration and non-silent signal. Extracted PDF text and matched canonical identifiers, mass, recipient and missing-receipt fields. Verified per-asset SHA-256 digests."
+    },
+    {
+      "name": "references",
+      "status": "passed",
+      "official_catalog_entries": 30,
+      "downloaded_cdc_pdf_pages": 41,
+      "downloaded_cdc_pdf_bytes": 1593615,
+      "observed": "Parsed the source catalog; checked required metadata and local copies. Verified CDC PDF size/hash, decoded its 41 pages and extracted substantive toolkit text. Public URL-opening evidence and failed retrievals are recorded by the collector; no account-specific API access was exercised."
+    },
+    {
+      "name": "local_links",
+      "status": "passed",
+      "json_files_parsed_before_report_and_manifest": 40,
+      "local_path_and_pointer_references_checked": 50,
+      "observed": "Resolved fixture file paths, local-copy links and JSON Pointer incident references."
+    }
+  ],
+  "not_verified": [
+    "ADK runtime execution or agent delegation",
+    "Gemini transcription, image understanding, planning or preference extraction",
+    "Live Google Maps/Gmail/Calendar/Sheets/Firestore API calls or OAuth access",
+    "A running carrier API, kill switch, retry/backoff or actual self-healing",
+    "Real shipment rescue, cargo viability, legal driving compliance, physical sensor accuracy or delivered cargo",
+    "Authenticated model availability, quotas and billing"
+  ],
+  "retrieval_notes": [
+    "Four external photo examples were obtained; the roadside example uses a licensed Wikimedia thumbnail after original download throttling.",
+    "India-specific direct handbook PDF retrieval limitations are recorded in data/references/source_catalog.json; official guidance indexes remain linked."
+  ],
+  "safety_notice": "Operational records and thermal/driver constraints are synthetic. Neither validation nor reference guidance establishes medical viability or a real successful operation."
+}
