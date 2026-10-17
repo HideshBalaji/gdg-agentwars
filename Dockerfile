@@ -12,6 +12,7 @@ COPY mcp_server ./mcp_server
 COPY mock_services ./mock_services
 RUN pip install ".[dev]"
 
+COPY data ./data
 COPY tests ./tests
 
 CMD ["pytest", "-q"]

@@ -1,0 +1,30 @@
+{
+  "asset_id": "reefer_truck",
+  "path": "data/photos/reefer_truck.jpg",
+  "download_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/20220102_FAW_J6P_refrigerated_truck.jpg",
+  "original_url": "https://upload.wikimedia.org/wikipedia/commons/3/35/20220102_FAW_J6P_refrigerated_truck.jpg",
+  "sha256": "34b6ec7f5324c52e017a9a94ea20ec4329e5db15d835fbc4bc49d46cdc67129f",
+  "bytes": 2807772,
+  "content_type": "image/jpeg",
+  "title": "20220102 FAW J6P refrigerated truck.jpg",
+  "creator": "Windmemories",
+  "creator_url": "https://commons.wikimedia.org/wiki/User:Windmemories",
+  "source_page": "https://commons.wikimedia.org/wiki/File:20220102_FAW_J6P_refrigerated_truck.jpg",
+  "license": "CC-BY-SA-4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "expected_visible_facts": [
+    "A truck and refrigerated box trailer are visible."
+  ],
+  "not_supported": [
+    "Truck TN-07 identity",
+    "Hosur location",
+    "A breakdown or refrigeration failure",
+    "Cargo contents or capacity",
+    "Temperature or cargo viability"
+  ],
+  "original_location": "Zhengzhou, China; not India",
+  "changes": "None; original file bytes retained under a local filename.",
+  "classification": "external_illustrative_photo",
+  "accessed_on": "2026-10-17",
+  "scenario_binding": "Illustrative only; no claim this depicts any synthetic seed entity."
+}

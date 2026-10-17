@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "records": [
+    {
+      "customer_id": "CUS-001",
+      "name": "Fictional Training Receiver 01",
+      "contact_email": "receiver1@customer.invalid",
+      "location": {
+        "lat": 13.0827,
+        "lng": 80.2707
+      },
+      "receiving_window": {
+        "opens_at": "2026-10-17T00:00:00+05:30",
+        "closes_at": "2026-10-17T12:00:00+05:30"
+      },
+      "observed_at": "2026-10-17T02:00:00+05:30"
+    },
+    {
+      "customer_id": "CUS-002",
+      "name": "Fictional Training Receiver 02",
+      "contact_email": "receiver2@customer.invalid",
+      "location": {
+        "lat": 13.0827,
+        "lng": 80.2707
+      },
+      "receiving_window": {
+        "opens_at": "2026-10-17T00:00:00+05:30",
+        "closes_at": "2026-10-17T12:00:00+05:30"
+      },
+      "observed_at": "2026-10-17T02:00:00+05:30"
+    },
+    {
+      "customer_id": "CUS-003",
+      "name": "Fictional Training Receiver 03",
+      "contact_email": "receiver3@customer.invalid",
+      "location": {
+        "lat": 13.0827,
+        "lng": 80.2707
+      },
+      "receiving_window": {
+        "opens_at": "2026-10-17T00:00:00+05:30",
+        "closes_at": "2026-10-17T12:00:00+05:30"
+      },
+      "observed_at": "2026-10-17T02:00:00+05:30"
+    },
+    {
+      "customer_id": "CUS-004",
+      "name": "Fictional Training Receiver 04",
+      "contact_email": "receiver4@customer.invalid",
+      "location": {
+        "lat": 13.0827,
+        "lng": 80.2707
+      },
+      "receiving_window": {
+        "opens_at": "2026-10-17T00:00:00+05:30",
+        "closes_at": "2026-10-17T12:00:00+05:30"
+      },
+      "observed_at": "2026-10-17T02:00:00+05:30"
+    },
+    {
+      "customer_id": "CUS-005",
+      "name": "Fictional Training Receiver 05",
+      "contact_email": "receiver5@customer.invalid",
+      "location": {
+        "lat": 13.0827,
+        "lng": 80.2707
+      },
+      "receiving_window": {
+        "opens_at": "2026-10-17T00:00:00+05:30",
+        "closes_at": "2026-10-17T12:00:00+05:30"
+      },
+      "observed_at": "2026-10-17T02:00:00+05:30"
+    }
+  ]
+}

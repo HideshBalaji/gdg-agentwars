@@ -116,9 +116,10 @@ Google ADK · Gemini (AI Studio) · MCP Python SDK · Pydantic · FastAPI · htt
 | Area | State |
 |---|---|
 | Package layout, tooling, CI, container build | Done |
+| Demo data: seed fleet, scenarios, sensor traces, photos, voice notes, documents ([data/](data/README.md)) | Done |
 | Shared models, services, MCP server, mock carrier and sensor services | In progress |
 | ADK agents, Healing Log, feedback memory | In progress |
-| Browser control room UI, seed data, agent evals | In progress |
+| Browser control room UI, agent evals | In progress |
 
 Ownership, milestones and the demo script are in [PLAN.md](PLAN.md). Real incidents behind the problem are in [docs/evidence.md](docs/evidence.md).
 
@@ -133,7 +134,8 @@ ghost_dispatcher/        # ADK package
 └── memory/              # preferences and provider health
 mcp_server/              # logistics-mcp server
 mock_services/           # carrier API with /kill and /revive, sensor simulator
-tests/                   # pytest suite
+data/                    # synthetic seed fleet, scenarios, sensor traces, media, references
+tests/                   # pytest suite, including data contract checks
 docs/                    # supporting documents
 .github/workflows/ci.yml # lint, tests and container build on every push and PR
 Dockerfile, compose.yaml # container build and run

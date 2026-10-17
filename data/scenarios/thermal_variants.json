@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "fixture_id": "THERMAL-VARIANTS",
+  "execution_status": "not_executed",
+  "scripted_responses_are": "Invented provider scripts, NOT actual tool or agent-run observations.",
+  "incident_ref": "breakdown.json#/incident",
+  "variants": [
+    {
+      "sensor_trace": "data/sensors/rapid_rise.csv",
+      "expected": "Known exposure5min, remaining invented budget15min; neither baseline eligible option restores soon enough. Escalate unresolved."
+    },
+    {
+      "sensor_trace": "data/sensors/already_out_of_range.csv",
+      "expected": "Known exposure at least30min exceeds20min fictional budget; pre-trace unknown; human review, no auto disposition."
+    },
+    {
+      "sensor_trace": "data/sensors/missing_noisy.csv",
+      "expected": "Current cargo temperature and elapsed exposure unknown; request valid reading, mark projection uncertain, no safe-status claim."
+    },
+    {
+      "sensor_trace": "data/sensors/recovery_after_transfer.csv",
+      "expected": "Hypothetical transfer example only; do not replay future02:35 sample as available at02:00."
+    }
+  ],
+  "scripted_provider_results": [],
+  "expected_outcomes": {
+    "math_source": "data/sensors/catalog.json",
+    "no_future_leakage": "Use only samples with observed_at <= decision time, except explicitly labeled post-transfer illustration."
+  }
+}

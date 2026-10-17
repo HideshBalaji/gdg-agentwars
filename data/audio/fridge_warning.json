@@ -1,0 +1,29 @@
+{
+  "asset_id": "fridge_warning",
+  "path": "data/audio/fridge_warning.wav",
+  "transcript_path": "data/audio/fridge_warning.txt",
+  "classification": "synthetic_speech",
+  "engine": "eSpeak NG 1.52.0 via espeakng-loader 0.2.4",
+  "voice": "en",
+  "words_per_minute": 155,
+  "sample_rate_hz": 22050,
+  "channels": 1,
+  "sample_width_bytes": 2,
+  "duration_seconds": 23.858,
+  "sha256": "03cae5a6274ed83b23f0bbe41110d24f47172970a9641652f58f95e8e0267f19",
+  "license": "CC0-1.0 for original scenario text and generated output; no voice cloning, engine binaries not redistributed",
+  "generator_source": "https://github.com/espeak-ng/espeak-ng",
+  "recorded_human": false,
+  "scenario_clock": "2026-10-17T02:00:00+05:30",
+  "expected_extraction": {
+    "truck_id": "TN-07",
+    "shipment_id": "SHP-001",
+    "probe_temp_c": 8.5,
+    "vehicle_moving": true,
+    "reported_failure": "temperature rising"
+  },
+  "not_supported": [
+    "Actual driver report",
+    "Real cargo safety or mechanical diagnosis"
+  ]
+}

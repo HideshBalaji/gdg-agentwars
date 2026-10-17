@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "fixture_id": "OPTIONAL-INCIDENT-INPUTS",
+  "execution_status": "not_executed",
+  "scripted_responses_are": "Invented provider scripts, NOT actual tool or agent-run observations.",
+  "inputs": [
+    {
+      "incident_id": "INC-002",
+      "kind": "reefer_alarm",
+      "shipment_id": "SHP-005",
+      "truck_id": "TN-02",
+      "driver_id": "DRV-002",
+      "reported_at": "2026-10-17T02:00:00+05:30",
+      "message": "Synthetic fridge controller alarm with no fresh probe attached. Request observation before deriving a thermal deadline.",
+      "sensor_trace": null,
+      "location": {
+        "lat": 12.77,
+        "lng": 77.85
+      },
+      "expected": "Triage and request current cargo-probe evidence; do not infer SHP-001 thermal math applies."
+    },
+    {
+      "incident_id": "INC-003",
+      "kind": "customer_delay_request",
+      "shipment_id": "SHP-001",
+      "truck_id": "TN-07",
+      "driver_id": "DRV-007",
+      "reported_at": "2026-10-17T02:00:00+05:30",
+      "message": "Fictional receiver asks for ETA update. Delivery appointment remains09:00 unless explicitly changed.",
+      "contact_email": "receiver1@customer.invalid",
+      "expected": "Draft ETA communication separating cold restoration from delivery; no unauthorized deadline change."
+    },
+    {
+      "incident_id": "INC-004",
+      "kind": "cargo_damage_report",
+      "shipment_id": "SHP-009",
+      "truck_id": "TN-04",
+      "driver_id": "DRV-004",
+      "reported_at": "2026-10-17T02:00:00+05:30",
+      "message": "Synthetic report of crushed ambient training cartons, no injury. No image supplied.",
+      "expected": "Capture reported damage as unverified and request human review; do not fabricate image evidence or medical conclusions."
+    }
+  ],
+  "expected_outcomes": {
+    "independent_scenarios": true,
+    "do_not_merge": "Optional inputs do not mutate the canonical breakdown snapshot."
+  }
+}

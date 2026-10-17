@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "records": [
+    {
+      "carrier_id": "CAR-001",
+      "name": "Demo Polar Express",
+      "contact_email": "dispatch1@carrier.invalid",
+      "api_base_url": "https://carrier1.invalid/mock/v1",
+      "api_kind": "mock_only",
+      "service_region": "Synthetic Bengaluru-Hosur-Chennai corridor",
+      "simulated_reliability_score": 0.98,
+      "api_status": "available_unless_scenario_overrides",
+      "kill_switch_supported": true,
+      "currency": "INR",
+      "booking_mode": "api",
+      "observed_at": "2026-10-17T02:00:00+05:30"
+    },
+    {
+      "carrier_id": "CAR-002",
+      "name": "Demo Budget Cold Logistics",
+      "contact_email": "dispatch2@carrier.invalid",
+      "api_base_url": "https://carrier2.invalid/mock/v1",
+      "api_kind": "mock_only",
+      "service_region": "Synthetic Bengaluru-Hosur-Chennai corridor",
+      "simulated_reliability_score": 0.95,
+      "api_status": "available_unless_scenario_overrides",
+      "kill_switch_supported": false,
+      "currency": "INR",
+      "booking_mode": "api",
+      "observed_at": "2026-10-17T02:00:00+05:30"
+    },
+    {
+      "carrier_id": "CAR-003",
+      "name": "Demo Contingency Transport",
+      "contact_email": "dispatch3@carrier.invalid",
+      "api_base_url": "https://carrier3.invalid/mock/v1",
+      "api_kind": "mock_only",
+      "service_region": "Synthetic Bengaluru-Hosur-Chennai corridor",
+      "simulated_reliability_score": 0.90,
+      "api_status": "scripted_unavailable_in_baseline",
+      "kill_switch_supported": false,
+      "currency": "INR",
+      "booking_mode": "email_pending_confirmation",
+      "observed_at": "2026-10-17T02:00:00+05:30"
+    }
+  ]
+}

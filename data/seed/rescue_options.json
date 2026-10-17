@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "records": [
+    {
+      "option_id": "OPT-TN-02",
+      "truck_id": "TN-02",
+      "shipment_id": "SHP-001",
+      "pickup_eta_min": 20,
+      "pickup_arrives_at": "2026-10-17T02:20:00+05:30",
+      "transfer_min": 15,
+      "cold_control_restored_at": "2026-10-17T02:35:00+05:30",
+      "rescue_route_km": 340,
+      "loaded_drive_min": 290,
+      "destination_handling_min": 10,
+      "delivery_complete_at": "2026-10-17T07:35:00+05:30",
+      "required_duty_hours": 5.583333,
+      "cost": {
+        "amount": 18500,
+        "currency": "INR"
+      },
+      "physical_validation_expected": "eligible",
+      "provider_state": "scripted_available",
+      "timing_basis": "Invented deterministic road and handling durations, not live routing."
+    },
+    {
+      "option_id": "OPT-TN-03",
+      "truck_id": "TN-03",
+      "shipment_id": "SHP-001",
+      "pickup_eta_min": 35,
+      "pickup_arrives_at": "2026-10-17T02:35:00+05:30",
+      "transfer_min": 15,
+      "cold_control_restored_at": "2026-10-17T02:50:00+05:30",
+      "rescue_route_km": 340,
+      "loaded_drive_min": 350,
+      "destination_handling_min": 10,
+      "delivery_complete_at": "2026-10-17T08:50:00+05:30",
+      "required_duty_hours": 6.833333,
+      "cost": {
+        "amount": 12000,
+        "currency": "INR"
+      },
+      "physical_validation_expected": "eligible",
+      "provider_state": "scripted_available",
+      "timing_basis": "Invented deterministic road and handling durations, not live routing."
+    },
+    {
+      "option_id": "OPT-TN-10",
+      "truck_id": "TN-10",
+      "shipment_id": "SHP-001",
+      "pickup_eta_min": 30,
+      "pickup_arrives_at": "2026-10-17T02:30:00+05:30",
+      "transfer_min": 15,
+      "cold_control_restored_at": "2026-10-17T02:45:00+05:30",
+      "rescue_route_km": 340,
+      "loaded_drive_min": 320,
+      "destination_handling_min": 10,
+      "delivery_complete_at": "2026-10-17T08:15:00+05:30",
+      "required_duty_hours": 6.25,
+      "cost": {
+        "amount": 13900,
+        "currency": "INR"
+      },
+      "physical_validation_expected": "eligible",
+      "provider_state": "scripted_unavailable",
+      "timing_basis": "Invented deterministic road and handling durations, not live routing."
+    },
+    {
+      "option_id": "OPT-TN-04",
+      "truck_id": "TN-04",
+      "shipment_id": "SHP-001",
+      "pickup_eta_min": 15,
+      "pickup_arrives_at": "2026-10-17T02:15:00+05:30",
+      "transfer_min": 15,
+      "cold_control_restored_at": "2026-10-17T02:30:00+05:30",
+      "rescue_route_km": 340,
+      "loaded_drive_min": 290,
+      "destination_handling_min": 10,
+      "delivery_complete_at": "2026-10-17T07:30:00+05:30",
+      "required_duty_hours": 5.5,
+      "cost": {
+        "amount": 13900,
+        "currency": "INR"
+      },
+      "physical_validation_expected": "reject_no_reefer",
+      "provider_state": "scripted_available",
+      "timing_basis": "Invented deterministic road and handling durations, not live routing."
+    },
+    {
+      "option_id": "OPT-TN-05",
+      "truck_id": "TN-05",
+      "shipment_id": "SHP-001",
+      "pickup_eta_min": 15,
+      "pickup_arrives_at": "2026-10-17T02:15:00+05:30",
+      "transfer_min": 15,
+      "cold_control_restored_at": "2026-10-17T02:30:00+05:30",
+      "rescue_route_km": 340,
+      "loaded_drive_min": 290,
+      "destination_handling_min": 10,
+      "delivery_complete_at": "2026-10-17T07:30:00+05:30",
+      "required_duty_hours": 5.5,
+      "cost": {
+        "amount": 13900,
+        "currency": "INR"
+      },
+      "physical_validation_expected": "reject_capacity",
+      "provider_state": "scripted_available",
+      "timing_basis": "Invented deterministic road and handling durations, not live routing."
+    },
+    {
+      "option_id": "OPT-TN-06",
+      "truck_id": "TN-06",
+      "shipment_id": "SHP-001",
+      "pickup_eta_min": 15,
+      "pickup_arrives_at": "2026-10-17T02:15:00+05:30",
+      "transfer_min": 15,
+      "cold_control_restored_at": "2026-10-17T02:30:00+05:30",
+      "rescue_route_km": 340,
+      "loaded_drive_min": 290,
+      "destination_handling_min": 10,
+      "delivery_complete_at": "2026-10-17T07:30:00+05:30",
+      "required_duty_hours": 5.5,
+      "cost": {
+        "amount": 13900,
+        "currency": "INR"
+      },
+      "physical_validation_expected": "reject_hours",
+      "provider_state": "scripted_available",
+      "timing_basis": "Invented deterministic road and handling durations, not live routing."
+    },
+    {
+      "option_id": "OPT-TN-09",
+      "truck_id": "TN-09",
+      "shipment_id": "SHP-001",
+      "pickup_eta_min": 80,
+      "pickup_arrives_at": "2026-10-17T03:20:00+05:30",
+      "transfer_min": 15,
+      "cold_control_restored_at": "2026-10-17T03:35:00+05:30",
+      "rescue_route_km": 340,
+      "loaded_drive_min": 250,
+      "destination_handling_min": 10,
+      "delivery_complete_at": "2026-10-17T07:55:00+05:30",
+      "required_duty_hours": 5.916667,
+      "cost": {
+        "amount": 13900,
+        "currency": "INR"
+      },
+      "physical_validation_expected": "reject_cold_deadline",
+      "provider_state": "scripted_available",
+      "timing_basis": "Invented deterministic road and handling durations, not live routing."
+    }
+  ]
+}

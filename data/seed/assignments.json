@@ -1,0 +1,231 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "records": [
+    {
+      "assignment_id": "ASN-001",
+      "shipment_id": "SHP-001",
+      "truck_id": "TN-07",
+      "driver_id": "DRV-007",
+      "status": "active",
+      "assigned_mass_kg": 600,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-002",
+      "shipment_id": "SHP-002",
+      "truck_id": "TN-07",
+      "driver_id": "DRV-007",
+      "status": "active",
+      "assigned_mass_kg": 400,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-003",
+      "shipment_id": "SHP-003",
+      "truck_id": "TN-01",
+      "driver_id": "DRV-001",
+      "status": "active",
+      "assigned_mass_kg": 300,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-004",
+      "shipment_id": "SHP-004",
+      "truck_id": "TN-01",
+      "driver_id": "DRV-001",
+      "status": "active",
+      "assigned_mass_kg": 400,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-005",
+      "shipment_id": "SHP-005",
+      "truck_id": "TN-02",
+      "driver_id": "DRV-002",
+      "status": "active",
+      "assigned_mass_kg": 200,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-006",
+      "shipment_id": "SHP-006",
+      "truck_id": "TN-02",
+      "driver_id": "DRV-002",
+      "status": "active",
+      "assigned_mass_kg": 300,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-007",
+      "shipment_id": "SHP-007",
+      "truck_id": "TN-03",
+      "driver_id": "DRV-003",
+      "status": "active",
+      "assigned_mass_kg": 400,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-008",
+      "shipment_id": "SHP-008",
+      "truck_id": "TN-03",
+      "driver_id": "DRV-003",
+      "status": "active",
+      "assigned_mass_kg": 400,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-009",
+      "shipment_id": "SHP-009",
+      "truck_id": "TN-04",
+      "driver_id": "DRV-004",
+      "status": "active",
+      "assigned_mass_kg": 300,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-010",
+      "shipment_id": "SHP-010",
+      "truck_id": "TN-04",
+      "driver_id": "DRV-004",
+      "status": "active",
+      "assigned_mass_kg": 300,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-011",
+      "shipment_id": "SHP-011",
+      "truck_id": "TN-05",
+      "driver_id": "DRV-005",
+      "status": "active",
+      "assigned_mass_kg": 500,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-012",
+      "shipment_id": "SHP-012",
+      "truck_id": "TN-05",
+      "driver_id": "DRV-005",
+      "status": "active",
+      "assigned_mass_kg": 500,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-013",
+      "shipment_id": "SHP-013",
+      "truck_id": "TN-06",
+      "driver_id": "DRV-006",
+      "status": "active",
+      "assigned_mass_kg": 200,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-014",
+      "shipment_id": "SHP-014",
+      "truck_id": "TN-06",
+      "driver_id": "DRV-006",
+      "status": "active",
+      "assigned_mass_kg": 200,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-015",
+      "shipment_id": "SHP-015",
+      "truck_id": "TN-08",
+      "driver_id": "DRV-008",
+      "status": "active",
+      "assigned_mass_kg": 200,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-016",
+      "shipment_id": "SHP-016",
+      "truck_id": "TN-08",
+      "driver_id": "DRV-008",
+      "status": "active",
+      "assigned_mass_kg": 300,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-017",
+      "shipment_id": "SHP-017",
+      "truck_id": "TN-09",
+      "driver_id": "DRV-009",
+      "status": "active",
+      "assigned_mass_kg": 400,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-018",
+      "shipment_id": "SHP-018",
+      "truck_id": "TN-09",
+      "driver_id": "DRV-009",
+      "status": "active",
+      "assigned_mass_kg": 300,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-019",
+      "shipment_id": "SHP-019",
+      "truck_id": "TN-10",
+      "driver_id": "DRV-010",
+      "status": "active",
+      "assigned_mass_kg": 200,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    },
+    {
+      "assignment_id": "ASN-020",
+      "shipment_id": "SHP-020",
+      "truck_id": "TN-10",
+      "driver_id": "DRV-010",
+      "status": "active",
+      "assigned_mass_kg": 200,
+      "assigned_at": "2026-10-16T22:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "ends_at": null
+    }
+  ]
+}

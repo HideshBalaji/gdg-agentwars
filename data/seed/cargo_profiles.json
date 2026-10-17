@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "records": [
+    {
+      "cargo_profile_id": "CG-VACCINE-TRAINING",
+      "label": "Fictional vaccine training cargo (inert simulation units)",
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "simulated_excursion_budget_min": 20,
+      "requires_reefer": true,
+      "description": "All thermal windows are invented scoring constraints for inert training cargo, never product-specific safety limits or disposition advice."
+    },
+    {
+      "cargo_profile_id": "CG-CHILLED-TRAINING",
+      "label": "Fictional chilled training packs",
+      "temperature_range_c": {
+        "min": 2,
+        "max": 8
+      },
+      "simulated_excursion_budget_min": 30,
+      "requires_reefer": true,
+      "description": "Invented simulation constraints only."
+    },
+    {
+      "cargo_profile_id": "CG-AMBIENT-TRAINING",
+      "label": "Fictional ambient cartons",
+      "temperature_range_c": null,
+      "simulated_excursion_budget_min": null,
+      "requires_reefer": false,
+      "description": "No thermal constraint in this simulation."
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "assets": [
+    {
+      "id": "ASSET-CDC-TOOLKIT",
+      "source_id": "REF-CDC-TOOLKIT",
+      "dataset_kind": "downloaded_authoritative_public_reference",
+      "local_copy": "cdc_vaccine_storage_handling_toolkit.pdf",
+      "title": "Vaccine Storage and Handling Toolkit, July 2026",
+      "publisher": "U.S. Centers for Disease Control and Prevention (CDC)",
+      "requested_url": "https://www.cdc.gov/vaccines/hcp/downloads/storage-handling-toolkit.pdf",
+      "effective_url": "https://www.cdc.gov/vaccines/hcp/downloads/storage-handling-toolkit.pdf",
+      "discovered_on": "https://www.cdc.gov/vaccines/hcp/storage-handling/index.html",
+      "read_verified_before_download": true,
+      "retrieved_at": "2026-10-17T07:46:06Z",
+      "retrieval_method": "Real HTTPS GET using curl --fail --location; response body saved directly without alteration",
+      "http_status": 200,
+      "content_type": "application/pdf",
+      "bytes": 1593615,
+      "sha256": "f540ead5f32c8711a1a8b4b0c7dfca4273fc3b869b3dd6045d613b668c899c9c",
+      "checksum_method": "shasum -a 256 on downloaded file",
+      "reuse_policy_url": "https://www.cdc.gov/other/agencymaterials.html",
+      "reuse_basis": "CDC-developed government guidance retained unmodified with attribution, non-endorsement, and free-original notice in README.md under CDC's public-domain-content policy. No copyright restriction statement was found in the reader-extracted PDF text; the policy warns about third-party materials, protected marks, and international differences. This is not a blanket license for separately extracting or promoting with embedded marks/images.",
+      "attribution": "Source: CDC. Materials developed by the U.S. Centers for Disease Control and Prevention.",
+      "original_available_free": true,
+      "substantive_content_modified": false,
+      "synthetic": false,
+      "safety_limit": "Reference guidance only. U.S. guidance is not an Indian regulatory determination or an assessment that any real vaccine shipment remains viable."
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+Training simulation. The truck is still moving, but the refrigeration warning is on and the cargo temperature keeps rising. The latest probe reading is eight point five degrees Celsius at two A M. This is truck T N zero seven and shipment S H P zero zero one near Hosur. Please check the sensor history and tell me whether a cold hub or a transfer is still feasible.
