@@ -79,7 +79,8 @@ export default function App() {
 
   return (
     <div className="relative h-screen overflow-hidden bg-void text-ink font-sans">
-      <div className="pointer-events-none absolute inset-0">
+      {/* Clipped so the drifting glows can't make the root scrollable. */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -left-40 -top-40 h-[600px] w-[600px] rounded-full bg-ice-500/10 blur-3xl animate-drift" />
         <div className="absolute -bottom-40 right-0 h-[600px] w-[600px] rounded-full bg-ghost-500/10 blur-3xl animate-drift" />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(148,180,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(148,180,255,0.04)_1px,transparent_1px)] bg-[size:40px_40px]" />
