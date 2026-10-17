@@ -22,7 +22,7 @@ Individual steps, each must exit 0:
 make lint       # ruff
 make test       # pytest (offline, no keys)
 make demo       # offline ADK handover, carrier outage recovery, feedback cost change
-make eval       # ADK eval set: trajectory, groundedness, truthfulness, hallucination, PII blocks, A2A
+make eval       # ADK eval set: trajectory, groundedness, truthfulness, hallucination, PII redaction, A2A
 make ui-build   # tsc --noEmit && vite build in ui/
 ```
 
