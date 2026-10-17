@@ -33,6 +33,8 @@ export type Mode = 'demo' | 'live';
 export type FeedItem =
   | { kind: 'message'; id: string; message: ChatMessage }
   | { kind: 'tool'; id: string }
+  | { kind: 'healing'; id: string }
+  | { kind: 'action'; id: string }
   | { kind: 'handover'; id: string; from: AgentId; to: AgentId; reason: string; at: string };
 
 /** Evidence chosen in the composer, before it is attached to an incident or message. */
@@ -116,6 +118,8 @@ export interface State {
   lastFirstChoice: Choice | null;
   /** Set when a comparable incident's choice differs because of learned feedback. */
   comparison: { before: Choice; after: Choice; preferences: string[] } | null;
+  /** When each loop stage started (sim time), for the step list. */
+  stageTimes: Partial<Record<Stage, string>>;
 }
 
 export const DEFAULT_FOCUS = { center: { lat: 12.79, lng: 77.86 }, zoom: 1 };
@@ -155,6 +159,7 @@ const incidentScope = () => ({
   chaos: null,
   typing: null,
   comparison: null,
+  stageTimes: {} as Partial<Record<Stage, string>>,
 });
 
 /** 02:06:40 IST, the night of the demo. */
@@ -240,7 +245,7 @@ export function apply(e: GhostEvent) {
         focus: e.incident.location
           ? { center: e.incident.location, zoom: 1.7 }
           : DEFAULT_FOCUS,
-        history: [{ id: e.incident.id, title: e.incident.title }, ...s.history].slice(0, 8),
+        history: [{ id: e.incident.id, title: e.incident.title }, ...s.history.filter((h) => h.id !== e.incident.id)].slice(0, 8),
       });
       return;
     }
@@ -258,7 +263,11 @@ export function apply(e: GhostEvent) {
       return;
     case 'stage': {
       const idx = STAGES.findIndex((x) => x.id === e.stage);
-      set({ stage: e.stage, stagesDone: STAGES.slice(0, idx).map((x) => x.id) });
+      set({
+        stage: e.stage,
+        stagesDone: STAGES.slice(0, idx).map((x) => x.id),
+        stageTimes: s.stageTimes[e.stage] ? s.stageTimes : { ...s.stageTimes, [e.stage]: new Date(nowMs()).toISOString() },
+      });
       return;
     }
     case 'agent.handover': {
@@ -326,8 +335,13 @@ export function apply(e: GhostEvent) {
         ? s.healing.map((h) => (h.id === e.event.id ? e.event : h))
         : [...s.healing, e.event];
       const bad = e.event.result === 'in_progress' || e.event.result === 'failed';
-      set({ healing, ...follow('healing'), alarm: bad && e.event.level === 'fallback' ? s.alarm + 1 : s.alarm });
-      if (!exists && bad && e.event.level !== 'validation') {
+      set({
+        healing,
+        feed: exists ? s.feed : [...s.feed, { kind: 'healing', id: e.event.id }],
+        ...follow('healing'),
+        alarm: bad && e.event.level === 'fallback' ? s.alarm + 1 : s.alarm,
+      });
+      if (!exists && bad && e.event.level === 'fallback') {
         toast({ tone: 'bad', title: `${e.event.tool} failed`, body: e.event.failure });
       }
       if (exists && e.event.result === 'recovered' && e.event.level === 'fallback') {
@@ -339,6 +353,7 @@ export function apply(e: GhostEvent) {
       const exists = s.actions.some((a) => a.id === e.receipt.id);
       set({
         actions: exists ? s.actions.map((a) => (a.id === e.receipt.id ? e.receipt : a)) : [...s.actions, e.receipt],
+        feed: exists ? s.feed : [...s.feed, { kind: 'action', id: e.receipt.id }],
         ...follow('actions'),
       });
       return;

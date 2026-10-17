@@ -11,10 +11,10 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
   render() {
     if (!this.state.error) return this.props.children;
     return (
-      <div className="flex h-screen flex-col items-center justify-center gap-3 bg-void text-ink">
-        <div className="font-display text-xl">Ghost Dispatcher hit a rendering error</div>
-        <pre className="max-w-xl whitespace-pre-wrap text-xs text-alarm-400">{this.state.error.message}</pre>
-        <button className="rounded-lg bg-ice-500 px-3 py-1.5 text-sm text-void" onClick={() => location.reload()}>
+      <div className="flex h-screen flex-col items-center justify-center gap-3 bg-bg text-fg">
+        <div className="text-lg font-semibold tracking-tight">Ghost Dispatcher hit a rendering error</div>
+        <pre className="max-w-xl whitespace-pre-wrap rounded-md border border-line bg-surface p-3 font-mono text-xs text-red">{this.state.error.message}</pre>
+        <button className="h-8 rounded-md bg-fg px-3 text-sm font-medium text-bg" onClick={() => location.reload()}>
           Reload
         </button>
       </div>

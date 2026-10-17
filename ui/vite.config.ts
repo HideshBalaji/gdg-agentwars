@@ -41,4 +41,9 @@ export default defineConfig({
     port: 4173,
     proxy: { '/api': backend, '/health': backend },
   },
+  build: {
+    // MapLibre is ~800 kB on its own; keep it in a separate, cacheable chunk.
+    chunkSizeWarningLimit: 1100,
+    rollupOptions: { output: { manualChunks: { maplibre: ['maplibre-gl'] } } },
+  },
 });

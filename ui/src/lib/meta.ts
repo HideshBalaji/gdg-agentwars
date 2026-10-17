@@ -36,7 +36,7 @@ export const AGENTS: Record<AgentId, AgentMeta> = {
     name: 'Dispatcher',
     role: 'Coordinates specialists, picks the plan',
     model: 'Gemini Pro',
-    color: '#67e8f9',
+    color: '#7883eb',
     icon: RadioTower,
   },
   intake: {
@@ -44,7 +44,7 @@ export const AGENTS: Record<AgentId, AgentMeta> = {
     name: 'Intake',
     role: 'Photos, voice, PDFs, sensors → incident',
     model: 'Gemini Flash',
-    color: '#b4a1ff',
+    color: '#a78bfa',
     icon: Eye,
   },
   route_risk: {
@@ -52,7 +52,7 @@ export const AGENTS: Record<AgentId, AgentMeta> = {
     name: 'Route & Risk',
     role: 'Maps, weather, rescue-window math',
     model: 'Gemini Flash',
-    color: '#60a5fa',
+    color: '#5296ff',
     icon: Route,
   },
   negotiator: {
@@ -60,7 +60,7 @@ export const AGENTS: Record<AgentId, AgentMeta> = {
     name: 'Negotiator',
     role: 'Carriers and customers',
     model: 'Gemini Flash · Live',
-    color: '#fbbf24',
+    color: '#d99a2b',
     icon: Handshake,
   },
   comms: {
@@ -68,7 +68,7 @@ export const AGENTS: Record<AgentId, AgentMeta> = {
     name: 'Comms',
     role: 'Gmail, Calendar, Sheets',
     model: 'Gemini Flash',
-    color: '#4ade80',
+    color: '#45ad7a',
     icon: MessageSquareShare,
   },
   validator: {
@@ -76,7 +76,7 @@ export const AGENTS: Record<AgentId, AgentMeta> = {
     name: 'Validator',
     role: 'Reefer, capacity, deadline, hours',
     model: 'Code + Flash',
-    color: '#2dd4bf',
+    color: '#26a69a',
     icon: ShieldCheck,
   },
   watchdog: {
@@ -84,7 +84,7 @@ export const AGENTS: Record<AgentId, AgentMeta> = {
     name: 'Watchdog',
     role: 'Retry, fallback, repair',
     model: 'Code + Flash',
-    color: '#fb7185',
+    color: '#e5534b',
     icon: Stethoscope,
   },
   critic: {
@@ -92,7 +92,7 @@ export const AGENTS: Record<AgentId, AgentMeta> = {
     name: 'Critic',
     role: 'Ratings → learned preferences',
     model: 'Gemini Flash',
-    color: '#f0abfc',
+    color: '#c678d0',
     icon: Brain,
   },
 };

@@ -2,7 +2,8 @@
  * Live mode: talks to the FastAPI backend (ghost_dispatcher/api.py, see docs/BACKEND.md)
  * through the Vite proxy and maps its SSE events onto the UI's GhostEvents.
  */
-import type { AgentId, Evidence, LatLng, Plan, Place, SystemId } from './contract';
+import type { AgentId, Evidence, LatLng, Plan, Place, Stage, SystemId } from './contract';
+import { STAGES } from './contract';
 import { fmtInr, fmtTime, uid } from './format';
 import { MAP_H, MAP_W, project } from './geo';
 import { apply, nowIso, recordRating, resetIncident, toast, useStore, type Choice } from './store';
@@ -21,6 +22,13 @@ let site: Place | null = null;
 let chosen: Plan | null = null;
 let abort: AbortController | null = null;
 const currentChosen = (): Plan | null => chosen;
+
+/** Backend events can arrive late and out of order; the visible step only ever moves forward. */
+function advance(stage: Stage) {
+  const order = STAGES.map((x) => x.id);
+  const current = useStore.getState().stage;
+  if (!current || order.indexOf(stage) > order.indexOf(current)) apply({ type: 'stage', stage });
+}
 /** Set while a comparable incident runs: the rated incident's first choice. */
 let compareBaseline: Choice | null = null;
 
@@ -48,7 +56,10 @@ export async function liveHealth() {
   try {
     const res = await fetch(`${BASE}/health`);
     useStore.setState({ connection: res.ok ? 'online' : 'error' });
-    if (res.ok) await loadFleet();
+    if (res.ok) {
+      await loadFleet();
+      await loadPreferences('', false);
+    }
     return res.ok;
   } catch {
     useStore.setState({ connection: 'error' });
@@ -103,7 +114,7 @@ let fallbackId = '';
 function handle(type: string, data: any) {
   switch (type) {
     case 'validation': {
-      apply({ type: 'stage', stage: 'validate' });
+      advance('validate');
       for (const r of data.rejected ?? []) {
         const reason = Array.isArray(r.reason) ? r.reason.join(', ') : String(r.reason ?? 'rejected');
         const truck = useStore.getState().trucks[r.truck_id];
@@ -121,7 +132,7 @@ function handle(type: string, data: any) {
     case 'plan.created': {
       attempt += 1;
       const plans = (data.candidates as any[]).map((c) => toPlan(c, attempt));
-      apply({ type: 'stage', stage: 'replan' });
+      advance('validate');
       apply({ type: 'plan.candidates', plans });
       for (const p of plans) {
         apply({ type: 'plan.check', plan_id: p.id, check: { id: 'hard', label: 'Reefer · capacity · deadline · hours', status: 'pass' } });
@@ -180,7 +191,7 @@ function handle(type: string, data: any) {
       return;
     }
     case 'action.completed': {
-      apply({ type: 'stage', stage: 'act' });
+      advance('act');
       apply({ type: 'action', receipt: { id: uid('act'), at: nowIso(), kind: 'assign', title: `${data.shipment_id} → ${data.truck_id}`, detail: `Dock at ${fmtTime(data.dock_time)}`, status: 'confirmed', system: 'logistics_mcp', simulated: !!data.simulated } });
       apply({ type: 'truck', truck: { id: data.truck_id, status: 'rescue' } });
       const from = truckAt(data.truck_id);
@@ -189,7 +200,7 @@ function handle(type: string, data: any) {
     }
     case 'integration.completed':
     case 'integration.pending': {
-      apply({ type: 'stage', stage: 'notify' });
+      advance('notify');
       const pending = type === 'integration.pending';
       const rows: [string, SystemId, string][] = [
         ['sheets', 'sheets', 'Fleet board'],
@@ -202,7 +213,7 @@ function handle(type: string, data: any) {
       return;
     }
     case 'incident.resolved': {
-      apply({ type: 'stage', stage: 'learn' });
+      advance('learn');
       const c = data.plan?.chosen;
       apply({
         type: 'outcome',
@@ -229,20 +240,20 @@ function handle(type: string, data: any) {
   }
 }
 
-async function loadPreferences(reason = '') {
+async function loadPreferences(reason = '', announce = true) {
   const prefs = await api<any[]>('/api/preferences').catch(() => []);
+  if (!announce) useStore.setState({ preferences: [] });
   prefs.forEach((p, i) => {
     const rule =
       p.rule === 'cost_delay_budget'
         ? `Prefer a carrier that saves ≥ ${fmtInr(p.min_savings)} if it adds ≤ ${p.max_delay} min, within both deadlines`
         : String(p.rule);
-    apply({
-      type: 'preference',
-      preference: {
-        id: `P-${String(i + 1).padStart(3, '0')}`, rule, condition: JSON.stringify(p.scope ?? {}), effect: 'rank_by: cost',
-        source_incident: p.source_incident ?? incidentId, reason, status: 'active', created_at: nowIso(), applied_count: 0,
-      },
-    });
+    const preference = {
+      id: `P-${String(i + 1).padStart(3, '0')}`, rule, condition: JSON.stringify(p.scope ?? {}), effect: 'rank_by: cost',
+      source_incident: p.source_incident ?? incidentId, reason, status: 'active' as const, created_at: nowIso(), applied_count: 0,
+    };
+    if (announce) apply({ type: 'preference', preference });
+    else useStore.setState((s) => ({ preferences: [...s.preferences, preference] }));
   });
 }
 
@@ -345,8 +356,16 @@ export async function liveStart(opts: { shipmentId?: string; comparable?: boolea
     fallbackId = '';
     chosen = null;
     for (const k of Object.keys(retries)) delete retries[k];
-    const fleet = await loadFleet();
-    const shipment = (fleet.shipments ?? []).find((s: any) => s.id === (shipmentId ?? 'SHP-001')) ?? fleet.shipments?.[0];
+    let fleet = await loadFleet();
+    const pick = (f: any) => (f.shipments ?? []).find((s: any) => s.id === (shipmentId ?? 'SHP-001')) ?? f.shipments?.[0];
+    // Already rescued in this database? Re-seed the fleet (offline only; preferences are kept).
+    const rescued = (f: any) => f.trucks.find((t: any) => t.id === pick(f)?.truck_id)?.status !== 'broken';
+    if (!comparable && rescued(fleet)) {
+      await api('/api/demo/reset', { method: 'POST' });
+      for (const system of BUTTONS) apply({ type: 'system.health', system, health: 'up' });
+      fleet = await loadFleet();
+    }
+    const shipment = pick(fleet);
     const own = fleet.trucks.find((t: any) => t.id === shipment.truck_id);
     const broken = own?.status === 'broken' ? own : fleet.trucks.find((t: any) => t.status === 'broken') ?? own;
     site = { id: 'site', name: `${broken?.id ?? 'Truck'} breakdown`, lat: broken.location.lat, lng: broken.location.lng };
@@ -384,12 +403,13 @@ export async function liveStart(opts: { shipmentId?: string; comparable?: boolea
 
     const conv = await api<any>('/api/conversations', { method: 'POST', body: JSON.stringify({ incident_id: inc.id }) });
     conversationId = conv.id;
-    apply({ type: 'stage', stage: 'understand' });
+    advance('understand');
     await liveSend('Plan a rescue', true);
-    await api(`/api/incidents/${inc.id}/plan`, { method: 'POST' });
-    await new Promise((r) => setTimeout(r, 2500));
-    // `chosen` is set by the SSE handler while we awaited; read it through a call so TS doesn't narrow it.
-    const picked = currentChosen();
+    // The /plan response already names the chosen candidate; don't wait on the (paced) event stream.
+    const planned = await api<any>(`/api/incidents/${inc.id}/plan`, { method: 'POST' });
+    await new Promise((r) => setTimeout(r, 1200));
+    const picked = currentChosen() ?? (planned?.chosen ? toPlan(planned.chosen, 1) : null);
+    advance('act');
     if (picked && comparable) {
       apply({ type: 'agent.handover', to: 'negotiator', reason: 'Book the chosen carrier' });
       apply({ type: 'message', message: { id: uid('msg'), at: nowIso(), role: 'agent', agent: 'negotiator', text: `Booking ${picked.truck_id} with ${picked.carrier_id}. Carriers are healthy this time, so the choice above comes from the ranking alone.` } });
@@ -399,7 +419,6 @@ export async function liveStart(opts: { shipmentId?: string; comparable?: boolea
       apply({ type: 'message', message: { id: uid('msg'), at: nowIso(), role: 'agent', agent: 'negotiator', text: `Booking ${picked.truck_id} with ${picked.carrier_id}. (Kill the carrier now to watch the fallback.)` } });
       await chaosWindow(systemOf(picked.carrier_id), 15_000);
     }
-    apply({ type: 'stage', stage: 'act' });
     await api(`/api/incidents/${inc.id}/execute`, { method: 'POST' });
   } catch (e) {
     const msg = (e as Error).message;

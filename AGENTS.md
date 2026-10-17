@@ -25,7 +25,7 @@ make demo       # offline ADK handover, carrier outage recovery, feedback cost c
 make ui-build   # tsc --noEmit && vite build in ui/
 ```
 
-To run the app (no keys): `make api` in one terminal, `make ui` in another, open http://localhost:5173. Click the **DEMO ⇄** badge to switch to the live backend, then **Truck breakdown**. Click **Samples** to upload driver evidence first, and **Run comparable incident** after rating to see the learned decision (`POST /api/demo/reset`, offline only). Details: README sections 2–3.
+To run the app (no keys): `make api` in one terminal, `make ui` in another, open http://localhost:5173. Switch the top-bar **Demo | Live** toggle to Live, click **Use sample evidence** to upload driver evidence, then **Simulate breakdown**. During the booking pause click **Kill provider** to see self-healing; after rating, **Run comparable incident** shows the learned decision (`POST /api/demo/reset`, offline only). Details: README sections 2–3.
 
 Container equivalent:
 

@@ -1,5 +1,6 @@
 import { CARRIER_NAME, DESTINATIONS } from '../fleet';
 import { uid } from '../format';
+import { takeReady } from '../evidence';
 import { useStore } from '../store';
 import { bookWithFallback, drive, mkPlan, RELIABILITY, truckPos } from './common';
 import { check, makeCtx, rank, type Run } from './engine';
@@ -8,7 +9,8 @@ const SITE = { id: 'LOC-TN07', name: 'NH-48, 3 km east of Hosur', lat: 12.716, l
 
 export async function breakdown(run: Run) {
   const ctx = makeCtx(run);
-  const id = 'INC-0217';
+  // Each run gets its own ID so the sidebar history stays distinct.
+  const id = `INC-${String(217 + useStore.getState().history.length).padStart(4, '0')}`;
   const deadlineMs = ctx.now() + 232 * 60_000;
   ctx.emit({
     type: 'incident.opened',
@@ -33,9 +35,11 @@ export async function breakdown(run: Run) {
     id: uid('ev'), kind: 'voice' as const, name: 'voice-note.m4a', url: '/demo/voice-note-tn07.m4a', synthetic: true,
     transcript: 'Control, this is Ravi on TN-07. Engine died near Hosur toll, smoke from the bonnet. Reefer is on battery, maybe two hours. Vaccine load for Bengaluru Central.',
   };
-  await ctx.external('Ravi K. · Driver TN-07', 'Engine died, smoke from the front. Reefer on battery.', [photo, voice]);
-  ctx.emit({ type: 'incident.evidence', evidence: photo });
-  ctx.emit({ type: 'incident.evidence', evidence: voice });
+  // Evidence the presenter attached on the start screen replaces the built-in sample.
+  const attached = takeReady();
+  const evidence = attached.length ? attached : [photo, voice];
+  await ctx.external('Ravi K. · Driver TN-07', 'Engine died, smoke from the front. Reefer on battery.', evidence);
+  for (const ev of evidence) ctx.emit({ type: 'incident.evidence', evidence: ev });
   await ctx.say('dispatcher', 'On it. Vaccine cargo, so I am opening a rescue. Intake, read the driver evidence.');
   await ctx.handover('intake', 'Multimodal evidence to parse');
 

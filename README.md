@@ -82,21 +82,34 @@ make ui
 
 Open **http://localhost:5173**. The dev server proxies `/api` and `/health` to `127.0.0.1:8000`, so there is no CORS setup. Optional extra processes: `make mcp` (authenticated MCP server on :8001) and `make carrier` (mock carrier HTTP API on :8002 with `/kill` and `/revive`). Offline mode needs neither.
 
-The control room has two modes, switched with the **DEMO ⇄ / LIVE ⇄ badge** in the top bar.
+The control room has two modes, switched with the **Demo | Live** toggle in the top bar.
+
+### How the screen works
+
+The screen answers one question: *what is happening right now, and what already happened?*
+
+- **Start screen:** three steps. Attach driver evidence (optional), simulate a breakdown, then watch, break and rate it.
+- **Now banner:** one plain-language sentence about what is happening this moment, which agent is acting (and which tool it is calling), and *Step n of 7*.
+- **Step list:** Detect → Understand → Find options → Check and choose → Book the rescue → Notify → Learn. The live step is open and shows only what matters for it (facts, options, rejections, booking and recovery, receipts, the rating). Finished steps fold into a one-line summary; click one to reopen it.
+- **Right side:** the four numbers that matter (rescue window, cargo temperature, rescue plan, self-healing) and a live map (MapLibre with CARTO light/dark basemaps; a built-in schematic is used when tiles can't load).
+- **Agent log** (`L`): a drawer with the full agent conversation, every tool call (Gemini, logistics-mcp, Google, carriers), the fleet table and learned memory. The message box for chatting with the active agent lives here.
+- **Systems menu:** health of every integration, with a switch to kill or revive each carrier.
+- **⌘K:** every action from the keyboard.
 
 ### Live mode (real backend)
 
-1. Click the **DEMO ⇄** badge. It turns into **LIVE · backend online** and the map loads the backend's 10 trucks around Hosur. The carrier buttons now show the backend's carriers (`Polar`, `Budget`, `Contingency`; hover for the full name).
-2. **Multimodal evidence:** click **Samples** under the chat to add the data team's driver evidence (`data/photos/reefer_truck.jpg` and the voice note `data/audio/breakdown.wav` with its transcript). You can also attach your own files with 📎, record a voice note with 🎙, or drag files onto the chat (JPEG, PNG, WAV, MP3, M4A, WebM, PDF; 10 MiB max). Each file uploads straight away to `POST /api/uploads`; a green ✓ means the backend stored it.
-3. Click **Truck breakdown** (or press `1`). The UI:
-   - creates an incident for `SHP-001` with the uploaded `evidence_ids` (`POST /api/incidents`) and opens its event stream; the photo and voice note appear on the incident card and in the chat;
+1. Switch the top-bar toggle to **Live**. Its dot turns green when the backend answers, and the map loads the backend's 10 trucks around Hosur.
+2. **Multimodal evidence:** on the start screen click **Use sample evidence** to add the data team's driver evidence (`data/photos/reefer_truck.jpg` and the voice note `data/audio/breakdown.wav` with its transcript), or **Attach files** / **Record voice note** (JPEG, PNG, WAV, MP3, M4A, WebM, PDF; 10 MiB max). Each file uploads straight away to `POST /api/uploads`; a ✓ means the backend stored it.
+3. Click **Simulate breakdown** (or press `1`). The UI:
+   - creates an incident for `SHP-001` with the uploaded `evidence_ids` (`POST /api/incidents`) and opens its event stream; the evidence appears in the Detect step;
    - opens an ADK conversation and sends *"Plan a rescue"* (the Dispatcher hands over to Route & Risk);
-   - asks the backend for a validated plan (`POST /plan`): rejected trucks are struck out with the validator's reason, and the chosen plan glows;
-   - **pauses 15 seconds before booking** while the chosen carrier's button flashes **KILL NOW**.
-4. **Self-healing:** click the flashing carrier button (or press `K`) within that window. The backend's carrier is killed (`POST /api/demo/carriers/CAR-001/kill`). The Healing Log shows the retries failing, then a fallback, then the booking via the backup carrier (`TN-03` via `CAR-002`). The map draws the rescue route.
-5. The incident resolves: assignment, dock, Sheets/Calendar/Gmail receipts (simulated) and an outcome toast.
-6. **Feedback:** in the rating box, keep the reason *"Too expensive…"* and click **Needs work**. The backend stores a ranking-only preference (`GET /api/preferences`). It appears in the memory list as **P-001**.
-7. **Learning, visible:** click **Run comparable incident** (in the Critic's reply, or **Comparable incident** in the top bar). The UI calls `POST /api/demo/reset`, which re-seeds the fleet, carriers and assignments to the same 02:00 snapshot but **keeps learned preferences and past incidents**. It then replays the same breakdown with every carrier healthy and no kill. A **Decision changed by feedback** card shows the planner's first choice before the rating vs. now:
+   - asks the backend for a validated plan (`POST /plan`): the Check and choose step lists the rejected trucks with the validator's reasons and the chosen plan with its reason;
+   - **pauses 15 seconds before booking**: the Now banner turns amber and shows **Kill provider** with a countdown.
+   - If this shipment was already rescued in the current database, it first calls `POST /api/demo/reset` (offline only) so the run can repeat.
+4. **Self-healing:** click **Kill provider** (or press `K`) during that pause. The backend's carrier is killed (`POST /api/demo/carriers/{id}/kill`). The Book the rescue step shows the retries failing, then a fallback, then the booking via the backup carrier. The map draws the rescue route.
+5. The incident resolves through Notify (dock, fleet sheet, receiver; all simulated) to Learn.
+6. **Feedback:** in the Learn step keep the reason *"Too expensive…"* and click **Needs work**. The backend stores a ranking-only preference (`GET /api/preferences`). It appears in the agent log's Memory tab as **P-001**.
+7. **Learning, visible:** click **Run comparable incident** (in the Learn step, **Run comparable** in the top bar, or press `C`). The UI calls `POST /api/demo/reset`, which re-seeds the fleet, carriers and assignments to the same 02:00 snapshot but **keeps learned preferences and past incidents**. It then replays the same breakdown with every carrier healthy and no kill. The Now banner shows *Learned from your rating* and a **Decision changed by feedback** card compares the planner's first choice before the rating with now:
 
    | | Truck · carrier | Cost | Delivery |
    |---|---|---|---|
@@ -104,15 +117,15 @@ The control room has two modes, switched with the **DEMO ⇄ / LIVE ⇄ badge** 
    | After rating | TN-03 · CAR-002 | ₹12,000 | 08:50 |
 
    That's ₹6,500 saved for 75 minutes later, within both deadlines, with the reason *"Learned preference: cheapest feasible carrier within the approved cost/time policy"*. Because the fleet and carriers are identical, the change is attributable to the feedback alone.
-8. **Chat:** type *"Why this vehicle?"* in the message box. The specialist that owns the conversation answers from the backend. Any pending evidence is sent with the message (`evidence_ids`).
+8. **Chat:** open the agent log (`L`) and type *"Why this vehicle?"*. The specialist that owns the conversation answers from the backend. Any pending evidence is sent with the message (`evidence_ids`).
 
 > **Replay note:** `POST /api/demo/reset` (offline mode only) makes runs repeatable without restarting. To also clear learned preferences and history, restart with a fresh database: `GHOST_DATABASE=runs/demo-$(date +%s).sqlite make api`.
 
 ### Demo mode (scripted, no backend)
 
-The default mode needs no backend. Press **Truck breakdown** (`1`) to play a richer scripted incident through the same UI: the driver's photo and a playable voice note, Intake facts, a Maps timeout retry, two validator rejections and a re-plan (attempt 2 of 3), the carrier booking with its **KILL NOW** window, the fallback, a dock-slot argument repair, and notifications. Rate it *"too expensive"*, click **Run comparable incident**, and the Dispatcher picks the cheaper carrier (KA-11 ColdLine ₹18,400 → KA-04 FrostFleet ₹11,200), citing the learned rule in the same **Decision changed by feedback** card. Files you attach in demo mode stay in the browser. The scripted engine emits the same typed events the backend stream is mapped onto (`ui/src/lib/contract.ts`).
+The default mode needs no backend. Press **Simulate breakdown** (`1`) to play a richer scripted incident through the same steps: the driver's photo and a playable voice note (or the evidence you attached), Intake facts, a Maps timeout retry, two validator rejections and a re-plan (attempt 2 of 3), the booking pause with **Kill provider**, the fallback, a dock-slot argument repair, and notifications. Rate it *"too expensive"*, click **Run comparable incident**, and the Dispatcher picks the cheaper carrier (KA-11 ColdLine ₹18,400 → KA-04 FrostFleet ₹11,200), citing the learned rule in the same **Decision changed by feedback** card. Files you attach in demo mode stay in the browser. The scripted engine emits the same typed events the backend stream is mapped onto (`ui/src/lib/contract.ts`).
 
-**Keyboard:** `1` start breakdown · `K` kill/revive the first carrier · speed button `1×/2×` · **Reset** clears the incident.
+**Keyboard:** `1` simulate breakdown · `K` kill the carrier being booked · `C` run comparable incident · `L` agent log · `⌘K` command menu (also: playback speed, reset, theme, each carrier's kill/revive).
 
 ---
 
@@ -122,14 +135,14 @@ Every incident runs through the same loop:
 
 **Detect → Understand → Re-plan → Validate → Act → Notify → Learn**
 
-The stepper at the top of the control room shows which stage is running.
+The control room's step list follows this loop: the Now banner says which step is running, and each step opens while it is live.
 
 ### Architecture
 
 ```mermaid
 flowchart LR
   subgraph Browser["ui/ · React control room (Vite)"]
-    UI[Map · Rescue window · Agents · Plans · Healing Log · Chat · Rating]
+    UI[Now banner · Step list · Metrics · Map · Agent log · Rating]
   end
   subgraph Backend["ghost_dispatcher/ · FastAPI (make api :8000)"]
     API[api.py<br/>REST + SSE]
@@ -177,7 +190,7 @@ sequenceDiagram
   U->>A: POST /api/incidents/{id}/plan
   A->>S: candidates → hard checks → rank with preferences
   S-->>U: SSE: validation (rejected + reasons), plan.created (chosen + reason)
-  Note over U: 15 s window: presenter may click KILL NOW
+  Note over U: 15 s window: presenter may click Kill provider
   U->>A: POST /api/demo/carriers/CAR-001/kill (optional)
   U->>A: POST /api/incidents/{id}/execute
   A->>S: book with idempotency key
@@ -195,13 +208,13 @@ sequenceDiagram
 
 | Stage | Backend | Control room |
 |---|---|---|
-| **Detect** | `POST /api/incidents` persists the incident and emits `incident.created` | Incident card, red pulse on the broken truck, rescue-window countdown from the shipment's cold-restore deadline |
-| **Understand** | The ADK Dispatcher reads the incident and transfers to a specialist. In live mode Intake reads uploaded photos/audio/PDFs with Gemini; offline mode never invents evidence | Agent constellation lights the owner; handover line in the chat |
-| **Re-plan** | Route & Risk computes candidates from fleet, hubs, sensors and routes (collected fixture offline, Maps Routes live) | Plan cards with time, cost, slack |
-| **Validate** | Deterministic code rejects plans that fail reefer, capacity, availability, rescue-window or driver-hour checks (`services/validation.py`). Agent planning is wrapped in a `LoopAgent` (max 3 iterations) | Rejected cards are struck out with the reason. The chosen card glows with the ranking reason |
-| **Act** | Books the carrier with an idempotency key, then reassigns the load and dock atomically. Failures go through `services/recovery.py` | Healing Log rows (retry → fallback → recovered), booking and assignment receipts, rescue route on the map |
-| **Notify** | Sheets fleet board, Calendar dock event, Gmail notification (`tools/google.py`, simulated offline). Failed syncs become retryable jobs | Receipts for each integration; *pending* if a sync is pending |
-| **Learn** | Feedback becomes a typed, scoped, expiring ranking preference. Hard checks never change. `POST /api/demo/reset` restores the fleet but keeps preferences, so a comparable incident can be replayed | Rating box → stored rule in memory → **Run comparable incident** → *Decision changed by feedback* card (before vs. after) |
+| **Detect** | `POST /api/incidents` persists the incident and emits `incident.created` | Detect step with the driver report and evidence, red pulse on the broken truck, rescue-window countdown from the shipment's cold-restore deadline |
+| **Understand** | The ADK Dispatcher reads the incident and transfers to a specialist. In live mode Intake reads uploaded photos/audio/PDFs with Gemini; offline mode never invents evidence | Understand step with the extracted facts; the Now banner names the agent that owns the conversation |
+| **Re-plan** | Route & Risk computes candidates from fleet, hubs, sensors and routes (collected fixture offline, Maps Routes live) | Find options step: options table with time, cost, slack |
+| **Validate** | Deterministic code rejects plans that fail reefer, capacity, availability, rescue-window or driver-hour checks (`services/validation.py`). Agent planning is wrapped in a `LoopAgent` (max 3 iterations) | Check and choose step: rejected options with the validator's reasons, and the chosen plan with its ranking reason |
+| **Act** | Books the carrier with an idempotency key, then reassigns the load and dock atomically. Failures go through `services/recovery.py` | Book the rescue step: recovery cards (retry → fallback → recovered), booking and assignment receipts; rescue route on the map |
+| **Notify** | Sheets fleet board, Calendar dock event, Gmail notification (`tools/google.py`, simulated offline). Failed syncs become retryable jobs | Notify step: receipts for each integration; *pending* if a sync is pending |
+| **Learn** | Feedback becomes a typed, scoped, expiring ranking preference. Hard checks never change. `POST /api/demo/reset` restores the fleet but keeps preferences, so a comparable incident can be replayed | Learn step: rating → stored rule → **Run comparable incident** → *Decision changed by feedback* (before vs. after) |
 
 ---
 
@@ -217,7 +230,7 @@ sequenceDiagram
 | negotiator | Flash | Carrier booking and customer conversations |
 | comms | Flash | Sheets fleet board, Calendar dock slots, Gmail notifications |
 | validator | Code + Flash | Hard constraint checks before any action |
-| watchdog | Code + Flash | Tool-failure detection, recovery and the Healing Log |
+| watchdog | Code + Flash | Tool-failure detection, recovery and the healing log |
 | critic | Flash | Turns ratings and outcomes into constrained preferences |
 
 Specialists own the conversation while they work and hand over to peers or back to the dispatcher through ADK agent transfer (max 4 transfers per message). Send `target_agent` in a chat message to ask for a specific specialist. `ghost_dispatcher/agent.py` exposes `root_agent`, so `adk web` from the repository root also works for trace inspection.
@@ -226,13 +239,13 @@ Specialists own the conversation while they work and hand over to peers or back 
 
 | Level | Behavior | Where you see it |
 |---|---|---|
-| Retry | Bounded backoff for connection/unavailability errors (up to 3 attempts) | Healing Log `RETRY` rows |
-| Provider fallback | Circuit opens for the failed carrier (60 s); re-plan through the next feasible carrier; ambiguous outcomes are reconciled by booking ID, never double-booked | `FALLBACK` row → `recovered`, plan card for the failed carrier struck out |
-| Validation loop | Rejected plans go back to planning (`LoopAgent`, ≤ 3 iterations); code checks every plan regardless of which agent proposed it | Struck-out plan cards with reasons |
-| Tool-call repair | One corrected attempt per tool/message after a schema error, never inventing identifiers | Healing Log `REPAIR` row (demo mode) |
-| Learned workaround | Provider health and circuit state persist, so unhealthy carriers are skipped until revived/probed | Carrier buttons show **DOWN**; system LEDs turn red |
+| Retry | Bounded backoff for connection/unavailability errors (up to 3 attempts) | *Retry* cards in the Book the rescue step and agent log |
+| Provider fallback | Circuit opens for the failed carrier (60 s); re-plan through the next feasible carrier; ambiguous outcomes are reconciled by booking ID, never double-booked | *Fallback* card → *Recovered*; the Now banner turns amber while recovering |
+| Validation loop | Rejected plans go back to planning (`LoopAgent`, ≤ 3 iterations); code checks every plan regardless of which agent proposed it | Rejected options with reasons in the Check and choose step |
+| Tool-call repair | One corrected attempt per tool/message after a schema error, never inventing identifiers | *Repair* card in the agent log (demo mode) |
+| Learned workaround | Provider health and circuit state persist, so unhealthy carriers are skipped until revived/probed | The Systems menu shows the carrier switched off and a red dot |
 
-Kill and revive carriers from the UI buttons, from `POST /api/demo/carriers/{CAR-00x}/kill|revive`, or from the standalone mock (`make carrier`, then `POST :8002/kill`).
+Kill and revive carriers from the **Kill provider** callout or the Systems menu, from `POST /api/demo/carriers/{CAR-00x}/kill|revive`, or from the standalone mock (`make carrier`, then `POST :8002/kill`).
 
 ### Feedback loop
 
@@ -290,14 +303,14 @@ curl -s -H 'Authorization: Bearer ghost-demo' -H 'Content-Type: application/json
 | SSE `type` | UI effect |
 |---|---|
 | `incident.created` | (UI opens the incident from the `POST` response) |
-| `handover` | Agent constellation moves ownership; handover line in chat |
-| `message` | Agent chat bubble (plan JSON is summarised into a sentence) |
-| `validation` | Rejected plan cards with reasons; rescue deadline; feasible count |
-| `plan.created` | Candidate cards, chosen plan and reason, rescue route preview |
-| `healing` | Healing Log rows: retry attempts, fallback, recovered; red flash and toast on failure |
+| `handover` | Owner shown in the Now banner; handover line in the agent log |
+| `message` | Agent message in the agent log and the step's quote (plan JSON is summarised into a sentence) |
+| `validation` | Rejected options with reasons; rescue deadline; feasible count |
+| `plan.created` | Options table, chosen plan and reason, map framing of the rescue truck |
+| `healing` | Recovery cards: retry attempts, fallback, recovered; amber Now banner while recovering; toast on fallback |
 | `action.completed` | Load assignment + dock receipt; rescue truck drives on the map |
 | `integration.completed` / `integration.pending` | Sheets, Calendar, Gmail receipts (confirmed or pending) |
-| `incident.resolved` | Outcome toast, stage → Learn, rating box |
+| `incident.resolved` | Outcome toast, step → Learn, rating card |
 | `feedback.saved` | Reads `/api/preferences` and shows the stored rule |
 
 The UI's own typed contract (`GhostEvent` in `ui/src/lib/contract.ts`) is what both the live adapter and the scripted demo engine emit, so every panel works in both modes.
@@ -369,10 +382,11 @@ docker compose run --rm app   # runs pytest inside the container
 | Symptom | Fix |
 |---|---|
 | `cd: no such file or directory: ui` | Run commands from the repository root (`gdg-agentwars/`). `ui/` is inside it |
-| UI badge shows **LIVE · backend error** | Start `make api` first, then click the badge again. Check `curl http://127.0.0.1:8000/health` |
+| The Live toggle's dot is red | Start `make api` first, then switch to Live again. Check `curl http://127.0.0.1:8000/health` |
 | Chat or toast says *already rescued* / `sensor_data_missing` | That shipment was rescued in this database. Restart with `GHOST_DATABASE=runs/demo-$(date +%s).sqlite make api` |
-| Kill had no effect | Click the carrier while it flashes **KILL NOW** (the 15 s window before booking). Killing after booking does nothing |
-| **Samples** shows *Samples unavailable* | Start the UI with `make ui` (or `make ui-preview`); the dev server serves `/samples` from `data/` |
+| Kill had no effect | Click **Kill provider** in the Now banner (or press `K`) during the 15 s pause before booking. Killing after booking does nothing |
+| Map shows a plain schematic instead of streets | The CARTO basemap tiles need internet access; the schematic is the offline fallback and shows the same trucks, hubs and routes |
+| **Use sample evidence** shows *Samples unavailable* | Start the UI with `make ui` (or `make ui-preview`); the dev server serves `/samples` from `data/` |
 | Upload shows a red ✗ | Hover it for the reason: unsupported type, over 10 MiB, or the backend isn't running |
 | 🎙 does nothing | Allow microphone access for `localhost:5173` in the browser |
 | `401 unauthorized` | `VITE_API_TOKEN` (UI) must equal `GHOST_API_TOKEN` (backend) |
@@ -386,12 +400,12 @@ docker compose run --rm app   # runs pytest inside the container
 
 | Criterion | Evidence | How to see it |
 |---|---|---|
-| Multi-model / multimodal agents | Gemini Pro + Flash roles; photo, voice, PDF and sensor intake; uploads endpoint | Live mode: **Samples**/📎/🎙 → `POST /api/uploads` → evidence on the incident and passed to Gemini Intake; agent cards show the model per role |
+| Multi-model / multimodal agents | Gemini Pro + Flash roles; photo, voice, PDF and sensor intake; uploads endpoint | Live mode: **Use sample evidence** / **Attach files** / **Record voice note** → `POST /api/uploads` → evidence on the incident and passed to Gemini Intake; the agent log shows the model per agent |
 | Conversational agents | Specialist ownership, peer handovers, follow-ups, `target_agent` switching | Live mode: *"Plan a rescue"* → Route & Risk owns the chat; ask *"Why this vehicle?"* |
 | API calls | FastAPI contract; carrier booking/status; Maps Routes, Sheets, Calendar, Gmail adapters | Plan/execute requests; receipts per integration; `make api` → `/docs` |
 | MCP integration | `logistics-mcp` (official MCP SDK) with 8 tools, authenticated, used by ADK specialists | `make mcp`; `tests/test_mcp.py` drives the real transport |
 | Feedback loop | Rating → scoped preference → changed ranking | Live UI: 👎 → **Run comparable incident** → *Decision changed by feedback* (₹18,500 → ₹12,000); `make demo`; `tests/test_api.py::test_demo_reset_replays_comparable_incident_with_learned_preference` |
-| Self-healing | Carrier killed mid-booking → retries → circuit → fallback → recovered; validation loop; tool repair | Live mode **KILL NOW** → Healing Log; `make demo` prints `healing_events` |
+| Self-healing | Carrier killed mid-booking → retries → circuit → fallback → recovered; validation loop; tool repair | Live mode **Kill provider** → the Book the rescue step shows retry, fallback and recovery; `make demo` prints `healing_events` |
 | A–Z instructions | This README, [AGENTS.md](AGENTS.md), `make verify`, CI, Docker | Section 1 |
 
 ---
