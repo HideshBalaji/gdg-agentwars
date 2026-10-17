@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Ghost, Play, Power, ThumbsDown, ThumbsUp, Zap } from 'lucide-react';
+import { FileText, FolderOpen, Ghost, Loader2, Mic, Paperclip, Play, Power, RotateCcw, Send, Sparkles, ThumbsDown, ThumbsUp, X, Zap } from 'lucide-react';
 import clsx from 'clsx';
-import { STAGES, type AgentId, type SystemId } from './lib/contract';
+import { STAGES, type AgentId, type Evidence, type SystemId } from './lib/contract';
 import { AGENTS, AGENT_ORDER, SYSTEMS, SYSTEM_ORDER } from './lib/meta';
 import { HUBS, PLACES, ROADS } from './lib/fleet';
 import { MAP_H, MAP_W, pathD, project } from './lib/geo';
@@ -10,7 +10,8 @@ import { fmtClock, fmtCountdown, fmtDur, fmtInr, fmtTime, uid } from './lib/form
 import { apply, nowIso, nowMs, recordRating, resetAll, setHealth, useStore } from './lib/store';
 import { makeCtx, type Run } from './lib/demo/engine';
 import { breakdown } from './lib/demo/breakdown';
-import { liveHealth, liveRate, liveSend, liveStart, liveToggleCarrier } from './lib/live';
+import { COMPARABLE, liveComparable, liveHealth, liveRate, liveSend, liveStart, liveToggleCarrier } from './lib/live';
+import { ACCEPT_ATTR, addFiles, addSamples, fmtBytes, removePending, takeReady, toggleRecording } from './lib/evidence';
 import { resetIncident } from './lib/store';
 
 let run: Run | null = null;
@@ -22,6 +23,11 @@ function startBreakdown() {
   run = { cancelled: false, cleanups: [] };
   breakdown(run);
 }
+function runComparable() {
+  if (isLive()) return void liveComparable();
+  startBreakdown();
+}
+
 async function rate(thumbs: 'up' | 'down', reason: string) {
   if (isLive()) {
     apply({ type: 'message', message: { id: uid('m'), at: nowIso(), role: 'user', text: `${thumbs === 'up' ? '👍' : '👎'} ${reason}` } });
@@ -42,7 +48,7 @@ async function rate(thumbs: 'up' | 'down', reason: string) {
   };
   await ctx.tool('critic', 'memory', 'save_preference', p.id, { ms: 500, summary: 'Stored' });
   ctx.emit({ type: 'preference', preference: p });
-  await ctx.say('critic', cost ? `Learned ${p.id}: ${p.rule}. Hard checks never change. Run the incident again and the cheaper carrier wins.` : 'Stored for human review; unknown feedback never changes ranking automatically.');
+  await ctx.say('critic', cost ? `Learned ${p.id}: ${p.rule}. Hard checks never change. Run a comparable incident and the cheaper carrier wins.` : 'Stored for human review; unknown feedback never changes ranking automatically.', cost ? [COMPARABLE] : undefined);
 }
 
 const glass = 'rounded-2xl border border-white/[0.07] bg-night-800/70 backdrop-blur-xl shadow-panel';
@@ -86,30 +92,39 @@ export default function App() {
       </AnimatePresence>
 
       <header className="relative z-10 flex h-14 items-center gap-4 border-b border-white/5 px-4">
-        <Ghost className="h-6 w-6 text-ice-400 animate-float" />
-        <div>
+        <Ghost className="h-6 w-6 shrink-0 text-ice-400 animate-float" />
+        <div className="shrink-0 whitespace-nowrap">
           <div className="font-display text-lg font-semibold tracking-tight">Ghost Dispatcher</div>
           <div className="-mt-1 text-[11px] text-ink-dim">Cold-chain control room</div>
         </div>
         <button onClick={switchMode} title="Switch between scripted demo and the live backend"
-          className={clsx('rounded-full border px-2 py-0.5 text-[11px]', s.mode === 'live' ? (s.connection === 'online' ? 'border-mint-500/40 bg-mint-500/10 text-mint-400' : 'border-alarm-500/40 bg-alarm-500/10 text-alarm-400') : 'border-ghost-400/30 bg-ghost-500/10 text-ghost-300')}>
+          className={clsx('shrink-0 whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px]', s.mode === 'live' ? (s.connection === 'online' ? 'border-mint-500/40 bg-mint-500/10 text-mint-400' : 'border-alarm-500/40 bg-alarm-500/10 text-alarm-400') : 'border-ghost-400/30 bg-ghost-500/10 text-ghost-300')}>
           {s.mode === 'live' ? `LIVE · backend ${s.connection}` : 'DEMO · scripted'} ⇄
         </button>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2 whitespace-nowrap">
           {(['carrier_coldline', 'carrier_frostfleet', 'carrier_polar'] as SystemId[]).map((sys) => {
             const down = s.systems[sys].health === 'down';
             const hot = s.chaos?.system === sys;
+            const full = s.carrierNames[sys] ?? SYSTEMS[sys].name;
+            const short = full.replace(/^Demo\s+/, '').split(/\s+/)[0];
             return (
-              <button key={sys} onClick={() => toggle(sys)}
+              <button key={sys} onClick={() => toggle(sys)} title={`${full}: click to ${down ? 'revive' : 'kill'} its API`}
                 className={clsx('flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs transition',
                   down ? 'border-alarm-500/50 bg-alarm-500/15 text-alarm-400' : 'border-white/10 bg-white/5 hover:bg-white/10',
                   hot && 'animate-pulse ring-2 ring-alarm-500')}>
-                <Power className="h-3 w-3" />{s.carrierNames[sys] ?? SYSTEMS[sys].name} {down ? 'DOWN' : hot ? 'KILL NOW' : 'up'}
+                <Power className="h-3 w-3" />{short} {down ? 'DOWN' : hot ? 'KILL NOW' : 'up'}
               </button>
             );
           })}
           <button onClick={() => useStore.setState({ speed: s.speed === 1 ? 2 : 1 })} className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs">{s.speed}×</button>
           <button onClick={() => { run && (run.cancelled = true); if (s.mode === 'live') { resetIncident(); liveHealth(); } else resetAll(); }} className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs">Reset</button>
+          {s.preferences.some((p) => p.status === 'active') && (
+            <motion.button initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} onClick={runComparable}
+              title="Replay the same breakdown on a re-seeded fleet with healthy carriers; only the learned feedback differs"
+              className="flex items-center gap-1.5 rounded-lg border border-ghost-400/50 bg-ghost-500/15 px-3 py-1.5 text-xs font-semibold text-ghost-300 hover:bg-ghost-500/25">
+              <RotateCcw className="h-3.5 w-3.5" /> Comparable incident
+            </motion.button>
+          )}
           <button onClick={startBreakdown} className="flex items-center gap-1.5 rounded-lg bg-ice-500 px-3 py-1.5 text-xs font-semibold text-void shadow-glow hover:bg-ice-400">
             <Play className="h-3.5 w-3.5" /> Truck breakdown
           </button>
@@ -126,6 +141,23 @@ export default function App() {
               <>
                 <div className="font-display text-base font-semibold">{s.incident.title}</div>
                 <div className="mb-3 font-mono text-xs text-ink-dim">{s.incident.id} · {s.incident.status}</div>
+                {s.incident.evidence.length > 0 && (
+                  <div className="mb-3 grid grid-cols-2 gap-2">
+                    {s.incident.evidence.map((ev) => (
+                      <motion.div key={ev.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="overflow-hidden rounded-lg border border-white/10 bg-black/30">
+                        {ev.kind === 'photo' && ev.url ? (
+                          <img src={ev.url} alt={ev.name} title={ev.caption} className="h-20 w-full object-cover" />
+                        ) : (
+                          <div className="flex h-20 flex-col items-center justify-center gap-1 text-ink-muted">
+                            {ev.kind === 'voice' ? <Mic className="h-5 w-5 text-ghost-300" /> : <FileText className="h-5 w-5 text-ink-muted" />}
+                            <span className="text-[10px]">{ev.kind === 'voice' ? 'voice note' : 'document'}</span>
+                          </div>
+                        )}
+                        <div className="truncate px-1.5 py-1 font-mono text-[9px] text-ink-dim" title={ev.name}>{ev.name}</div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
                 <AnimatePresence>
                   {s.incident.facts.map((f) => (
                     <motion.div key={f.id} initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} className="mb-2 rounded-lg bg-white/[0.03] p-2">
@@ -158,6 +190,7 @@ export default function App() {
           <div className="grid min-h-0 flex-1 grid-cols-2 gap-3">
             <div className={clsx(glass, 'min-h-0 overflow-auto p-3')}>
               <div className="mb-2 text-[11px] uppercase tracking-widest text-ink-dim">Plans · validator</div>
+              <ComparisonCard />
               <AnimatePresence>
                 {s.plans.map((p) => {
                   const v = s.verdicts[p.id];
@@ -352,15 +385,38 @@ function Chat() {
   const ref = useRef<HTMLDivElement>(null);
   const [reason, setReason] = useState('Too expensive — we had 2 h of slack, prefer the cheaper carrier');
   const [draft, setDraft] = useState('');
+  const pending = useStore((st) => st.pendingEvidence);
+  const recording = useStore((st) => st.recording);
+  const [dragging, setDragging] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
   const send = () => {
-    if (!draft.trim()) return;
-    if (useStore.getState().mode === 'live') liveSend(draft.trim());
-    else apply({ type: 'message', message: { id: uid('m'), at: nowIso(), role: 'user', text: draft.trim() } });
+    const text = draft.trim() || (pending.length ? 'Evidence attached' : '');
+    if (!text) return;
+    if (useStore.getState().mode === 'live') liveSend(text);
+    else {
+      const attachments = takeReady();
+      apply({ type: 'message', message: { id: uid('m'), at: nowIso(), role: 'user', text, attachments: attachments.length ? attachments : undefined } });
+      if (useStore.getState().incident) attachments.forEach((ev) => apply({ type: 'incident.evidence', evidence: ev }));
+      if (attachments.length) {
+        apply({ type: 'message', message: { id: uid('m'), at: nowIso(), role: 'agent', agent: 'intake', text: 'Received. Demo mode keeps evidence in the browser; switch to LIVE to upload it to the backend, where Gemini Intake reads it.' } });
+      }
+    }
     setDraft('');
   };
   useEffect(() => { ref.current?.scrollTo({ top: ref.current.scrollHeight, behavior: 'smooth' }); }, [feed.length, typing, ratingRequested]);
   return (
-    <div className={clsx(glass, 'flex min-h-0 flex-1 flex-col')}>
+    <div className={clsx(glass, 'relative flex min-h-0 flex-1 flex-col')}
+      onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+      onDragLeave={(e) => { if (e.currentTarget === e.target) setDragging(false); }}
+      onDrop={(e) => { e.preventDefault(); setDragging(false); addFiles([...e.dataTransfer.files]); }}>
+      <AnimatePresence>
+        {dragging && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center rounded-2xl border-2 border-dashed border-ice-400 bg-ice-500/10 text-sm text-ice-300">
+            Drop photos, voice notes or PDFs
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="border-b border-white/5 px-4 py-2 text-[11px] uppercase tracking-widest text-ink-dim">Conversation</div>
       <div ref={ref} className="min-h-0 flex-1 space-y-2 overflow-auto p-3">
         <AnimatePresence initial={false}>
@@ -383,12 +439,20 @@ function Chat() {
             const a = m.agent ? AGENTS[m.agent] : null;
             return (
               <motion.div key={f.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-                className={clsx('rounded-xl p-2.5 text-sm', m.role === 'system' ? 'border border-alarm-500/30 bg-alarm-500/10 text-alarm-400' : m.role === 'user' ? 'ml-8 bg-ice-500/15' : m.role === 'external' ? 'mr-8 bg-white/[0.05]' : 'mr-4 bg-white/[0.03]')}>
+                className={clsx('rounded-xl p-2.5 text-sm', m.role === 'system' ? (/^Backend:|^Driver app/.test(m.text) ? 'border border-alarm-500/30 bg-alarm-500/10 text-alarm-400' : 'border border-ice-400/20 bg-ice-500/[0.06] text-ice-300') : m.role === 'user' ? 'ml-8 bg-ice-500/15' : m.role === 'external' ? 'mr-8 bg-white/[0.05]' : 'mr-4 bg-white/[0.03]')}>
                 <div className="mb-0.5 text-[10px]" style={{ color: a?.color }}>{a ? `${a.name} · ${a.model}` : m.author ?? (m.role === 'user' ? 'You' : 'System')} · {fmtTime(m.at)}</div>
                 {m.text}
-                {m.attachments?.map((ev) => ev.kind === 'photo'
-                  ? <img key={ev.id} src={ev.url} alt={ev.name} className="mt-2 w-full rounded-lg border border-white/10" />
-                  : <div key={ev.id} className="mt-2 rounded-lg bg-black/30 p-2 text-xs"><audio controls src={ev.url} className="h-8 w-full" /><div className="mt-1 italic text-ink-muted">“{ev.transcript}”</div></div>)}
+                {m.attachments?.map((ev) => <Attachment key={ev.id} ev={ev} />)}
+                {m.quick_replies && (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {m.quick_replies.map((q) => (
+                      <button key={q} onClick={() => (q === COMPARABLE ? runComparable() : liveSend(q))}
+                        className="flex items-center gap-1 rounded-full border border-ghost-400/40 bg-ghost-500/15 px-2.5 py-1 text-[11px] text-ghost-300 hover:bg-ghost-500/25">
+                        {q === COMPARABLE && <RotateCcw className="h-3 w-3" />}{q}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </motion.div>
             );
           })}
@@ -407,11 +471,89 @@ function Chat() {
           </motion.div>
         )}
       </AnimatePresence>
-      <form onSubmit={(e) => { e.preventDefault(); send(); }} className="border-t border-white/5 p-2">
-        <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Message the active agent… e.g. Why this vehicle?"
-          className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-xs outline-none focus:border-ice-400/50" />
+      <AnimatePresence>
+        {pending.length > 0 && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="flex flex-wrap gap-1.5 border-t border-white/5 px-2 pt-2">
+            {pending.map((ev) => (
+              <motion.div key={ev.id} layout initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                className={clsx('flex items-center gap-1.5 rounded-lg border bg-black/30 py-1 pl-1 pr-1.5 text-[10px]', ev.status === 'error' ? 'border-alarm-500/50' : ev.status === 'ready' ? 'border-mint-500/40' : 'border-white/10')}>
+                {ev.kind === 'photo' && ev.url ? <img src={ev.url} alt="" className="h-6 w-6 rounded object-cover" /> : ev.kind === 'voice' ? <Mic className="h-4 w-4 text-ghost-300" /> : <FileText className="h-4 w-4" />}
+                <span className="max-w-[110px] truncate" title={ev.name}>{ev.name}</span>
+                <span className="text-ink-dim">{fmtBytes(ev.size)}</span>
+                {ev.status === 'uploading' ? <Loader2 className="h-3 w-3 animate-spin text-ember-400" /> : ev.status === 'ready' ? <span className="text-mint-400" title={ev.backend_id ? `backend id ${ev.backend_id}` : 'ready'}>✓</span> : <span className="text-alarm-400" title={ev.error}>✗</span>}
+                <button type="button" onClick={() => removePending(ev.id)} className="text-ink-dim hover:text-ink"><X className="h-3 w-3" /></button>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <form onSubmit={(e) => { e.preventDefault(); send(); }} className="flex items-center gap-1.5 border-t border-white/5 p-2">
+        <input ref={fileInput} type="file" multiple accept={ACCEPT_ATTR} className="hidden" onChange={(e) => { addFiles([...(e.target.files ?? [])]); e.target.value = ''; }} />
+        <button type="button" title="Attach photo, voice note or PDF" onClick={() => fileInput.current?.click()} className="rounded-lg border border-white/10 bg-white/5 p-2 hover:bg-white/10"><Paperclip className="h-3.5 w-3.5" /></button>
+        <button type="button" title={recording ? 'Stop recording' : 'Record a voice note'} onClick={toggleRecording}
+          className={clsx('rounded-lg border p-2', recording ? 'animate-pulse border-alarm-500/60 bg-alarm-500/20 text-alarm-400' : 'border-white/10 bg-white/5 hover:bg-white/10')}><Mic className="h-3.5 w-3.5" /></button>
+        <button type="button" title="Add the sample driver photo + voice note from data/" onClick={addSamples} className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-[11px] hover:bg-white/10"><FolderOpen className="h-3.5 w-3.5" /> Samples</button>
+        <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={pending.length ? 'Add a note, or press Enter to send the evidence' : 'Message the active agent… e.g. Why this vehicle?'}
+          className="min-w-0 flex-1 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-xs outline-none focus:border-ice-400/50" />
+        <button type="submit" title="Send" className="rounded-lg bg-ice-500/20 p-2 text-ice-300 hover:bg-ice-500/30"><Send className="h-3.5 w-3.5" /></button>
       </form>
-      <div className="flex items-center gap-1 border-t border-white/5 px-3 py-2 text-[10px] text-ink-dim"><Zap className="h-3 w-3" /> Keys: 1 = breakdown · K = kill/revive ColdLine · badge ⇄ switches demo/live</div>
+      <div className="flex items-center gap-1 border-t border-white/5 px-3 py-2 text-[10px] text-ink-dim"><Zap className="h-3 w-3" /> 1 = breakdown · K = kill/revive · attach evidence before starting to include it · drag files here</div>
     </div>
+  );
+}
+
+function Attachment({ ev }: { ev: Evidence }) {
+  if (ev.kind === 'photo') {
+    return (
+      <figure className="mt-2">
+        <img src={ev.url} alt={ev.name} className="max-h-48 w-full rounded-lg border border-white/10 object-cover" />
+        {ev.caption && <figcaption className="mt-1 text-[10px] text-ink-dim">{ev.caption}</figcaption>}
+      </figure>
+    );
+  }
+  if (ev.kind === 'voice') {
+    return (
+      <div className="mt-2 rounded-lg bg-black/30 p-2 text-xs">
+        <audio controls src={ev.url} className="h-8 w-full" />
+        {ev.transcript && <div className="mt-1 italic text-ink-muted">“{ev.transcript}”</div>}
+        {ev.caption && <div className="mt-1 text-[10px] text-ink-dim">{ev.caption}</div>}
+      </div>
+    );
+  }
+  return (
+    <a href={ev.url} target="_blank" rel="noreferrer" className="mt-2 flex items-center gap-1.5 rounded-lg bg-black/30 p-2 text-xs text-ice-300 underline">
+      <FileText className="h-3.5 w-3.5" /> {ev.name}
+    </a>
+  );
+}
+
+function ComparisonCard() {
+  const comparison = useStore((st) => st.comparison);
+  if (!comparison) return null;
+  const { before, after, preferences } = comparison;
+  const saves = before.cost - after.cost;
+  const delay = before.arrival_at && after.arrival_at ? Math.round((Date.parse(after.arrival_at) - Date.parse(before.arrival_at)) / 60_000) : null;
+  return (
+    <motion.div initial={{ opacity: 0, y: -8, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+      className="mb-2 rounded-xl border border-ghost-400/50 bg-ghost-500/10 p-2.5 text-xs shadow-[0_0_24px_-6px_rgba(139,116,248,0.7)]">
+      <div className="mb-1.5 flex items-center gap-1.5 font-semibold text-ghost-300"><Sparkles className="h-3.5 w-3.5" /> Decision changed by feedback</div>
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+        <div className="rounded-lg bg-black/30 p-2 opacity-70">
+          <div className="text-[10px] uppercase tracking-wider text-ink-dim">Before rating</div>
+          <div className="line-through">{before.truck_id} · {before.carrier_id}</div>
+          <div className="font-mono">{fmtInr(before.cost)}{before.arrival_at ? ` · ${fmtTime(before.arrival_at)}` : ''}</div>
+        </div>
+        <motion.span animate={{ x: [0, 4, 0] }} transition={{ repeat: Infinity, duration: 1.4 }} className="text-ghost-300">→</motion.span>
+        <div className="rounded-lg border border-mint-500/40 bg-mint-500/10 p-2">
+          <div className="text-[10px] uppercase tracking-wider text-ink-dim">After rating</div>
+          <div className="font-semibold">{after.truck_id} · {after.carrier_id}</div>
+          <div className="font-mono">{fmtInr(after.cost)}{after.arrival_at ? ` · ${fmtTime(after.arrival_at)}` : ''}</div>
+        </div>
+      </div>
+      <div className="mt-1.5 text-ink-muted">
+        {saves > 0 ? `Saves ${fmtInr(saves)}` : 'Different choice'}{delay !== null ? ` · delivers ${delay >= 0 ? `+${delay}` : delay} min` : ''} · same fleet, healthy carriers{preferences.length ? ` · applied ${preferences.join(', ')}` : ''}
+      </div>
+      {after.reason && <div className="mt-1 text-ghost-300">“{after.reason}”</div>}
+    </motion.div>
   );
 }

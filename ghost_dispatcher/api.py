@@ -227,6 +227,11 @@ def create_app(settings=None):
             raise DomainError("invalid_argument", "Use kill or revive", 422)
         return service.carriers.health(carrier_id, action == "revive")
 
+    @app.post("/api/demo/reset", dependencies=protected)
+    def reset_demo():
+        """Re-seed fleet/carriers for a comparable incident; keeps learned preferences."""
+        return service.reset_demo()
+
     @app.get("/api/sync-jobs", dependencies=protected)
     def sync_jobs():
         return service.store.list("sync_job")

@@ -65,6 +65,13 @@ class Store:
             (kind, key, json.dumps(value)),
         )
 
+    def delete_kinds(self, kinds, db=None):
+        if db is None:
+            with self.connection() as connection:
+                return self.delete_kinds(kinds, connection)
+        marks = ",".join("?" * len(kinds))
+        return db.execute(f"DELETE FROM records WHERE kind IN ({marks})", tuple(kinds)).rowcount
+
     def list(self, kind):
         with self.connection() as db:
             rows = db.execute(

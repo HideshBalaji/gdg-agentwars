@@ -4,6 +4,7 @@ import type {
   AgentId,
   ChatMessage,
   Check,
+  Evidence,
   GhostEvent,
   HealingEvent,
   Health,
@@ -33,6 +34,26 @@ export type FeedItem =
   | { kind: 'message'; id: string; message: ChatMessage }
   | { kind: 'tool'; id: string }
   | { kind: 'handover'; id: string; from: AgentId; to: AgentId; reason: string; at: string };
+
+/** Evidence chosen in the composer, before it is attached to an incident or message. */
+export interface PendingEvidence extends Evidence {
+  status: 'uploading' | 'ready' | 'error';
+  mime: string;
+  size: number;
+  /** Backend evidence ID from POST /api/uploads (live mode). */
+  backend_id?: string;
+  error?: string;
+}
+
+/** One side of the before/after card shown when feedback changes a decision. */
+export interface Choice {
+  truck_id: string;
+  carrier_id: string;
+  cost: number;
+  arrival_at?: string;
+  reason?: string;
+  incident_id?: string;
+}
 
 export interface Toast {
   id: string;
@@ -89,6 +110,12 @@ export interface State {
   typing: AgentId | null;
   /** Live mode labels the carrier buttons with the backend's carrier names. */
   carrierNames: Partial<Record<SystemId, string>>;
+  pendingEvidence: PendingEvidence[];
+  recording: boolean;
+  /** The planner's first choice for the most recent incident, before any fallback. */
+  lastFirstChoice: Choice | null;
+  /** Set when a comparable incident's choice differs because of learned feedback. */
+  comparison: { before: Choice; after: Choice; preferences: string[] } | null;
 }
 
 export const DEFAULT_FOCUS = { center: { lat: 12.79, lng: 77.86 }, zoom: 1 };
@@ -127,6 +154,7 @@ const incidentScope = () => ({
   pings: {},
   chaos: null,
   typing: null,
+  comparison: null,
 });
 
 /** 02:06:40 IST, the night of the demo. */
@@ -148,6 +176,9 @@ export const useStore = create<State>()(() => ({
   toasts: [],
   alarm: 0,
   carrierNames: {},
+  pendingEvidence: [],
+  recording: false,
+  lastFirstChoice: null,
   ...incidentScope(),
 }));
 
@@ -188,6 +219,8 @@ export function resetAll() {
     history: [],
     toasts: [],
     carrierNames: {},
+    pendingEvidence: [],
+    lastFirstChoice: null,
     clockOffset: DEMO_EPOCH - Date.now(),
   });
 }

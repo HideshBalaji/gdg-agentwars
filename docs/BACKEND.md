@@ -38,6 +38,7 @@ All times are ISO 8601 with timezone, coordinates are decimal degrees and capaci
 | `POST /api/incidents/{id}/feedback` | Rating/reason and explicit ranking-only preference |
 | `GET /api/preferences` | Active ranking preferences with provenance |
 | `POST /api/demo/carriers/{id}/kill` or `/revive` | Simulated carrier fault controls |
+| `POST /api/demo/reset` | Offline only (403 otherwise): re-seed trucks, shipments, carriers, warehouses, assignments, quotes, health/circuits, bookings and sync jobs from the configured dataset. Keeps preferences, feedback, incidents, conversations and evidence so a comparable incident shows the learned decision |
 | `GET /api/sync-jobs` / `POST /api/sync-jobs/retry` | Inspect/resume pending Google synchronization |
 | `GET /api/contracts/seed` | Pydantic JSON Schema for the data team |
 

@@ -1,4 +1,4 @@
-import { DESTINATIONS } from '../fleet';
+import { CARRIER_NAME, DESTINATIONS } from '../fleet';
 import { uid } from '../format';
 import { useStore } from '../store';
 import { bookWithFallback, drive, mkPlan, RELIABILITY, truckPos } from './common';
@@ -94,6 +94,12 @@ export async function breakdown(run: Run) {
   await ctx.handover('dispatcher', 'Choose a plan');
 
   const r = rank([p3, p4, p5], useStore.getState().preferences, RELIABILITY);
+  // Before/after card: the time-first choice the rating argued against vs. today's choice.
+  const asChoice = (p: typeof p3, reason?: string) => ({ truck_id: p.truck_id!, carrier_id: CARRIER_NAME[p.carrier_id ?? 'own'], cost: p.cost_inr, arrival_at: p.arrival_at, reason, incident_id: id });
+  if (r.by === 'cost' && r.plan !== p3) {
+    useStore.setState({ comparison: { before: asChoice(p3), after: asChoice(r.plan, 'Learned preference: slack > 60 min, so the cheapest feasible carrier'), preferences: r.applied.map((p) => p.id) } });
+  }
+  useStore.setState({ lastFirstChoice: asChoice(r.plan) });
   ctx.emit({
     type: 'plan.selected', plan_id: r.plan.id, preferences: r.applied.map((p) => p.id),
     reason: r.by === 'cost' ? `Learned preference ${r.applied[0].id}: slack > 60 min, so cheapest feasible carrier.` : 'Fastest feasible arrival. No learned cost preference yet, so ranking is time-first.',

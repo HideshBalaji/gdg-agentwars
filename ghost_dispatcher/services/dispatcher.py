@@ -94,6 +94,45 @@ class DispatcherService:
                 self.store.put("policy", "feedback", policy, db)
                 self.store.put("health", "CAR-003", {"id": "CAR-003", "alive": False}, db)
 
+    # Operational state rebuilt by a demo reset. Preferences, feedback, incidents,
+    # conversations and evidence are kept so a rating still applies afterwards.
+    RESETTABLE = (
+        "truck",
+        "shipment",
+        "carrier",
+        "warehouse",
+        "dataset",
+        "route_quote",
+        "assignment",
+        "policy",
+        "health",
+        "circuit",
+        "booking",
+        "google_receipt",
+        "sync_job",
+    )
+
+    def reset_demo(self):
+        """Offline only: restore the seeded fleet so a comparable incident can be replayed."""
+        if self.settings.mode != "offline":
+            raise DomainError("forbidden", "Demo reset is only available in offline mode", 403)
+        with self.store.connection() as db:
+            db.execute("BEGIN IMMEDIATE")
+            removed = self.store.delete_kinds(self.RESETTABLE, db)
+        self._locks.clear()
+        self._replay_at = None
+        self.bootstrap()
+        return {
+            "reset": True,
+            "removed_records": removed,
+            "kept": {
+                "preferences": len(self.store.list("preference")),
+                "incidents": len(self.store.list("incident")),
+            },
+            "decision_clock": self.now().isoformat(),
+            "simulated": True,
+        }
+
     def incident(self, incident_id):
         return Incident.model_validate(self.store.get("incident", incident_id))
 

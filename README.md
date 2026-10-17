@@ -86,24 +86,31 @@ The control room has two modes, switched with the **DEMO ⇄ / LIVE ⇄ badge** 
 
 ### Live mode (real backend)
 
-1. Click the **DEMO ⇄** badge. It turns into **LIVE · backend online** and the map loads the backend's 10 trucks around Hosur. The carrier buttons now show the backend's carriers (`Demo Polar Express`, `Demo Budget Cold Logistics`, `Demo Contingency Transport`).
-2. Click **Truck breakdown** (or press `1`). The UI:
-   - creates an incident for `SHP-001` (`POST /api/incidents`) and opens its event stream;
+1. Click the **DEMO ⇄** badge. It turns into **LIVE · backend online** and the map loads the backend's 10 trucks around Hosur. The carrier buttons now show the backend's carriers (`Polar`, `Budget`, `Contingency`; hover for the full name).
+2. **Multimodal evidence:** click **Samples** under the chat to add the data team's driver evidence (`data/photos/reefer_truck.jpg` and the voice note `data/audio/breakdown.wav` with its transcript). You can also attach your own files with 📎, record a voice note with 🎙, or drag files onto the chat (JPEG, PNG, WAV, MP3, M4A, WebM, PDF; 10 MiB max). Each file uploads straight away to `POST /api/uploads`; a green ✓ means the backend stored it.
+3. Click **Truck breakdown** (or press `1`). The UI:
+   - creates an incident for `SHP-001` with the uploaded `evidence_ids` (`POST /api/incidents`) and opens its event stream; the photo and voice note appear on the incident card and in the chat;
    - opens an ADK conversation and sends *"Plan a rescue"* (the Dispatcher hands over to Route & Risk);
    - asks the backend for a validated plan (`POST /plan`): rejected trucks are struck out with the validator's reason, and the chosen plan glows;
    - **pauses 15 seconds before booking** while the chosen carrier's button flashes **KILL NOW**.
-3. **Self-healing:** click the flashing carrier button (or press `K`) within that window. The backend's carrier is killed (`POST /api/demo/carriers/CAR-001/kill`). The Healing Log shows the retries failing, then a fallback, then the booking via the backup carrier (`TN-03` via `CAR-002`). The map draws the rescue route.
-4. The incident resolves: assignment, dock, Sheets/Calendar/Gmail receipts (simulated) and an outcome toast.
-5. **Feedback:** in the rating box, keep the reason *"Too expensive…"* and click **Needs work**. The backend stores a ranking-only preference (`GET /api/preferences`). It appears in the memory list.
-6. **Chat:** type *"Why this vehicle?"* in the message box. The specialist that owns the conversation answers from the backend.
+4. **Self-healing:** click the flashing carrier button (or press `K`) within that window. The backend's carrier is killed (`POST /api/demo/carriers/CAR-001/kill`). The Healing Log shows the retries failing, then a fallback, then the booking via the backup carrier (`TN-03` via `CAR-002`). The map draws the rescue route.
+5. The incident resolves: assignment, dock, Sheets/Calendar/Gmail receipts (simulated) and an outcome toast.
+6. **Feedback:** in the rating box, keep the reason *"Too expensive…"* and click **Needs work**. The backend stores a ranking-only preference (`GET /api/preferences`). It appears in the memory list as **P-001**.
+7. **Learning, visible:** click **Run comparable incident** (in the Critic's reply, or **Comparable incident** in the top bar). The UI calls `POST /api/demo/reset`, which re-seeds the fleet, carriers and assignments to the same 02:00 snapshot but **keeps learned preferences and past incidents**. It then replays the same breakdown with every carrier healthy and no kill. A **Decision changed by feedback** card shows the planner's first choice before the rating vs. now:
 
-> **Replay note:** a shipment can be rescued once per database. To replay the live demo, stop `make api` and restart it with a fresh database:
-> `GHOST_DATABASE=runs/demo-$(date +%s).sqlite make api`
-> A second run on the same database shows a clear *"already rescued"* message instead of failing silently.
+   | | Truck · carrier | Cost | Delivery |
+   |---|---|---|---|
+   | Before rating | TN-02 · CAR-001 | ₹18,500 | 07:35 |
+   | After rating | TN-03 · CAR-002 | ₹12,000 | 08:50 |
+
+   That's ₹6,500 saved for 75 minutes later, within both deadlines, with the reason *"Learned preference: cheapest feasible carrier within the approved cost/time policy"*. Because the fleet and carriers are identical, the change is attributable to the feedback alone.
+8. **Chat:** type *"Why this vehicle?"* in the message box. The specialist that owns the conversation answers from the backend. Any pending evidence is sent with the message (`evidence_ids`).
+
+> **Replay note:** `POST /api/demo/reset` (offline mode only) makes runs repeatable without restarting. To also clear learned preferences and history, restart with a fresh database: `GHOST_DATABASE=runs/demo-$(date +%s).sqlite make api`.
 
 ### Demo mode (scripted, no backend)
 
-The default mode needs no backend. Press **Truck breakdown** (`1`) to play a richer scripted incident through the same UI: the driver's photo and a playable voice note, Intake facts, a Maps timeout retry, two validator rejections and a re-plan (attempt 2 of 3), the carrier booking with its **KILL NOW** window, the fallback, a dock-slot argument repair, and notifications. Rate it *"too expensive"*, press `1` again, and the Dispatcher now picks the cheaper carrier, citing the learned rule. The scripted engine emits the same typed events the backend stream is mapped onto (`ui/src/lib/contract.ts`).
+The default mode needs no backend. Press **Truck breakdown** (`1`) to play a richer scripted incident through the same UI: the driver's photo and a playable voice note, Intake facts, a Maps timeout retry, two validator rejections and a re-plan (attempt 2 of 3), the carrier booking with its **KILL NOW** window, the fallback, a dock-slot argument repair, and notifications. Rate it *"too expensive"*, click **Run comparable incident**, and the Dispatcher picks the cheaper carrier (KA-11 ColdLine ₹18,400 → KA-04 FrostFleet ₹11,200), citing the learned rule in the same **Decision changed by feedback** card. Files you attach in demo mode stay in the browser. The scripted engine emits the same typed events the backend stream is mapped onto (`ui/src/lib/contract.ts`).
 
 **Keyboard:** `1` start breakdown · `K` kill/revive the first carrier · speed button `1×/2×` · **Reset** clears the incident.
 
@@ -161,7 +168,8 @@ sequenceDiagram
   participant D as ADK agents
   participant S as DispatcherService
   participant C as Carrier (mock)
-  U->>A: POST /api/incidents {shipment_id, type, description}
+  U->>A: POST /api/uploads (driver photo, voice note) → evidence ids
+  U->>A: POST /api/incidents {shipment_id, type, description, evidence_ids}
   A-->>U: incident (SSE: incident.created)
   U->>A: GET /api/incidents/{id}/events?follow=true (stream stays open)
   U->>A: POST /api/conversations, then /messages "Plan a rescue"
@@ -179,6 +187,8 @@ sequenceDiagram
   S-->>U: SSE: action.completed (load + dock), integration.completed (Sheets/Calendar/Gmail), incident.resolved
   U->>A: POST /api/incidents/{id}/feedback {rating, reason, prefer_cheaper_when_slack}
   A-->>U: SSE: feedback.saved → UI reads GET /api/preferences
+  U->>A: POST /api/demo/reset (keeps preferences), then the same incident again
+  A-->>U: plan.created: cheaper carrier, reason "Learned preference…" → before/after card
 ```
 
 ### What each stage does
@@ -191,7 +201,7 @@ sequenceDiagram
 | **Validate** | Deterministic code rejects plans that fail reefer, capacity, availability, rescue-window or driver-hour checks (`services/validation.py`). Agent planning is wrapped in a `LoopAgent` (max 3 iterations) | Rejected cards are struck out with the reason. The chosen card glows with the ranking reason |
 | **Act** | Books the carrier with an idempotency key, then reassigns the load and dock atomically. Failures go through `services/recovery.py` | Healing Log rows (retry → fallback → recovered), booking and assignment receipts, rescue route on the map |
 | **Notify** | Sheets fleet board, Calendar dock event, Gmail notification (`tools/google.py`, simulated offline). Failed syncs become retryable jobs | Receipts for each integration; *pending* if a sync is pending |
-| **Learn** | Feedback becomes a typed, scoped, expiring ranking preference. Hard checks never change | Rating box → stored rule in memory; in demo mode the next incident visibly picks the cheaper carrier |
+| **Learn** | Feedback becomes a typed, scoped, expiring ranking preference. Hard checks never change. `POST /api/demo/reset` restores the fleet but keeps preferences, so a comparable incident can be replayed | Rating box → stored rule in memory → **Run comparable incident** → *Decision changed by feedback* card (before vs. after) |
 
 ---
 
@@ -264,6 +274,7 @@ All `/api/*` routes need `Authorization: Bearer ghost-demo` offline. Only `/heal
 | `GET /api/incidents/{id}/events?after=0&follow=true` | Server-sent events with durable IDs (replay with `after` or `Last-Event-ID`) |
 | `POST /api/incidents/{id}/feedback` · `GET /api/preferences` | Ratings and learned ranking preferences |
 | `POST /api/demo/carriers/{id}/kill` · `/revive` | Simulated carrier fault controls |
+| `POST /api/demo/reset` | Offline only: re-seed fleet, carriers and assignments; keep preferences, feedback, incidents and evidence |
 
 Try it with curl while `make api` runs:
 
@@ -361,6 +372,9 @@ docker compose run --rm app   # runs pytest inside the container
 | UI badge shows **LIVE · backend error** | Start `make api` first, then click the badge again. Check `curl http://127.0.0.1:8000/health` |
 | Chat or toast says *already rescued* / `sensor_data_missing` | That shipment was rescued in this database. Restart with `GHOST_DATABASE=runs/demo-$(date +%s).sqlite make api` |
 | Kill had no effect | Click the carrier while it flashes **KILL NOW** (the 15 s window before booking). Killing after booking does nothing |
+| **Samples** shows *Samples unavailable* | Start the UI with `make ui` (or `make ui-preview`); the dev server serves `/samples` from `data/` |
+| Upload shows a red ✗ | Hover it for the reason: unsupported type, over 10 MiB, or the backend isn't running |
+| 🎙 does nothing | Allow microphone access for `localhost:5173` in the browser |
 | `401 unauthorized` | `VITE_API_TOKEN` (UI) must equal `GHOST_API_TOKEN` (backend) |
 | Port 5173 or 8000 in use | Stop the other process; Vite will otherwise pick the next free port |
 | `npm ci` fails | Use Node 18+ (`node -v`) |
@@ -372,11 +386,11 @@ docker compose run --rm app   # runs pytest inside the container
 
 | Criterion | Evidence | How to see it |
 |---|---|---|
-| Multi-model / multimodal agents | Gemini Pro + Flash roles; photo, voice, PDF and sensor intake; uploads endpoint | Agent cards show model per role; demo mode shows photo + playable voice note → Intake facts |
+| Multi-model / multimodal agents | Gemini Pro + Flash roles; photo, voice, PDF and sensor intake; uploads endpoint | Live mode: **Samples**/📎/🎙 → `POST /api/uploads` → evidence on the incident and passed to Gemini Intake; agent cards show the model per role |
 | Conversational agents | Specialist ownership, peer handovers, follow-ups, `target_agent` switching | Live mode: *"Plan a rescue"* → Route & Risk owns the chat; ask *"Why this vehicle?"* |
 | API calls | FastAPI contract; carrier booking/status; Maps Routes, Sheets, Calendar, Gmail adapters | Plan/execute requests; receipts per integration; `make api` → `/docs` |
 | MCP integration | `logistics-mcp` (official MCP SDK) with 8 tools, authenticated, used by ADK specialists | `make mcp`; `tests/test_mcp.py` drives the real transport |
-| Feedback loop | Rating → scoped preference → changed ranking | `make demo` (18,500 → 12,000 INR); UI rating → `GET /api/preferences`; demo mode re-run picks the cheaper carrier |
+| Feedback loop | Rating → scoped preference → changed ranking | Live UI: 👎 → **Run comparable incident** → *Decision changed by feedback* (₹18,500 → ₹12,000); `make demo`; `tests/test_api.py::test_demo_reset_replays_comparable_incident_with_learned_preference` |
 | Self-healing | Carrier killed mid-booking → retries → circuit → fallback → recovered; validation loop; tool repair | Live mode **KILL NOW** → Healing Log; `make demo` prints `healing_events` |
 | A–Z instructions | This README, [AGENTS.md](AGENTS.md), `make verify`, CI, Docker | Section 1 |
 
@@ -416,8 +430,9 @@ AGENTS.md                # exact commands for automated evaluators
 
 **Known limitations**
 
-- Offline mode does not interpret photos or audio; it never invents evidence. Multimodal interpretation runs only with Gemini in live mode.
-- A shipment can be rescued once per database. Replays need a fresh `GHOST_DATABASE`. Because of this, the live UI shows the stored preference after rating; the changed second decision is shown by `make demo` and by the UI's demo mode.
+- Offline mode stores uploaded photos and audio but does not interpret them; it never invents evidence. Multimodal interpretation runs only with Gemini in live mode.
+- A shipment can be rescued once per database. Use **Run comparable incident** (`POST /api/demo/reset`, offline only) or a fresh `GHOST_DATABASE` to replay. Re-executing an incident from before a reset is not supported.
+- The sample photo is an illustrative Wikimedia Commons image (CC BY-SA 4.0, credited in the UI and `data/photos/reefer_truck.json`); it does not depict TN-07.
 - The backend is a single-operator demo: one API worker, SQLite, loopback binding.
 - The map is a stylised SVG of the Bengaluru–Hosur corridor, not a tiled map; destinations far outside it (for example Chennai) are off-screen.
 - All cargo, temperatures, driver hours and bookings are synthetic. No real carrier is ever booked.
