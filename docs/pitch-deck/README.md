@@ -25,5 +25,4 @@ Link to a slide directly with its id, for example `index.html#healing`.
 ## Before presenting
 
 - Slide 14 (`slides/evaluation.html`) shows the offline `make eval` results: 6/6 scenarios, groundedness and truthfulness 1.00, 0 hallucinated replies. Rerun `make eval` and update it if they change.
-- Fill in `[Team name]` on the closing slide and check the member names.
 - The deck doesn't cover the A2A carrier agent yet.
