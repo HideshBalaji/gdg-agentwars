@@ -11,4 +11,8 @@ export default defineConfig({
     host: true,
     proxy: { '/api': backend, '/health': backend },
   },
+  preview: {
+    port: 4173,
+    proxy: { '/api': backend, '/health': backend },
+  },
 });

@@ -2,7 +2,7 @@ PY ?= python3
 VENV ?= .venv
 BIN = $(VENV)/bin
 
-.PHONY: setup test lint docker-build docker-test api mcp carrier demo clean
+.PHONY: setup test lint docker-build docker-test api mcp carrier demo ui-setup ui ui-build ui-preview verify clean
 
 setup:  ## Create .venv and install the project with dev tools
 	$(PY) -m venv $(VENV)
@@ -27,6 +27,20 @@ carrier:  ## Simulated carrier for live-mode HTTP integration
 demo:  ## Isolated offline ADK, recovery and feedback demonstration
 	$(BIN)/ghost-demo
 
+ui-setup:  ## Install the browser control room's dependencies (Node 18+)
+	npm --prefix ui ci
+
+ui:  ## Control room dev server, http://localhost:5173 (proxies /api to make api)
+	npm --prefix ui run dev
+
+ui-build:  ## Typecheck and build the control room into ui/dist
+	npm --prefix ui run build
+
+ui-preview:  ## Serve the built control room, http://localhost:4173
+	npm --prefix ui run preview
+
+verify: lint test demo ui-build  ## Everything an evaluator needs: lint, tests, offline demo, UI build
+
 docker-build:  ## Build the container image
 	docker compose build
 
@@ -34,4 +48,4 @@ docker-test:  ## Run the test suite inside the container
 	docker compose run --rm app
 
 clean:  ## Remove the venv and build/test caches
-	rm -rf $(VENV) .pytest_cache .ruff_cache build dist *.egg-info
+	rm -rf $(VENV) .pytest_cache .ruff_cache build dist *.egg-info ui/node_modules ui/dist

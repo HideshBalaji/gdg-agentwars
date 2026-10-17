@@ -4,17 +4,28 @@ Instructions for AI agents evaluating or working on this repository. Everything 
 
 ## Project status
 
-The agent/backend core, collected dataset adapter, offline demo, API, MCP, recovery and feedback are implemented. UI and credentialed Google verification remain. See [docs/BACKEND.md](docs/BACKEND.md), the [status table](README.md#project-status), and [PLAN.md](PLAN.md).
+The agent/backend core, collected dataset adapter, offline demo, API, MCP, recovery, feedback and the browser control room (`ui/`) are implemented. Credentialed Gemini/Google verification remains. See [README.md](README.md), [docs/BACKEND.md](docs/BACKEND.md) and [PLAN.md](PLAN.md).
 
 ## Setup and verification
 
-Requires Python 3.12+ and `make`, or Docker.
+Requires Python 3.12+, Node.js 18+ with npm, and `make`, or Docker (Python only).
 
 ```bash
-make setup   # create .venv and install the project with dev tools
-make test    # run pytest; must exit 0
-make lint    # ruff; must exit 0
+make setup      # create .venv and install the project with dev tools
+make ui-setup   # npm ci for the control room in ui/
+make verify     # lint + tests + offline demo + UI typecheck/build; must exit 0
 ```
+
+Individual steps, each must exit 0:
+
+```bash
+make lint       # ruff
+make test       # pytest (offline, no keys)
+make demo       # offline ADK handover, carrier outage recovery, feedback cost change
+make ui-build   # tsc --noEmit && vite build in ui/
+```
+
+To run the app (no keys): `make api` in one terminal, `make ui` in another, open http://localhost:5173. Click the **DEMO ⇄** badge to switch to the live backend, then **Truck breakdown**. Use a fresh `GHOST_DATABASE` to replay a live incident. Details: README sections 2–3.
 
 Container equivalent:
 
@@ -23,7 +34,7 @@ docker compose build
 docker compose run --rm app   # runs the test suite; must exit 0
 ```
 
-CI (`.github/workflows/ci.yml`) runs lint, tests and the container build on every push to `main` and every pull request.
+CI (`.github/workflows/ci.yml`) runs lint, tests, the offline demo, the UI typecheck/build and the container build on every push to `main` and every pull request.
 
 No API keys are needed for tests. Copy `.env.example` to `.env` only for live runs.
 
@@ -35,6 +46,7 @@ No API keys are needed for tests. Copy `.env.example` to `.env` only for live ru
 ## Code layout and conventions
 
 - The ADK package is `ghost_dispatcher/`; `mcp_server/` and `mock_services/` sit beside it; tests live in `tests/`.
+- The browser control room is `ui/` (React + Vite + TypeScript). It renders typed `GhostEvent`s (`ui/src/lib/contract.ts`) from either the scripted demo engine (`ui/src/lib/demo/`) or the backend adapter (`ui/src/lib/live.ts`).
 - Shared typed contracts go in `ghost_dispatcher/models/`; deterministic checks and recovery functions go in `ghost_dispatcher/services/` with no LLM calls, so they stay unit-testable.
 - External systems (Gemini, Google APIs, carriers) sit behind adapters in `ghost_dispatcher/tools/`, each with an offline implementation. Simulated responses are always labeled as simulated.
 - Every new feature gets a test that passes in offline mode.

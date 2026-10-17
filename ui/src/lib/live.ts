@@ -133,6 +133,11 @@ function handle(type: string, data: any) {
     }
     case 'healing': {
       const provider = data.provider ?? 'carrier';
+      if (data.level === 'circuit') {
+        // Learned workaround: an open circuit skips the provider until it is revived/probed.
+        apply({ type: 'healing', event: { id: uid('heal'), at: nowIso(), level: 'learned', tool: 'book_transfer', provider, failure: `${provider} circuit open`, remedy: 'Skipped without calling it until a recovery probe', result: 'recovered' } });
+        return;
+      }
       if (data.level === 'fallback') {
         fallbackId = uid('heal');
         if (chosen) apply({ type: 'plan.verdict', plan_id: chosen.id, verdict: 'rejected', reason: `${chosen.carrier_id} down after retries` });

@@ -24,7 +24,7 @@ The UI renders `GhostEvent`s defined in `src/lib/contract.ts` (snake_case, mirro
 
 ```bash
 make setup && make api      # FastAPI on 127.0.0.1:8000 (token ghost-demo)
-cd ui && npm install && npm run dev
+make ui-setup && make ui    # second terminal, from the repo root
 ```
 
-Click the **DEMO ⇄** badge to switch to **LIVE**. The dev server proxies `/api` and `/health` to the backend. **Truck breakdown** then creates an incident, streams `/api/incidents/{id}/events`, plans and executes it. Chat goes to `/api/conversations`, the carrier buttons call `/api/demo/carriers/{id}/kill|revive`, and the rating posts to `/feedback`.
+Click the **DEMO ⇄** badge to switch to **LIVE**. The booking step pauses 15 s while the chosen carrier flashes **KILL NOW**; click it to watch the backend retry and fall back. A shipment can be rescued once per database, so restart with `GHOST_DATABASE=runs/demo-$(date +%s).sqlite make api` to replay. The dev server proxies `/api` and `/health` to the backend. **Truck breakdown** then creates an incident, streams `/api/incidents/{id}/events`, plans and executes it. Chat goes to `/api/conversations`, the carrier buttons call `/api/demo/carriers/{id}/kill|revive`, and the rating posts to `/feedback`.

@@ -4,159 +4,426 @@
 
 > When a vaccine truck breaks down at 2 AM, Ghost Dispatcher coordinates a rescue before a human dispatcher wakes up, and recovers when its own tools fail.
 
-GDG **Agent Wars** entry for the problem statement **"Logistics Handler"**.
+GDG **Agent Wars** entry for the problem statement **"Logistics Handler"**. Built with **Google ADK, Python, Gemini, MCP, FastAPI and a React control room**.
 
-Ghost Dispatcher is an autonomous, self-healing multi-agent system for **cold-chain logistics incidents**, built with **Google ADK, Python and Gemini**. A team of specialist agents takes a delivery incident from raw evidence (a driver's photo, a voice note, a temperature feed) to a validated rescue: a replacement reefer truck, a carrier booking, a rebooked dock slot and notified stakeholders. Every outcome feeds back into the next decision.
+Ghost Dispatcher is a self-healing, multi-agent system for **cold-chain logistics incidents**. Specialist agents take an incident from raw evidence (a driver's photo, a voice note, a temperature feed) to a validated rescue: a replacement reefer truck, a carrier booking, a rebooked dock slot and notified stakeholders. When a carrier API fails mid-booking, it retries, falls back and finishes anyway. A human rating becomes a stored preference that changes the next decision.
 
-**Implemented core:** offline ADK conversations and specialist handovers, validated plans, simulated carrier fallback, transactional cargo/dock assignments, feedback, authenticated API, uploads, replayable events and MCP. The collected 10-truck/20-shipment dataset is integrated. Live Gemini/Google adapters require credentials and a separate live rehearsal; offline tests do not claim those services ran. All cargo and carrier bookings remain simulated. UI, Live voice, weather and extra incident actions are still in progress or planned.
+All cargo, carrier bookings and Google actions in offline mode are **simulated and labelled as simulated**. Nothing here is a medical or legal determination.
 
-**UI teammate:** [API/event contract](docs/BACKEND.md#ui-contract). **Data teammate:** [dataset adapter and schema](docs/BACKEND.md#data-contract). See the [backend guide](docs/BACKEND.md) for end-to-end setup, Google authorization, recovery, feedback and troubleshooting.
+---
 
-## The incident loop
+## Contents
 
-**Detect → understand → re-plan → validate → act → notify → learn.**
+1. [Run it in 5 commands (no API keys)](#1-run-it-in-5-commands-no-api-keys)
+2. [Run the full app: backend + control room](#2-run-the-full-app-backend--control-room)
+3. [How it works end to end](#3-how-it-works-end-to-end)
+4. [Agents, self-healing, feedback, MCP](#4-agents-self-healing-feedback-mcp)
+5. [HTTP API and event stream](#5-http-api-and-event-stream)
+6. [Configuration](#6-configuration)
+7. [Live mode with Gemini and Google APIs](#7-live-mode-with-gemini-and-google-apis)
+8. [Tests, CI and Docker](#8-tests-ci-and-docker)
+9. [Troubleshooting](#9-troubleshooting)
+10. [Judging criteria → evidence](#10-judging-criteria--evidence)
+11. [Repository layout, status and limitations](#11-repository-layout-status-and-limitations)
 
-1. **Detect:** a driver report, sensor alert or customer message opens an incident.
-2. **Understand:** Gemini multimodal intake turns photos, voice notes, PDFs and sensor traces into a typed `Incident` with evidence provenance.
-3. **Re-plan:** route/risk analysis reads fleet, hub and carrier state through the `logistics-mcp` server and ranks candidate rescues by time, cost and risk.
-4. **Validate:** deterministic checks (refrigeration, capacity, availability, rescue window, driver hours) gate every plan; failures loop back to planning, at most three times.
-5. **Act:** the negotiator books a carrier through the carrier API and reassigns the load, with idempotency keys and durable receipts.
-6. **Notify:** Google Sheets, Calendar and Gmail adapters update the fleet board, dock slots and recipients.
-7. **Learn:** ratings and outcomes become typed ranking preferences that shape the next incident.
+---
 
-## Agents
+## 1. Run it in 5 commands (no API keys)
 
-| Agent | Gemini role | Responsibility |
+**Prerequisites:** Python **3.12+** (CI uses 3.12; also verified on 3.14), Node.js **18+** with npm (CI uses 20), `make`, `git`. No API keys, no Google account, no network calls at runtime.
+
+```bash
+git clone https://github.com/HideshBalaji/gdg-agentwars.git
+cd gdg-agentwars
+make setup      # creates .venv and installs the Python package + dev tools
+make ui-setup   # installs the control room's npm dependencies (npm ci)
+make verify     # lint + 42 tests + offline agent demo + UI typecheck/build
+```
+
+`make verify` must exit 0. It runs:
+
+| Step | Command | What it proves |
+|---|---|---|
+| Lint | `make lint` | `ruff` passes on all Python sources |
+| Tests | `make test` | `pytest`: domain rules, API, real local MCP transport, ADK handovers, carrier fallback, feedback, persistence |
+| Offline demo | `make demo` | A real ADK conversation (deterministic model double) hands over to Route & Risk, the primary carrier is killed, the rescue finishes through a backup, then feedback lowers the cost of a comparable incident |
+| UI build | `make ui-build` | TypeScript typecheck + production build of the control room into `ui/dist` |
+
+Expected tail of `make demo`:
+
+```text
+[SIMULATED] Conversation owner: route_risk
+[SIMULATED] Primary killed; rescue resolved via CAR-002
+{
+  "simulated": true,
+  "baseline_cost": 18500.0,
+  "learned_cost": 12000.0,
+  "currency": "INR",
+  "reason": "Learned preference: cheapest feasible carrier within the approved cost/time policy",
+  "healing_events": 5
+}
+```
+
+---
+
+## 2. Run the full app: backend + control room
+
+Two terminals from the repository root.
+
+```bash
+# Terminal 1: FastAPI backend on http://127.0.0.1:8000 (OpenAPI at /docs)
+make api
+```
+
+```bash
+# Terminal 2: control room on http://localhost:5173
+make ui
+```
+
+Open **http://localhost:5173**. The dev server proxies `/api` and `/health` to `127.0.0.1:8000`, so there is no CORS setup. Optional extra processes: `make mcp` (authenticated MCP server on :8001) and `make carrier` (mock carrier HTTP API on :8002 with `/kill` and `/revive`). Offline mode needs neither.
+
+The control room has two modes, switched with the **DEMO ⇄ / LIVE ⇄ badge** in the top bar.
+
+### Live mode (real backend)
+
+1. Click the **DEMO ⇄** badge. It turns into **LIVE · backend online** and the map loads the backend's 10 trucks around Hosur. The carrier buttons now show the backend's carriers (`Demo Polar Express`, `Demo Budget Cold Logistics`, `Demo Contingency Transport`).
+2. Click **Truck breakdown** (or press `1`). The UI:
+   - creates an incident for `SHP-001` (`POST /api/incidents`) and opens its event stream;
+   - opens an ADK conversation and sends *"Plan a rescue"* (the Dispatcher hands over to Route & Risk);
+   - asks the backend for a validated plan (`POST /plan`): rejected trucks are struck out with the validator's reason, and the chosen plan glows;
+   - **pauses 15 seconds before booking** while the chosen carrier's button flashes **KILL NOW**.
+3. **Self-healing:** click the flashing carrier button (or press `K`) within that window. The backend's carrier is killed (`POST /api/demo/carriers/CAR-001/kill`). The Healing Log shows the retries failing, then a fallback, then the booking via the backup carrier (`TN-03` via `CAR-002`). The map draws the rescue route.
+4. The incident resolves: assignment, dock, Sheets/Calendar/Gmail receipts (simulated) and an outcome toast.
+5. **Feedback:** in the rating box, keep the reason *"Too expensive…"* and click **Needs work**. The backend stores a ranking-only preference (`GET /api/preferences`). It appears in the memory list.
+6. **Chat:** type *"Why this vehicle?"* in the message box. The specialist that owns the conversation answers from the backend.
+
+> **Replay note:** a shipment can be rescued once per database. To replay the live demo, stop `make api` and restart it with a fresh database:
+> `GHOST_DATABASE=runs/demo-$(date +%s).sqlite make api`
+> A second run on the same database shows a clear *"already rescued"* message instead of failing silently.
+
+### Demo mode (scripted, no backend)
+
+The default mode needs no backend. Press **Truck breakdown** (`1`) to play a richer scripted incident through the same UI: the driver's photo and a playable voice note, Intake facts, a Maps timeout retry, two validator rejections and a re-plan (attempt 2 of 3), the carrier booking with its **KILL NOW** window, the fallback, a dock-slot argument repair, and notifications. Rate it *"too expensive"*, press `1` again, and the Dispatcher now picks the cheaper carrier, citing the learned rule. The scripted engine emits the same typed events the backend stream is mapped onto (`ui/src/lib/contract.ts`).
+
+**Keyboard:** `1` start breakdown · `K` kill/revive the first carrier · speed button `1×/2×` · **Reset** clears the incident.
+
+---
+
+## 3. How it works end to end
+
+Every incident runs through the same loop:
+
+**Detect → Understand → Re-plan → Validate → Act → Notify → Learn**
+
+The stepper at the top of the control room shows which stage is running.
+
+### Architecture
+
+```mermaid
+flowchart LR
+  subgraph Browser["ui/ · React control room (Vite)"]
+    UI[Map · Rescue window · Agents · Plans · Healing Log · Chat · Rating]
+  end
+  subgraph Backend["ghost_dispatcher/ · FastAPI (make api :8000)"]
+    API[api.py<br/>REST + SSE]
+    CONV[agents/conversations.py<br/>ADK Runner + sessions]
+    TEAM[agents/team.py<br/>dispatcher + 7 specialists]
+    SVC[services/dispatcher.py<br/>plan · validate · execute · feedback]
+    REC[services/recovery.py<br/>retry · circuit · fallback]
+    STORE[(SQLite<br/>records · events · preferences)]
+  end
+  MCP[mcp_server/ · logistics-mcp<br/>make mcp :8001]
+  CAR[mock_services/carrier_api.py<br/>/kill /revive · make carrier :8002]
+  G[tools/google.py<br/>Sheets · Calendar · Gmail]
+  R[tools/routing.py<br/>Maps Routes or collected fixture]
+  GEM[Gemini Pro / Flash<br/>live mode]
+
+  UI -- "fetch /api/*  (Bearer token)" --> API
+  API -- "SSE /api/incidents/{id}/events" --> UI
+  API --> CONV --> TEAM
+  TEAM -- live --> GEM
+  TEAM -- tools --> SVC
+  TEAM -. read-only MCP tools .-> MCP
+  API --> SVC
+  SVC --> REC --> CAR
+  SVC --> R
+  SVC --> G
+  SVC <--> STORE
+  MCP --> SVC
+```
+
+### One incident, step by step
+
+```mermaid
+sequenceDiagram
+  participant U as Control room (ui/)
+  participant A as FastAPI api.py
+  participant D as ADK agents
+  participant S as DispatcherService
+  participant C as Carrier (mock)
+  U->>A: POST /api/incidents {shipment_id, type, description}
+  A-->>U: incident (SSE: incident.created)
+  U->>A: GET /api/incidents/{id}/events?follow=true (stream stays open)
+  U->>A: POST /api/conversations, then /messages "Plan a rescue"
+  A->>D: Dispatcher → transfer to route_risk (SSE: handover, message)
+  U->>A: POST /api/incidents/{id}/plan
+  A->>S: candidates → hard checks → rank with preferences
+  S-->>U: SSE: validation (rejected + reasons), plan.created (chosen + reason)
+  Note over U: 15 s window: presenter may click KILL NOW
+  U->>A: POST /api/demo/carriers/CAR-001/kill (optional)
+  U->>A: POST /api/incidents/{id}/execute
+  A->>S: book with idempotency key
+  S->>C: book CAR-001 ✗ ×3 (SSE: healing retry)
+  S->>S: circuit open → re-plan without CAR-001 (SSE: healing fallback, validation, plan.created)
+  S->>C: book CAR-002 ✓ (SSE: healing recovered)
+  S-->>U: SSE: action.completed (load + dock), integration.completed (Sheets/Calendar/Gmail), incident.resolved
+  U->>A: POST /api/incidents/{id}/feedback {rating, reason, prefer_cheaper_when_slack}
+  A-->>U: SSE: feedback.saved → UI reads GET /api/preferences
+```
+
+### What each stage does
+
+| Stage | Backend | Control room |
+|---|---|---|
+| **Detect** | `POST /api/incidents` persists the incident and emits `incident.created` | Incident card, red pulse on the broken truck, rescue-window countdown from the shipment's cold-restore deadline |
+| **Understand** | The ADK Dispatcher reads the incident and transfers to a specialist. In live mode Intake reads uploaded photos/audio/PDFs with Gemini; offline mode never invents evidence | Agent constellation lights the owner; handover line in the chat |
+| **Re-plan** | Route & Risk computes candidates from fleet, hubs, sensors and routes (collected fixture offline, Maps Routes live) | Plan cards with time, cost, slack |
+| **Validate** | Deterministic code rejects plans that fail reefer, capacity, availability, rescue-window or driver-hour checks (`services/validation.py`). Agent planning is wrapped in a `LoopAgent` (max 3 iterations) | Rejected cards are struck out with the reason. The chosen card glows with the ranking reason |
+| **Act** | Books the carrier with an idempotency key, then reassigns the load and dock atomically. Failures go through `services/recovery.py` | Healing Log rows (retry → fallback → recovered), booking and assignment receipts, rescue route on the map |
+| **Notify** | Sheets fleet board, Calendar dock event, Gmail notification (`tools/google.py`, simulated offline). Failed syncs become retryable jobs | Receipts for each integration; *pending* if a sync is pending |
+| **Learn** | Feedback becomes a typed, scoped, expiring ranking preference. Hard checks never change | Rating box → stored rule in memory; in demo mode the next incident visibly picks the cheaper carrier |
+
+---
+
+## 4. Agents, self-healing, feedback, MCP
+
+### Agents (`ghost_dispatcher/agents/team.py`)
+
+| Agent | Gemini role (live) | Responsibility |
 |---|---|---|
 | dispatcher | Pro | Owns the incident, delegates to specialists, picks the validated plan, applies learned preferences |
 | intake | Flash | Multimodal parsing of photos, voice notes, PDFs and sensor data into a structured incident |
-| route_risk | Flash | Maps routing and rescue-window calculation; weather planned |
-| negotiator | Flash chat; Live planned | Booking conversations; customer rescheduling planned |
+| route_risk | Flash | Routing and rescue-window calculation, candidate ranking |
+| negotiator | Flash | Carrier booking and customer conversations |
 | comms | Flash | Sheets fleet board, Calendar dock slots, Gmail notifications |
 | validator | Code + Flash | Hard constraint checks before any action |
 | watchdog | Code + Flash | Tool-failure detection, recovery and the Healing Log |
-| critic | Flash | Converts ratings and outcomes into constrained preferences |
+| critic | Flash | Turns ratings and outcomes into constrained preferences |
 
-Specialists own the conversation while they work and hand over to peers or back to the dispatcher through ADK agent transfer.
+Specialists own the conversation while they work and hand over to peers or back to the dispatcher through ADK agent transfer (max 4 transfers per message). Send `target_agent` in a chat message to ask for a specific specialist. `ghost_dispatcher/agent.py` exposes `root_agent`, so `adk web` from the repository root also works for trace inspection.
 
-## Self-healing
+### Self-healing
 
-Every recovery step is recorded in a **Healing Log** with the incident, tool, failure category, remedy and result.
+| Level | Behavior | Where you see it |
+|---|---|---|
+| Retry | Bounded backoff for connection/unavailability errors (up to 3 attempts) | Healing Log `RETRY` rows |
+| Provider fallback | Circuit opens for the failed carrier (60 s); re-plan through the next feasible carrier; ambiguous outcomes are reconciled by booking ID, never double-booked | `FALLBACK` row → `recovered`, plan card for the failed carrier struck out |
+| Validation loop | Rejected plans go back to planning (`LoopAgent`, ≤ 3 iterations); code checks every plan regardless of which agent proposed it | Struck-out plan cards with reasons |
+| Tool-call repair | One corrected attempt per tool/message after a schema error, never inventing identifiers | Healing Log `REPAIR` row (demo mode) |
+| Learned workaround | Provider health and circuit state persist, so unhealthy carriers are skipped until revived/probed | Carrier buttons show **DOWN**; system LEDs turn red |
 
-| Level | Behavior |
-|---|---|
-| Retry | Bounded backoff for transient errors and rate limits |
-| Provider fallback | Primary carrier → backup carrier, after reconciling ambiguous outcomes; Gmail booking fallback planned |
-| Validation loop | Rejected plans return to planning through an ADK `LoopAgent` (max three iterations) |
-| Tool-call repair | One corrected retry for schema mistakes, never inventing identifiers |
-| Learned workaround | Unhealthy providers are skipped until an expiry-based recovery probe succeeds |
+Kill and revive carriers from the UI buttons, from `POST /api/demo/carriers/{CAR-00x}/kill|revive`, or from the standalone mock (`make carrier`, then `POST :8002/kill`).
 
-The mock carrier API exposes `POST /kill` and `POST /revive` so a provider outage can be injected mid-booking and the recovery observed end to end.
+### Feedback loop
 
-## MCP tools (`logistics-mcp`)
+1. Rate the incident 👍/👎 with a reason (`POST /api/incidents/{id}/feedback`).
+2. With `prefer_cheaper_when_slack: true` (the UI sets it when the reason mentions cost), the backend activates the collected pack's policy: *save at least INR 5,000 for at most 90 minutes of later delivery, within both deadlines*, scoped to customer, cargo profile and currency, with an expiry.
+3. The next comparable incident's ranking applies it after every hard check passes. `make demo` proves it: TN-02 / CAR-001 (INR 18,500) → TN-03 / CAR-002 (INR 12,000).
+4. Free-text feedback is stored, never executed as instructions.
+
+### MCP: `logistics-mcp` (`mcp_server/server.py`, `make mcp`)
+
+Built with the official MCP Python SDK (FastMCP), served over streamable HTTP at `http://127.0.0.1:8001/mcp`. It requires `Authorization: Bearer ghost-demo` offline.
 
 | Tool | Purpose |
 |---|---|
 | `get_shipment` | Cargo, weight, temperature policy, destination, deadlines |
 | `list_trucks_near` | Available trucks with capacity and refrigeration |
-| `assign_load` | Validated, replay-safe reassignment |
+| `assign_load` | Validated, replay-safe reassignment (forwards to the API worker) |
 | `get_temperature_history` | Timestamped reefer readings |
 | `find_cold_hubs_near` | Hubs with free, compatible cold storage |
-| `book_dock_slot` | Read the dock receipt reserved atomically with load assignment |
+| `book_dock_slot` | Dock receipt reserved atomically with load assignment |
 | `list_carriers` | Cost, reliability, capabilities, service health |
 | `log_incident` | Incident, plan, actions, healing history and outcome |
 
-The server is built with the official MCP Python SDK; ADK agents discover and call these tools over MCP.
+---
 
-## Judging criteria → evidence
+## 5. HTTP API and event stream
 
-| Criterion | Evidence in this project |
+All `/api/*` routes need `Authorization: Bearer ghost-demo` offline. Only `/health` is public. Full contract: [docs/BACKEND.md](docs/BACKEND.md#ui-contract) and `http://127.0.0.1:8000/docs`.
+
+| Method and path | Purpose |
 |---|---|
-| Multi-model / multimodal agents | Gemini Pro + Flash roles; photo, voice, PDF and sensor intake; optional Gemini Live voice |
-| Conversational agents | Specialist conversation ownership, follow-up questions, peer handovers, carrier/customer negotiation |
-| API calls | Routes, Sheets, Calendar, Gmail adapters and mock carrier booking/status; Places/Weather planned |
-| MCP integration | `logistics-mcp` server with tool discovery and call traces |
-| Feedback loop | Rating → validated preference → memory → changed ranking on the next comparable incident |
-| Self-healing | Carrier outage injected mid-booking; fallback, reconciliation and Healing Log |
-| A–Z instructions | This README, [AGENTS.md](AGENTS.md), one-command local and container runs, CI |
+| `GET /health` | `{"status":"ok","mode":"offline"}` |
+| `GET /api/fleet` | Trucks, shipments, carriers, warehouses, dataset and decision clock |
+| `POST /api/uploads` | Multipart evidence (JPEG/PNG/WAV/MP3/M4A/WebM/PDF, ≤ 10 MiB) |
+| `POST /api/incidents` | `{shipment_id, type, description, evidence_ids}` → incident |
+| `POST /api/incidents/{id}/plan` | Validated candidates + chosen plan (no booking) |
+| `POST /api/incidents/{id}/execute` | Book, assign, reserve dock, sync Google; repeat-safe |
+| `POST /api/conversations` · `POST /api/conversations/{id}/messages` | ADK conversation with specialist ownership |
+| `GET /api/incidents/{id}/events?after=0&follow=true` | Server-sent events with durable IDs (replay with `after` or `Last-Event-ID`) |
+| `POST /api/incidents/{id}/feedback` · `GET /api/preferences` | Ratings and learned ranking preferences |
+| `POST /api/demo/carriers/{id}/kill` · `/revive` | Simulated carrier fault controls |
 
-## Quickstart
-
-Requirements: Python 3.12+ and `make`, or Docker.
-
-**Local**
+Try it with curl while `make api` runs:
 
 ```bash
-make setup   # create .venv and install the project with dev tools
-make test    # pytest, offline, no API keys
-make lint    # ruff
-make demo    # offline ADK handover + carrier outage + feedback comparison
-make api     # UI backend and OpenAPI at http://127.0.0.1:8000/docs
-# Another terminal: make mcp
+curl -s http://127.0.0.1:8000/health
+curl -s -H 'Authorization: Bearer ghost-demo' -H 'Content-Type: application/json' \
+  -d '{"shipment_id":"SHP-001","type":"truck_breakdown","description":"TN-07 breakdown near Hosur","evidence_ids":[]}' \
+  http://127.0.0.1:8000/api/incidents
 ```
 
-**Docker**
+### How the control room renders backend events (`ui/src/lib/live.ts`)
+
+| SSE `type` | UI effect |
+|---|---|
+| `incident.created` | (UI opens the incident from the `POST` response) |
+| `handover` | Agent constellation moves ownership; handover line in chat |
+| `message` | Agent chat bubble (plan JSON is summarised into a sentence) |
+| `validation` | Rejected plan cards with reasons; rescue deadline; feasible count |
+| `plan.created` | Candidate cards, chosen plan and reason, rescue route preview |
+| `healing` | Healing Log rows: retry attempts, fallback, recovered; red flash and toast on failure |
+| `action.completed` | Load assignment + dock receipt; rescue truck drives on the map |
+| `integration.completed` / `integration.pending` | Sheets, Calendar, Gmail receipts (confirmed or pending) |
+| `incident.resolved` | Outcome toast, stage → Learn, rating box |
+| `feedback.saved` | Reads `/api/preferences` and shows the stored rule |
+
+The UI's own typed contract (`GhostEvent` in `ui/src/lib/contract.ts`) is what both the live adapter and the scripted demo engine emit, so every panel works in both modes.
+
+---
+
+## 6. Configuration
+
+Backend settings come from environment variables (copy `.env.example` to `.env` to change them). Offline runs need none of them.
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `GHOST_MODE` | `offline` | `offline` (deterministic, no external calls) or `live` (Gemini through ADK) |
+| `GHOST_API_TOKEN` | `ghost-demo` | Bearer token for `/api/*` and MCP. Live mode requires a private value of ≥ 24 chars |
+| `GHOST_DATABASE` | `runs/ghost.sqlite` | SQLite file; use a fresh path to replay demos |
+| `GHOST_DATASET` / `GHOST_DATA_DIR` / `GHOST_SEED_FILE` | `collected` / `data` / empty | Team-collected pack (10 trucks, 20 shipments, 3 carriers, 3 hubs), the `builtin` developer fixture, or a custom normalized seed |
+| `GHOST_UI_ORIGIN` | `http://localhost:3000` | CORS origin if the UI calls the API directly instead of through the Vite proxy |
+| `GHOST_API_URL` / `GHOST_MCP_URL` / `GHOST_CARRIER_URL` | `:8000` / `:8001/mcp` / `:8002` | Local service addresses |
+| `GOOGLE_API_KEY`, `GOOGLE_GENAI_USE_VERTEXAI` | empty, `FALSE` | Gemini via AI Studio (live only) |
+| `GEMINI_PRO_MODEL`, `GEMINI_FLASH_MODEL`, `GEMINI_LIVE_MODEL` | empty | Model IDs per agent role (live only) |
+| `GOOGLE_MAPS_API_KEY` | empty | Routes API (live only) |
+| `GOOGLE_OAUTH_TOKEN_FILE`, `GOOGLE_SHEET_ID`, `GOOGLE_CALENDAR_ID`, `GOOGLE_DEMO_RECIPIENT` | empty | Dedicated Google Workspace demo resources (live only) |
+
+Control room settings (`ui/.env.example`, copy to `ui/.env.local`):
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `VITE_DEFAULT_MODE` | `demo` | Start in `demo` or `live` |
+| `VITE_API_TOKEN` | `ghost-demo` | Must match `GHOST_API_TOKEN` |
+| `VITE_API_URL` | empty | Empty = use the Vite proxy; set `GHOST_API=http://host:port` when starting `make ui` to proxy elsewhere |
+
+---
+
+## 7. Live mode with Gemini and Google APIs
+
+Offline mode is the evaluated path. Live mode uses real Gemini models and Google APIs and needs credentials:
+
+1. Set `GHOST_MODE=live`, `GOOGLE_API_KEY` ([AI Studio](https://aistudio.google.com/apikey)), `GEMINI_PRO_MODEL` and `GEMINI_FLASH_MODEL` ([model catalog](https://ai.google.dev/gemini-api/docs/models)).
+2. Set a private `GHOST_API_TOKEN` (≥ 24 chars) and the same value as `VITE_API_TOKEN` for the UI.
+3. Enable the Routes API and set `GOOGLE_MAPS_API_KEY`.
+4. Enable the Sheets, Calendar and Gmail APIs, create the dedicated Sheet (tabs **Incidents** and **Fleet**) and Calendar, and generate a user OAuth token file stored outside the repo (`GOOGLE_OAUTH_TOKEN_FILE`).
+5. Start `make carrier`, `make mcp`, then `make api`, then `make ui`.
+
+The step-by-step guide, OAuth scopes and reconciliation rules are in [docs/BACKEND.md](docs/BACKEND.md#live-gemini-and-google-setup). Offline tests do not claim that Gemini or Google ran.
+
+---
+
+## 8. Tests, CI and Docker
+
+```bash
+make test        # pytest, offline
+make lint        # ruff
+make demo        # offline end-to-end agent demo (also scripts/demo.sh)
+make ui-build    # UI typecheck + build
+make verify      # all of the above
+```
+
+CI (`.github/workflows/ci.yml`) runs on every push to `main` and every pull request: Python lint, tests and the offline demo on 3.12; the UI typecheck and build on Node 20; and a container build that runs the tests.
 
 ```bash
 docker compose build
-docker compose run --rm app   # runs the test suite inside the container
+docker compose run --rm app   # runs pytest inside the container
 ```
 
-For a locked Python 3.12 environment with [uv](https://docs.astral.sh/uv/): `uv sync --python 3.12 --extra dev --frozen`, then use the same `make` commands. MCP is pinned below 2 for its FastMCP 1.x API.
+---
 
-## Configuration
+## 9. Troubleshooting
 
-Copy `.env.example` to `.env`. Tests and offline runs need no keys.
-
-| Variable | Purpose |
+| Symptom | Fix |
 |---|---|
-| `GHOST_MODE` | `offline` (deterministic, no external calls) or `live` (real Gemini through ADK) |
-| `GOOGLE_API_KEY` | Gemini API key from Google AI Studio, live mode only |
-| `GOOGLE_GENAI_USE_VERTEXAI` | `FALSE` for AI Studio keys |
-| `GEMINI_PRO_MODEL`, `GEMINI_FLASH_MODEL`, `GEMINI_LIVE_MODEL` | Model IDs per agent role |
-| `GOOGLE_MAPS_API_KEY` | Required for live routing; offline routes are explicitly simulated |
-| `GHOST_DATASET`, `GHOST_DATA_DIR`, `GHOST_SEED_FILE` | Collected replay pack (default), builtin developer fixture, or normalized custom seed |
-| `GHOST_DATABASE`, `GHOST_API_TOKEN`, `GHOST_UI_ORIGIN` | Runtime storage, bearer authorization, frontend origin |
-| `GHOST_API_URL`, `GHOST_MCP_URL`, `GHOST_CARRIER_URL` | Local backend, MCP and mock carrier addresses |
-| `GOOGLE_OAUTH_TOKEN_FILE`, `GOOGLE_SHEET_ID`, `GOOGLE_CALENDAR_ID`, `GOOGLE_DEMO_RECIPIENT` | Dedicated Google demo resources; full setup in the backend guide |
+| `cd: no such file or directory: ui` | Run commands from the repository root (`gdg-agentwars/`). `ui/` is inside it |
+| UI badge shows **LIVE · backend error** | Start `make api` first, then click the badge again. Check `curl http://127.0.0.1:8000/health` |
+| Chat or toast says *already rescued* / `sensor_data_missing` | That shipment was rescued in this database. Restart with `GHOST_DATABASE=runs/demo-$(date +%s).sqlite make api` |
+| Kill had no effect | Click the carrier while it flashes **KILL NOW** (the 15 s window before booking). Killing after booking does nothing |
+| `401 unauthorized` | `VITE_API_TOKEN` (UI) must equal `GHOST_API_TOKEN` (backend) |
+| Port 5173 or 8000 in use | Stop the other process; Vite will otherwise pick the next free port |
+| `npm ci` fails | Use Node 18+ (`node -v`) |
+| `make setup` fails | Use Python 3.12+ (`python3 --version`), or `uv sync --python 3.12 --extra dev --frozen` |
 
-## Tech stack
+---
 
-Google ADK · Gemini (AI Studio) · MCP Python SDK · Pydantic · FastAPI · httpx · SQLite (optional Firestore) · Google Maps, Sheets, Calendar, Gmail APIs · pytest · ruff · Docker · GitHub Actions
+## 10. Judging criteria → evidence
 
-## Project status
+| Criterion | Evidence | How to see it |
+|---|---|---|
+| Multi-model / multimodal agents | Gemini Pro + Flash roles; photo, voice, PDF and sensor intake; uploads endpoint | Agent cards show model per role; demo mode shows photo + playable voice note → Intake facts |
+| Conversational agents | Specialist ownership, peer handovers, follow-ups, `target_agent` switching | Live mode: *"Plan a rescue"* → Route & Risk owns the chat; ask *"Why this vehicle?"* |
+| API calls | FastAPI contract; carrier booking/status; Maps Routes, Sheets, Calendar, Gmail adapters | Plan/execute requests; receipts per integration; `make api` → `/docs` |
+| MCP integration | `logistics-mcp` (official MCP SDK) with 8 tools, authenticated, used by ADK specialists | `make mcp`; `tests/test_mcp.py` drives the real transport |
+| Feedback loop | Rating → scoped preference → changed ranking | `make demo` (18,500 → 12,000 INR); UI rating → `GET /api/preferences`; demo mode re-run picks the cheaper carrier |
+| Self-healing | Carrier killed mid-booking → retries → circuit → fallback → recovered; validation loop; tool repair | Live mode **KILL NOW** → Healing Log; `make demo` prints `healing_events` |
+| A–Z instructions | This README, [AGENTS.md](AGENTS.md), `make verify`, CI, Docker | Section 1 |
+
+---
+
+## 11. Repository layout, status and limitations
+
+```text
+ghost_dispatcher/        # ADK package and FastAPI backend
+├── agent.py             # root_agent for `adk web`
+├── api.py               # REST + SSE contract used by the UI (make api)
+├── agents/              # team.py (8 agents), conversations.py (ADK runner/sessions), offline model double
+├── models/contracts.py  # shared Pydantic contracts
+├── services/            # dispatcher (plan/execute/feedback), validation, recovery, store, seeds
+├── tools/               # carriers, routing, Google adapters (offline + live)
+└── demo.py              # make demo
+mcp_server/server.py     # logistics-mcp (make mcp)
+mock_services/           # carrier API with /kill and /revive (make carrier)
+ui/                      # React + Vite + Tailwind + Framer Motion control room (make ui)
+├── src/lib/contract.ts  # typed GhostEvent contract rendered by every panel
+├── src/lib/live.ts      # backend adapter: REST calls + SSE → GhostEvents
+└── src/lib/demo/        # scripted demo engine and breakdown scenario
+data/                    # collected synthetic fleet, scenarios, sensor traces, media, references
+tests/                   # pytest suite
+docs/                    # BACKEND.md (API/data/live setup), evidence.md
+PLAN.md                  # design, team split, demo script
+AGENTS.md                # exact commands for automated evaluators
+```
 
 | Area | State |
 |---|---|
-| Package layout, tooling, CI, container build | Done |
-| Demo data: seed fleet, scenarios, sensor traces, photos, voice notes, documents ([data/](data/README.md)) | Done |
-| Shared models/services, API/MCP, mock carrier, collected sensor replay | Offline core implemented and tested |
-| ADK agents, Healing Log, feedback memory | Offline core implemented and tested |
-| Gemini, Maps, Sheets, Calendar, Gmail live adapters | Implemented; credentialed verification pending |
-| Browser control room UI, Live voice and extra incidents | Separate workstreams / planned |
+| ADK agents, handovers, validation loop, recovery, feedback, API, MCP, mock carrier | Implemented, tested offline, in CI |
+| Collected dataset (10 trucks, 20 shipments, 3 carriers, 3 hubs) | Integrated with regression tests |
+| Browser control room (demo + live mode against the backend) | Implemented; live mode verified end to end against `make api` (offline mode) |
+| Gemini, Maps, Sheets, Calendar, Gmail live adapters | Implemented; credentialed rehearsal still needed |
+| Gemini Live voice, weather, fridge-failing / customer / damaged-delivery UI flows | Planned |
 
-Ownership, milestones and the demo script are in [PLAN.md](PLAN.md). Real incidents behind the problem are in [docs/evidence.md](docs/evidence.md).
+**Known limitations**
 
-## Repository layout
+- Offline mode does not interpret photos or audio; it never invents evidence. Multimodal interpretation runs only with Gemini in live mode.
+- A shipment can be rescued once per database. Replays need a fresh `GHOST_DATABASE`. Because of this, the live UI shows the stored preference after rating; the changed second decision is shown by `make demo` and by the UI's demo mode.
+- The backend is a single-operator demo: one API worker, SQLite, loopback binding.
+- The map is a stylised SVG of the Bengaluru–Hosur corridor, not a tiled map; destinations far outside it (for example Chennai) are off-screen.
+- All cargo, temperatures, driver hours and bookings are synthetic. No real carrier is ever booked.
 
-```text
-ghost_dispatcher/        # ADK package
-├── agents/              # dispatcher and specialist agents
-├── models/              # shared typed contracts
-├── services/            # validation, booking, recovery (no LLM calls)
-├── tools/               # Google API adapters with offline implementations
-└── memory/              # preferences and provider health
-mcp_server/              # logistics-mcp server
-mock_services/           # carrier API with /kill and /revive, sensor simulator
-data/                    # synthetic seed fleet, scenarios, sensor traces, media, references
-tests/                   # pytest suite, including data contract checks
-docs/                    # supporting documents
-.github/workflows/ci.yml # lint, tests and container build on every push and PR
-Dockerfile, compose.yaml # container build and run
-PLAN.md                  # implementation plan and team split
-AGENTS.md                # instructions for AI agents working on or evaluating this repo
-```
+Ownership, milestones and the 3-minute demo script are in [PLAN.md](PLAN.md). Real incidents behind the problem are in [docs/evidence.md](docs/evidence.md).
 
 ## For AI evaluators
 
-Read [AGENTS.md](AGENTS.md) for the exact commands to set up, run and verify the project without human input.
+Read [AGENTS.md](AGENTS.md). Short version: `make setup && make ui-setup && make verify` must exit 0 with no API keys.
