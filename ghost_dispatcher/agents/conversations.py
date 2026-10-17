@@ -10,6 +10,7 @@ from google.adk.sessions.sqlite_session_service import SqliteSessionService
 from google.genai import types
 
 from ghost_dispatcher.agents.team import build_team
+from ghost_dispatcher.monitoring import tool_result
 from ghost_dispatcher.services.store import DomainError
 
 
@@ -40,10 +41,13 @@ class Conversations:
         self.service.store.put("conversation", conversation_id, record)
         return record
 
-    async def send(self, conversation_id, message):
+    async def send(self, conversation_id, message, observer=None):
         lock = self.locks.setdefault(conversation_id, asyncio.Lock())
         async with lock:
             record = self.service.store.get("conversation", conversation_id)
+            self.service.guardrails.screen_input(
+                message.text, surface="chat", incident_id=record["incident_id"]
+            )
             session = await self.sessions.get_session(
                 app_name="ghost_dispatcher", user_id="demo", session_id=conversation_id
             )
@@ -83,18 +87,30 @@ class Conversations:
                     )
             record["messages"].append({"role": "user", "text": message.text})
             self.service.store.put("conversation", conversation_id, record)
-            replies = []
+            replies, tool_results = [], []
             async for event in self.runner.run_async(
                 user_id="demo",
                 session_id=conversation_id,
                 new_message=types.Content(role="user", parts=parts),
                 run_config=RunConfig(max_llm_calls=24),
             ):
+                if observer:
+                    observer(event)
+                for response in event.get_function_responses():
+                    tool_results.append(tool_result(response.name, response.response))
                 if event.is_final_response() and event.content:
                     content = "\n".join(p.text for p in event.content.parts or [] if p.text)
                     if content:
                         replies.append({"role": "agent", "agent": event.author, "text": content})
                         self.service.store.emit(record["incident_id"], "message", replies[-1])
+                        # Score the reply against this turn's evidence before anyone acts on it.
+                        quality = self.service.monitor.evaluate(
+                            record["incident_id"], event.author, content, tool_results
+                        )
+                        replies[-1]["quality"] = {
+                            key: quality[key]
+                            for key in ("groundedness", "truthfulness", "hallucinated")
+                        }
             session = await self.sessions.get_session(
                 app_name="ghost_dispatcher", user_id="demo", session_id=conversation_id
             )

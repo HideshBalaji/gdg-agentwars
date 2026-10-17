@@ -46,12 +46,19 @@ class OfflineModel(BaseLlm):
             if "coordinator" in text and ("switch" in text or "back" in text):
                 target = "dispatcher"
             if not target and self.role == "dispatcher":
-                if any(w in text for w in ("execute", "book", "assign")):
+                if any(w in text for w in ("execute", "book", "assign", "quote", "carrier")):
                     target = "negotiator"
                 elif any(w in text for w in ("feedback", "expensive", "cheaper")):
                     target = "critic"
                 elif any(w in text for w in ("plan", "rescue", "breakdown")):
                     target = "route_risk"
+            if (
+                not target
+                and self.role in {"intake", "route_risk", "validator"}
+                and any(w in text for w in ("quote", "book", "execute"))
+            ):
+                # Peer handover: bookings and carrier quotes belong to the negotiator.
+                target = "negotiator"
             if target and target != self.role:
                 part = types.Part(
                     function_call=types.FunctionCall(
@@ -65,6 +72,16 @@ class OfflineModel(BaseLlm):
                     and any(word in text for word in ("plan", "rescue", "options"))
                 ):
                     tool = "plan_rescue"
+                elif self.role == "negotiator" and (
+                    any(w in text for w in ("quote", "price", "availab"))
+                    or ("carrier" in text and "status" in text)
+                ):
+                    question = (
+                        "What is the status of this booking request?"
+                        if "status" in text
+                        else "Please quote the planned rescue truck for this shipment."
+                    )
+                    tool, args = "message_carrier_desk", {"message": question}
                 elif self.role == "negotiator" and any(
                     w in text for w in ("execute", "book", "assign")
                 ):

@@ -5,7 +5,7 @@ description = "Self-healing multi-agent cold-chain incident handler built on Goo
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-  "google-adk==2.12.0",
+  "google-adk[a2a]==2.12.0",
   "mcp>=1.26,<2",
   "pydantic>=2.7",
   "fastapi>=0.115",
@@ -22,6 +22,8 @@ dev = ["pytest>=8", "ruff>=0.6"]
 ghost-api = "ghost_dispatcher.api:main"
 ghost-mcp = "mcp_server.server:main"
 ghost-demo = "ghost_dispatcher.demo:main"
+ghost-eval = "ghost_dispatcher.evaluation:main"
+ghost-carrier-agent = "mock_services.carrier_agent:main"
 
 [build-system]
 requires = ["hatchling"]

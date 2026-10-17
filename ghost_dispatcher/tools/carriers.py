@@ -5,16 +5,21 @@ from ghost_dispatcher.services.store import DomainError
 
 
 class CarrierGateway:
-    def __init__(self, settings, store):
-        self.settings, self.store = settings, store
+    def __init__(self, settings, store, service=None):
+        self.settings, self.store, self.service = settings, store, service
 
-    async def book(self, carrier_id, request_id, shipment_id, truck_id):
+    async def book(self, carrier_id, request_id, shipment_id, truck_id, incident_id=None):
         payload = {
             "id": request_id,
             "carrier_id": carrier_id,
             "shipment_id": shipment_id,
             "truck_id": truck_id,
         }
+        if self.settings.carrier_protocol == "a2a" and self.service is not None:
+            # The carrier's own agent confirms the booking over A2A.
+            from ghost_dispatcher.tools.a2a_carrier import CarrierAgentClient
+
+            return await CarrierAgentClient(self.service).book(payload, incident_id=incident_id)
         if self.settings.mode == "offline":
             return self.mock_book(payload)
         if not self.settings.carrier_url:
