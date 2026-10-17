@@ -13,7 +13,7 @@ Requires Python 3.12+, Node.js 18+ with npm, and `make`, or Docker (Python only)
 ```bash
 make setup      # create .venv and install the project with dev tools
 make ui-setup   # npm ci for the control room in ui/
-make verify     # lint + tests + offline demo + UI typecheck/build; must exit 0
+make verify     # lint + tests + offline demo + agent evals + UI typecheck/build; must exit 0
 ```
 
 Individual steps, each must exit 0:
@@ -22,6 +22,7 @@ Individual steps, each must exit 0:
 make lint       # ruff
 make test       # pytest (offline, no keys)
 make demo       # offline ADK handover, carrier outage recovery, feedback cost change
+make eval       # ADK eval set: trajectory, groundedness, truthfulness, hallucination, PII blocks, A2A
 make ui-build   # tsc --noEmit && vite build in ui/
 ```
 

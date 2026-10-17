@@ -27,6 +27,8 @@ jobs:
         run: pytest -q
       - name: Offline agent demo
         run: ghost-demo
+      - name: Agent evals
+        run: ghost-eval
 
   ui:
     name: UI typecheck and build

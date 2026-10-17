@@ -37,7 +37,7 @@ git clone https://github.com/HideshBalaji/gdg-agentwars.git
 cd gdg-agentwars
 make setup      # creates .venv and installs the Python package + dev tools
 make ui-setup   # installs the control room's npm dependencies (npm ci)
-make verify     # lint + 42 tests + offline agent demo + UI typecheck/build
+make verify     # lint + 44 tests + offline agent demo + agent evals + UI typecheck/build
 ```
 
 `make verify` must exit 0. It runs:
@@ -47,6 +47,7 @@ make verify     # lint + 42 tests + offline agent demo + UI typecheck/build
 | Lint | `make lint` | `ruff` passes on all Python sources |
 | Tests | `make test` | `pytest`: domain rules, API, real local MCP transport, ADK handovers, carrier fallback, feedback, persistence |
 | Offline demo | `make demo` | A real ADK conversation (deterministic model double) hands over to Route & Risk, the primary carrier is killed, the rescue finishes through a backup, then feedback lowers the cost of a comparable incident |
+| Agent evals | `make eval` | Replays the ADK eval set through the real team: tool trajectory (incl. handovers and A2A calls), groundedness, truthfulness, hallucination and PII-block checks on 6 cases; writes `runs/eval-report.json` |
 | UI build | `make ui-build` | TypeScript typecheck + production build of the control room into `ui/dist` |
 
 Expected tail of `make demo`:
@@ -365,10 +366,12 @@ make test        # pytest, offline
 make lint        # ruff
 make demo        # offline end-to-end agent demo (also scripts/demo.sh)
 make ui-build    # UI typecheck + build
-make verify      # all of the above
+make eval        # ADK eval set: trajectory, groundedness, truthfulness, hallucination, PII, A2A
+make carrier-agent  # the carrier's booking agent over A2A on :8003 (optional)
+make verify      # lint, test, demo, eval, ui-build
 ```
 
-CI (`.github/workflows/ci.yml`) runs on every push to `main` and every pull request: Python lint, tests and the offline demo on 3.12; the UI typecheck and build on Node 20; and a container build that runs the tests.
+CI (`.github/workflows/ci.yml`) runs on every push to `main` and every pull request: Python lint, tests, the offline demo and the agent evals on 3.12; the UI typecheck and build on Node 20; and a container build that runs the tests.
 
 ```bash
 docker compose build
@@ -406,6 +409,9 @@ docker compose run --rm app   # runs pytest inside the container
 | MCP integration | `logistics-mcp` (official MCP SDK) with 8 tools, authenticated, used by ADK specialists | `make mcp`; `tests/test_mcp.py` drives the real transport |
 | Feedback loop | Rating → scoped preference → changed ranking | Live UI: 👎 → **Run comparable incident** → *Decision changed by feedback* (₹18,500 → ₹12,000); `make demo`; `tests/test_api.py::test_demo_reset_replays_comparable_incident_with_learned_preference` |
 | Self-healing | Carrier killed mid-booking → retries → circuit → fallback → recovered; validation loop; tool repair | Live mode **Kill provider** → the Book the rescue step shows retry, fallback and recovery; `make demo` prints `healing_events` |
+| PII guardrails (input and output) | Personal information (phones, emails, names, government IDs, cards) is refused at entry with `422 pii_blocked`: chat, incident descriptions, feedback and uploads. ADK model and tool callbacks redact anything that reaches a model, tool result or reply. Detection is regex offline, Cloud DLP (`GHOST_PII_ENGINE=dlp`) or a Gemini media screen live | Live: paste a phone and card in the Agent log, see the *PII blocked* card and toast; Demo mode refuses it in the browser too. `GET /api/guardrails` logs only types and counts, never the values |
+| Agent evaluation (groundedness, truthfulness, hallucination) | Every agent reply is scored against its tool results by the quality monitor (`GET /api/monitoring/quality`). `make eval` replays the ADK eval set (`evals/ghost_dispatcher.evalset.json`) through the real team with ADK `TrajectoryEvaluator` plus the monitor; `--judge` adds ADK `HallucinationsV1` on Gemini | Agent replies show *Grounded* / *Unverified* badges; the Learn step's *Safety and quality* card; `make eval` (6 cases, CI) |
+| Multi-agent orchestration and A2A | Root dispatcher + 7 specialists via ADK `transfer_to_agent` (capped, allow-listed), `LoopAgent` plan/validate (≤ 3). The carrier's booking desk is a separate ADK agent served over A2A (`to_a2a`, `make carrier-agent`); bookings and the negotiator's `message_carrier_desk` go over A2A JSON-RPC | `make eval` cases `carrier_quote_over_a2a`, `carrier_status_over_a2a`; agent card at `/.well-known/agent-card.json` |
 | A–Z instructions | This README, [AGENTS.md](AGENTS.md), `make verify`, CI, Docker | Section 1 |
 
 ---
