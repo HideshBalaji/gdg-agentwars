@@ -10,15 +10,22 @@ import { fmtClock, fmtCountdown, fmtDur, fmtInr, fmtTime, uid } from './lib/form
 import { apply, nowIso, nowMs, recordRating, resetAll, setHealth, useStore } from './lib/store';
 import { makeCtx, type Run } from './lib/demo/engine';
 import { breakdown } from './lib/demo/breakdown';
+import { liveHealth, liveRate, liveSend, liveStart, liveToggleCarrier } from './lib/live';
 
 let run: Run | null = null;
+const isLive = () => useStore.getState().mode === 'live';
 function startBreakdown() {
+  if (isLive()) return void liveStart();
   run?.cleanups.forEach((c) => c());
   if (run) run.cancelled = true;
   run = { cancelled: false, cleanups: [] };
   breakdown(run);
 }
 async function rate(thumbs: 'up' | 'down', reason: string) {
+  if (isLive()) {
+    apply({ type: 'message', message: { id: uid('m'), at: nowIso(), role: 'user', text: `${thumbs === 'up' ? '👍' : '👎'} ${reason}` } });
+    return liveRate(thumbs, reason);
+  }
   recordRating({ thumbs, reason });
   apply({ type: 'message', message: { id: uid('m'), at: nowIso(), role: 'user', text: `${thumbs === 'up' ? '👍' : '👎'} ${reason}` } });
   const ctx = makeCtx({ cancelled: false, cleanups: [] });
@@ -52,7 +59,16 @@ export default function App() {
     window.addEventListener('keydown', key);
     return () => (clearInterval(t), window.removeEventListener('keydown', key));
   }, []);
-  const toggle = (sys: SystemId) => setHealth(sys, useStore.getState().systems[sys].health === 'down' ? 'up' : 'down');
+  const toggle = (sys: SystemId) =>
+    isLive() ? liveToggleCarrier(sys) : setHealth(sys, useStore.getState().systems[sys].health === 'down' ? 'up' : 'down');
+  const switchMode = async () => {
+    run && (run.cancelled = true);
+    resetAll();
+    if (s.mode === 'demo') {
+      useStore.setState({ mode: 'live', connection: 'connecting', clockOffset: 0 });
+      await liveHealth();
+    } else useStore.setState({ mode: 'demo', connection: 'offline' });
+  };
 
   return (
     <div className="relative h-screen overflow-hidden bg-void text-ink font-sans">
@@ -74,7 +90,10 @@ export default function App() {
           <div className="font-display text-lg font-semibold tracking-tight">Ghost Dispatcher</div>
           <div className="-mt-1 text-[11px] text-ink-dim">Cold-chain control room</div>
         </div>
-        <span className="rounded-full border border-ghost-400/30 bg-ghost-500/10 px-2 py-0.5 text-[11px] text-ghost-300">DEMO · scripted</span>
+        <button onClick={switchMode} title="Switch between scripted demo and the live backend"
+          className={clsx('rounded-full border px-2 py-0.5 text-[11px]', s.mode === 'live' ? (s.connection === 'online' ? 'border-mint-500/40 bg-mint-500/10 text-mint-400' : 'border-alarm-500/40 bg-alarm-500/10 text-alarm-400') : 'border-ghost-400/30 bg-ghost-500/10 text-ghost-300')}>
+          {s.mode === 'live' ? `LIVE · backend ${s.connection}` : 'DEMO · scripted'} ⇄
+        </button>
         <div className="ml-auto flex items-center gap-2">
           {(['carrier_coldline', 'carrier_frostfleet', 'carrier_polar'] as SystemId[]).map((sys) => {
             const down = s.systems[sys].health === 'down';
@@ -331,6 +350,13 @@ function Chat() {
   const { feed, tools, typing, ratingRequested } = useStore();
   const ref = useRef<HTMLDivElement>(null);
   const [reason, setReason] = useState('Too expensive — we had 2 h of slack, prefer the cheaper carrier');
+  const [draft, setDraft] = useState('');
+  const send = () => {
+    if (!draft.trim()) return;
+    if (useStore.getState().mode === 'live') liveSend(draft.trim());
+    else apply({ type: 'message', message: { id: uid('m'), at: nowIso(), role: 'user', text: draft.trim() } });
+    setDraft('');
+  };
   useEffect(() => { ref.current?.scrollTo({ top: ref.current.scrollHeight, behavior: 'smooth' }); }, [feed.length, typing, ratingRequested]);
   return (
     <div className={clsx(glass, 'flex min-h-0 flex-1 flex-col')}>
@@ -380,7 +406,11 @@ function Chat() {
           </motion.div>
         )}
       </AnimatePresence>
-      <div className="flex items-center gap-1 border-t border-white/5 px-3 py-2 text-[10px] text-ink-dim"><Zap className="h-3 w-3" /> Keys: 1 = breakdown · K = kill/revive ColdLine</div>
+      <form onSubmit={(e) => { e.preventDefault(); send(); }} className="border-t border-white/5 p-2">
+        <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Message the active agent… e.g. Why this vehicle?"
+          className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-xs outline-none focus:border-ice-400/50" />
+      </form>
+      <div className="flex items-center gap-1 border-t border-white/5 px-3 py-2 text-[10px] text-ink-dim"><Zap className="h-3 w-3" /> Keys: 1 = breakdown · K = kill/revive ColdLine · badge ⇄ switches demo/live</div>
     </div>
   );
 }
