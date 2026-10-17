@@ -9,8 +9,9 @@ const hms = new Intl.DateTimeFormat('en-GB', {
   timeZone: TZ,
 });
 
-export const fmtTime = (iso: string | number) => hm.format(new Date(iso));
-export const fmtClock = (iso: string | number) => hms.format(new Date(iso));
+const valid = (iso: string | number | undefined) => iso !== undefined && iso !== '' && !Number.isNaN(new Date(iso).getTime());
+export const fmtTime = (iso?: string | number) => (valid(iso) ? hm.format(new Date(iso!)) : '—');
+export const fmtClock = (iso?: string | number) => (valid(iso) ? hms.format(new Date(iso!)) : '--:--:--');
 
 export function fmtDur(min: number) {
   const m = Math.max(0, Math.round(min));

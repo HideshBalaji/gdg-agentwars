@@ -87,6 +87,8 @@ export interface State {
   chaos: { system: SystemId; until: number } | null;
   alarm: number;
   typing: AgentId | null;
+  /** Live mode labels the carrier buttons with the backend's carrier names. */
+  carrierNames: Partial<Record<SystemId, string>>;
 }
 
 export const DEFAULT_FOCUS = { center: { lat: 12.79, lng: 77.86 }, zoom: 1 };
@@ -145,6 +147,7 @@ export const useStore = create<State>()(() => ({
   tabLockUntil: 0,
   toasts: [],
   alarm: 0,
+  carrierNames: {},
   ...incidentScope(),
 }));
 
@@ -184,6 +187,7 @@ export function resetAll() {
     workarounds: [],
     history: [],
     toasts: [],
+    carrierNames: {},
     clockOffset: DEMO_EPOCH - Date.now(),
   });
 }

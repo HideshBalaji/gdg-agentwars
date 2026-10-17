@@ -11,6 +11,7 @@ import { apply, nowIso, nowMs, recordRating, resetAll, setHealth, useStore } fro
 import { makeCtx, type Run } from './lib/demo/engine';
 import { breakdown } from './lib/demo/breakdown';
 import { liveHealth, liveRate, liveSend, liveStart, liveToggleCarrier } from './lib/live';
+import { resetIncident } from './lib/store';
 
 let run: Run | null = null;
 const isLive = () => useStore.getState().mode === 'live';
@@ -103,12 +104,12 @@ export default function App() {
                 className={clsx('flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs transition',
                   down ? 'border-alarm-500/50 bg-alarm-500/15 text-alarm-400' : 'border-white/10 bg-white/5 hover:bg-white/10',
                   hot && 'animate-pulse ring-2 ring-alarm-500')}>
-                <Power className="h-3 w-3" />{SYSTEMS[sys].name} {down ? 'DOWN' : hot ? 'KILL NOW' : 'up'}
+                <Power className="h-3 w-3" />{s.carrierNames[sys] ?? SYSTEMS[sys].name} {down ? 'DOWN' : hot ? 'KILL NOW' : 'up'}
               </button>
             );
           })}
           <button onClick={() => useStore.setState({ speed: s.speed === 1 ? 2 : 1 })} className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs">{s.speed}×</button>
-          <button onClick={() => { run && (run.cancelled = true); resetAll(); }} className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs">Reset</button>
+          <button onClick={() => { run && (run.cancelled = true); if (s.mode === 'live') { resetIncident(); liveHealth(); } else resetAll(); }} className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs">Reset</button>
           <button onClick={startBreakdown} className="flex items-center gap-1.5 rounded-lg bg-ice-500 px-3 py-1.5 text-xs font-semibold text-void shadow-glow hover:bg-ice-400">
             <Play className="h-3.5 w-3.5" /> Truck breakdown
           </button>
@@ -116,7 +117,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="relative z-10 grid h-[calc(100vh-3.5rem)] grid-cols-[300px_1fr_400px] gap-3 p-3">
+      <main className="relative z-10 grid h-[calc(100vh-3.5rem)] grid-cols-[300px_1fr_400px] grid-rows-[minmax(0,1fr)] gap-3 p-3">
         <section className="flex min-h-0 flex-col gap-3">
           <RescueWindow />
           <div className={clsx(glass, 'min-h-0 flex-1 overflow-auto p-4')}>
@@ -164,8 +165,8 @@ export default function App() {
                   return (
                     <motion.div key={p.id} layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: v?.verdict === 'rejected' ? 0.45 : 1, y: 0, x: v?.verdict === 'rejected' ? [0, -6, 6, 0] : 0 }}
                       className={clsx('mb-2 rounded-xl border p-2.5 text-xs', sel ? 'border-ice-400 bg-ice-500/10 shadow-glow' : 'border-white/5 bg-white/[0.03]')}>
-                      <div className="flex justify-between"><b className={clsx(v?.verdict === 'rejected' && 'line-through')}>{p.id} · {p.label}</b><span className="font-mono">{fmtInr(p.cost_inr)}</span></div>
-                      <div className="mt-0.5 text-ink-dim">{p.eta_to_site_min} min to site · arrives {fmtTime(p.arrival_at)} · slack {fmtDur(p.slack_min)}</div>
+                      <div className="flex justify-between"><b className={clsx(v?.verdict === 'rejected' && 'line-through')}>{p.id} · {p.label}</b><span className="font-mono">{p.cost_inr ? fmtInr(p.cost_inr) : ''}</span></div>
+                      {p.arrival_at && <div className="mt-0.5 text-ink-dim">{p.eta_to_site_min} min to site · arrives {fmtTime(p.arrival_at)} · slack {fmtDur(p.slack_min)}</div>}
                       <div className="mt-1 flex flex-wrap gap-1">
                         {(s.checks[p.id] ?? []).map((c) => (
                           <span key={c.id} title={c.detail} className={clsx('rounded px-1.5 py-0.5', c.status === 'pass' ? 'bg-mint-500/15 text-mint-400' : c.status === 'fail' ? 'bg-alarm-500/15 text-alarm-400' : 'bg-white/5 text-ink-dim')}>
@@ -275,8 +276,8 @@ function FleetMap() {
           const q = project(incident.location);
           return (
             <g>
-              {[0, 1, 2].map((i) => <motion.circle key={i} cx={q.x} cy={q.y} r="10" fill="none" stroke="#f43f5e" strokeWidth="2" animate={{ r: [10, 60], opacity: [0.8, 0] }} transition={{ duration: 2.4, repeat: Infinity, delay: i * 0.8 }} />)}
-              <motion.circle key={sweepAt} cx={q.x} cy={q.y} fill="rgba(34,211,238,0.08)" stroke="#22d3ee" initial={{ r: 0, opacity: 1 }} animate={{ r: 260, opacity: 0 }} transition={{ duration: 2 }} />
+              {[0, 1, 2].map((i) => <motion.circle key={i} cx={q.x} cy={q.y} r={10} fill="none" stroke="#f43f5e" strokeWidth="2" initial={{ r: 10, opacity: 0.8 }} animate={{ r: [10, 60], opacity: [0.8, 0] }} transition={{ duration: 2.4, repeat: Infinity, delay: i * 0.8 }} />)}
+              <motion.circle key={sweepAt} cx={q.x} cy={q.y} r={0} fill="rgba(34,211,238,0.08)" stroke="#22d3ee" initial={{ r: 0, opacity: 1 }} animate={{ r: 260, opacity: 0 }} transition={{ duration: 2 }} />
             </g>
           );
         })()}
@@ -301,7 +302,7 @@ function FleetMap() {
 }
 
 function Constellation() {
-  const { owner, agentStatus, handoverSeq, lastHandover, systems } = useStore();
+  const { owner, agentStatus, handoverSeq, lastHandover, systems, carrierNames } = useStore();
   const pos = (id: AgentId) => {
     if (id === 'dispatcher') return { x: 50, y: 50 };
     const i = AGENT_ORDER.indexOf(id);
@@ -338,7 +339,7 @@ function Constellation() {
         {SYSTEM_ORDER.map((id) => (
           <motion.span key={id + systems[id].pulse} initial={{ backgroundColor: 'rgba(34,211,238,0.4)' }} animate={{ backgroundColor: 'rgba(255,255,255,0.04)' }} transition={{ duration: 1 }}
             className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px]">
-            <span className={clsx('h-1.5 w-1.5 rounded-full', systems[id].health === 'down' ? 'bg-alarm-500 animate-blink' : 'bg-mint-400')} />{SYSTEMS[id].name}
+            <span className={clsx('h-1.5 w-1.5 rounded-full', systems[id].health === 'down' ? 'bg-alarm-500 animate-blink' : 'bg-mint-400')} />{carrierNames[id] ?? SYSTEMS[id].name}
           </motion.span>
         ))}
       </div>
