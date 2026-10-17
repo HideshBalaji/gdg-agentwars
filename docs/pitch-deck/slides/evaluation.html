@@ -7,17 +7,20 @@
 <div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#13283A;border-top:6px solid #4FD1C5;border-radius:12px;padding:32px">
 <h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F3F1EA">Groundedness</h3>
 <p style="font-size:26px;line-height:1.4;color:#B9C7D2">Every truck ID, cost and time in a reply must appear in that turn’s tool outputs</p>
-<p style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1;color:#4FD1C5">[__%]</p>
+<p style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1;color:#4FD1C5">1.00</p>
+<p style="font-size:24px;color:#B9C7D2">lowest score across 6 scenarios</p>
 </div>
 <div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#13283A;border-top:6px solid #4FD1C5;border-radius:12px;padding:32px">
 <h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F3F1EA">Truthfulness</h3>
 <p style="font-size:26px;line-height:1.4;color:#B9C7D2">No “booked” without a receipt. Simulated output always says so</p>
-<p style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1;color:#4FD1C5">[__] errors</p>
+<p style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1;color:#4FD1C5">1.00</p>
+<p style="font-size:24px;color:#B9C7D2">0 hallucinated replies</p>
 </div>
 <div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#13283A;border-top:6px solid #4FD1C5;border-radius:12px;padding:32px">
 <h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F3F1EA">Tool trajectory</h3>
-<p style="font-size:26px;line-height:1.4;color:#B9C7D2">Expected handovers and tool calls per scenario: breakdown, outage, rejections</p>
-<p style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1;color:#4FD1C5">[__/__]</p>
+<p style="font-size:26px;line-height:1.4;color:#B9C7D2">Expected handovers and tool calls, incl. A2A booking, outage fallback and PII redaction</p>
+<p style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1;color:#4FD1C5">6/6</p>
+<p style="font-size:24px;color:#B9C7D2">scenarios pass, each at 1.00</p>
 </div>
 </div>
 <div style="display:flex;gap:24px">
@@ -25,8 +28,8 @@
 <p style="flex:1;font-size:26px;line-height:1.4;color:#E8EEF2;background:#13283A;border-radius:12px;padding:20px 28px"><b>Live:</b> ADK eval sets plus an LLM-judge hallucination rubric</p>
 </div>
 <div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
-<p style="font-size:24px;color:#7F93A3">Scenarios from data/scenarios · run with make eval</p>
+<p style="font-size:24px;color:#7F93A3">Offline run of evals/ghost_dispatcher.evalset.json · make eval</p>
 <p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#7F93A3">14</p>
 </div>
-<aside>We don’t just ask the model not to hallucinate; we measure it. Groundedness: we extract every truck ID, rupee amount and time from an agent’s reply and check each one appears in the tool results from that same turn. Truthfulness: an agent may never say “booked” unless the execute tool returned a receipt, and offline output must be labelled simulated. Trajectory: for each scenario — breakdown, carrier outage, the rejection cases — we assert the expected handovers and tool calls. The offline suite runs in CI on every push; in live mode the same scenarios run as ADK eval sets with an LLM-judge rubric. FILL IN the bracketed results from the latest make eval run before presenting.</aside>
+<aside>We don’t just ask the model not to hallucinate; we measure it. Groundedness: we extract every truck ID, rupee amount and time from an agent’s reply and check each one appears in the tool results from that same turn. Truthfulness: an agent may never say “booked” unless the execute tool returned a receipt, and offline output must be labelled simulated. Trajectory: for each of six scenarios — the rescue handover, a carrier quote and status check over A2A, an outage with fallback, learning from feedback, and PII redaction — we assert the expected handovers and tool calls. On the latest offline run all six pass: trajectory, groundedness and truthfulness are 1.00 in every scenario, with zero hallucinated replies. These are offline numbers from the deterministic model double; in live mode the same scenarios run against Gemini as ADK eval sets with an LLM-judge rubric. The suite runs in CI on every push.</aside>
 </section>
