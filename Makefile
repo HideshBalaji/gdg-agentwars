@@ -39,7 +39,7 @@ ui-build:  ## Typecheck and build the control room into ui/dist
 ui-preview:  ## Serve the built control room, http://localhost:4173
 	npm --prefix ui run preview
 
-verify: lint test demo ui-build  ## Everything an evaluator needs: lint, tests, offline demo, UI build
+verify: lint test demo eval ui-build  ## Everything an evaluator needs: lint, tests, offline demo, UI build
 
 docker-build:  ## Build the container image
 	docker compose build
@@ -49,3 +49,9 @@ docker-test:  ## Run the test suite inside the container
 
 clean:  ## Remove the venv and build/test caches
 	rm -rf $(VENV) .pytest_cache .ruff_cache build dist *.egg-info ui/node_modules ui/dist
+
+eval:  ## ADK eval suite: trajectory, groundedness, truthfulness, hallucination, PII, A2A
+	$(BIN)/python -m ghost_dispatcher.evaluation
+
+carrier-agent:  ## Carrier booking agent over A2A, http://127.0.0.1:8003/.well-known/agent-card.json
+	$(BIN)/ghost-carrier-agent

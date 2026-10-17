@@ -195,6 +195,7 @@ class Evidence(Contract):
     id: Identifier
     mime_type: str
     size: int
+    pii_screen: str | None = None
 
 
 class Event(Contract):

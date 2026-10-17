@@ -1,0 +1,441 @@
+{
+  "eval_set_id": "ghost_dispatcher_core",
+  "name": "Ghost Dispatcher core behaviour",
+  "description": "Handovers, A2A carrier negotiation, outage fallback, learned feedback and PII guardrails on the collected replay dataset.",
+  "eval_cases": [
+    {
+      "evalId": "plan_rescue_handover",
+      "conversation": [
+        {
+          "invocationId": "turn-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Plan a rescue"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "route_risk"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {},
+                "name": "plan_rescue"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "sessionInput": {
+        "appName": "ghost_dispatcher",
+        "userId": "eval",
+        "state": {
+          "ghost": {
+            "expect": {
+              "incident_status": "planned"
+            },
+            "shipment_id": "SHP-001",
+            "type": "truck_breakdown",
+            "description": "Synthetic TN-07 breakdown near Hosur"
+          }
+        }
+      },
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "carrier_quote_over_a2a",
+      "conversation": [
+        {
+          "invocationId": "turn-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Plan a rescue"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "route_risk"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {},
+                "name": "plan_rescue"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        },
+        {
+          "invocationId": "turn-2",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Get a quote from the carrier"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "negotiator"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {
+                  "message": "Please quote the planned rescue truck for this shipment."
+                },
+                "name": "message_carrier_desk"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "sessionInput": {
+        "appName": "ghost_dispatcher",
+        "userId": "eval",
+        "state": {
+          "ghost": {
+            "expect": {
+              "a2a": true
+            },
+            "shipment_id": "SHP-001",
+            "type": "truck_breakdown",
+            "description": "Synthetic TN-07 breakdown near Hosur"
+          }
+        }
+      },
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "outage_fallback_booking",
+      "conversation": [
+        {
+          "invocationId": "turn-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Plan a rescue"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "route_risk"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {},
+                "name": "plan_rescue"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        },
+        {
+          "invocationId": "turn-2",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Execute the booking"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "negotiator"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {},
+                "name": "execute_rescue"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "sessionInput": {
+        "appName": "ghost_dispatcher",
+        "userId": "eval",
+        "state": {
+          "ghost": {
+            "kill_before_turn": {
+              "2": [
+                "CAR-001"
+              ]
+            },
+            "expect": {
+              "incident_status": "resolved",
+              "booking_carrier_not": "CAR-001",
+              "a2a": true
+            },
+            "shipment_id": "SHP-001",
+            "type": "truck_breakdown",
+            "description": "Synthetic TN-07 breakdown near Hosur"
+          }
+        }
+      },
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "learned_preference_feedback",
+      "conversation": [
+        {
+          "invocationId": "turn-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Plan a rescue"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "route_risk"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {},
+                "name": "plan_rescue"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        },
+        {
+          "invocationId": "turn-2",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Switch to critic. Too expensive, prefer cheaper carriers when there is slack"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "critic"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {
+                  "rating": "down",
+                  "reason": "switch to critic. too expensive, prefer cheaper carriers when there is slack",
+                  "prefer_cheaper_when_slack": true
+                },
+                "name": "record_feedback"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "sessionInput": {
+        "appName": "ghost_dispatcher",
+        "userId": "eval",
+        "state": {
+          "ghost": {
+            "expect": {
+              "preference": true
+            },
+            "shipment_id": "SHP-001",
+            "type": "truck_breakdown",
+            "description": "Synthetic TN-07 breakdown near Hosur"
+          }
+        }
+      },
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "pii_guardrail_blocks_entry",
+      "conversation": [
+        {
+          "invocationId": "turn-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Call the driver on 9876543210 about the delay"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "sessionInput": {
+        "appName": "ghost_dispatcher",
+        "userId": "eval",
+        "state": {
+          "ghost": {
+            "expect": {
+              "blocked": "pii_blocked"
+            },
+            "shipment_id": "SHP-001",
+            "type": "truck_breakdown",
+            "description": "Synthetic TN-07 breakdown near Hosur"
+          }
+        }
+      },
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    },
+    {
+      "evalId": "carrier_status_over_a2a",
+      "conversation": [
+        {
+          "invocationId": "turn-1",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Plan a rescue"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "route_risk"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {},
+                "name": "plan_rescue"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        },
+        {
+          "invocationId": "turn-2",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Execute the booking"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "agent_name": "negotiator"
+                },
+                "name": "transfer_to_agent"
+              },
+              {
+                "args": {},
+                "name": "execute_rescue"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        },
+        {
+          "invocationId": "turn-3",
+          "userContent": {
+            "parts": [
+              {
+                "text": "Ask the carrier for the booking status"
+              }
+            ],
+            "role": "user"
+          },
+          "intermediateData": {
+            "toolUses": [
+              {
+                "args": {
+                  "message": "What is the status of this booking request?"
+                },
+                "name": "message_carrier_desk"
+              }
+            ],
+            "toolResponses": [],
+            "intermediateResponses": []
+          },
+          "creationTimestamp": 0.0
+        }
+      ],
+      "sessionInput": {
+        "appName": "ghost_dispatcher",
+        "userId": "eval",
+        "state": {
+          "ghost": {
+            "expect": {
+              "incident_status": "resolved",
+              "a2a": true
+            },
+            "shipment_id": "SHP-001",
+            "type": "truck_breakdown",
+            "description": "Synthetic TN-07 breakdown near Hosur"
+          }
+        }
+      },
+      "creationTimestamp": 0.0,
+      "finalSessionState": {}
+    }
+  ],
+  "creation_timestamp": 0.0
+}

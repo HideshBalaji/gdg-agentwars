@@ -5,6 +5,7 @@ from functools import partial
 from pathlib import Path
 from uuid import uuid4
 
+from ghost_dispatcher.guardrails import Guardrails
 from ghost_dispatcher.models.contracts import (
     Candidate,
     Carrier,
@@ -17,6 +18,7 @@ from ghost_dispatcher.models.contracts import (
     Truck,
     Warehouse,
 )
+from ghost_dispatcher.monitoring import QualityMonitor
 from ghost_dispatcher.services.demo_seed import demo_seed
 from ghost_dispatcher.services.recovery import CarrierUnavailable, Recovery
 from ghost_dispatcher.services.store import DomainError, Store
@@ -30,8 +32,10 @@ class DispatcherService:
         self.settings = settings
         self.store = store or Store(settings.database)
         self.router = Router(settings)
-        self.carriers = CarrierGateway(settings, self.store)
+        self.carriers = CarrierGateway(settings, self.store, self)
         self.recovery = Recovery(self.store)
+        self.guardrails = Guardrails(settings, self.store)
+        self.monitor = QualityMonitor(self)
         self._locks = {}
         self._replay_at = None
         self._dataset = "builtin"
@@ -140,6 +144,7 @@ class DispatcherService:
         self.store.put("incident", incident.id, incident.model_dump(mode="json"))
 
     def create_incident(self, request: IncidentCreate):
+        self.guardrails.screen_input(request.description, surface="incident_description")
         self.store.get("shipment", request.shipment_id)
         for evidence_id in request.evidence_ids:
             self.store.get("evidence", evidence_id)
@@ -364,6 +369,7 @@ class DispatcherService:
                                 f"{incident_id}-{plan.chosen.carrier_id}",
                                 shipment.id,
                                 truck.id,
+                                incident_id=incident_id,
                             ),
                         )
                     except CarrierUnavailable:
@@ -522,6 +528,7 @@ class DispatcherService:
 
     def feedback(self, incident_id, feedback: Feedback):
         self.incident(incident_id)
+        self.guardrails.screen_input(feedback.reason, surface="feedback", incident_id=incident_id)
         result = {
             "id": uuid4().hex,
             "incident_id": incident_id,

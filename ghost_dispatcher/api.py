@@ -121,6 +121,27 @@ def create_app(settings=None):
     def feedback(incident_id: str, request: Feedback):
         return service.feedback(incident_id, request)
 
+    @app.get("/api/guardrails", dependencies=protected)
+    def guardrails():
+        """PII guardrail log: surface, action and finding types only, never the values."""
+        return {
+            "engine": service.guardrails.detector.name,
+            "log": service.guardrails.log(),
+        }
+
+    @app.get("/api/monitoring/quality", dependencies=protected)
+    def quality(incident_id: str | None = None):
+        """Groundedness, truthfulness and hallucination per agent, plus guardrail and A2A
+        activity. Optionally scoped to one incident."""
+        if incident_id:
+            service.incident(incident_id)
+        return service.monitor.summary(incident_id)
+
+    @app.get("/api/incidents/{incident_id}/evaluations", dependencies=protected)
+    def evaluations(incident_id: str):
+        service.incident(incident_id)
+        return [e for e in service.store.list("evaluation") if e["incident_id"] == incident_id]
+
     @app.get("/api/preferences", dependencies=protected)
     def preferences():
         return service.store.list("preference")
@@ -159,11 +180,13 @@ def create_app(settings=None):
             raise
         finally:
             await file.close()
+        pii_screen = service.guardrails.screen_upload(path, file.content_type)
         record = {
             "id": evidence_id,
             "mime_type": file.content_type,
             "size": size,
             "path": str(path),
+            "pii_screen": pii_screen,
         }
         service.store.put("evidence", evidence_id, record)
         return {k: v for k, v in record.items() if k != "path"}

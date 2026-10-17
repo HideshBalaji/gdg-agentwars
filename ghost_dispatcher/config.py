@@ -26,6 +26,10 @@ class Settings:
     calendar_id: str = ""
     google_token_file: str = ""
     demo_recipient: str = ""
+    pii_engine: str = "regex"
+    gcp_project: str = ""
+    carrier_protocol: str = "a2a"
+    carrier_agent_url: str = ""
 
     @classmethod
     def from_env(cls):
@@ -48,9 +52,17 @@ class Settings:
             calendar_id=os.getenv("GOOGLE_CALENDAR_ID", ""),
             google_token_file=os.getenv("GOOGLE_OAUTH_TOKEN_FILE", ""),
             demo_recipient=os.getenv("GOOGLE_DEMO_RECIPIENT", ""),
+            pii_engine=os.getenv("GHOST_PII_ENGINE", "regex"),
+            gcp_project=os.getenv("GOOGLE_CLOUD_PROJECT", ""),
+            carrier_protocol=os.getenv("GHOST_CARRIER_PROTOCOL", "a2a"),
+            carrier_agent_url=os.getenv("GHOST_CARRIER_AGENT_URL", ""),
         )
         if settings.mode not in {"offline", "live"}:
             raise ValueError("GHOST_MODE must be offline or live")
+        if settings.pii_engine not in {"regex", "dlp"}:
+            raise ValueError("GHOST_PII_ENGINE must be regex or dlp")
+        if settings.carrier_protocol not in {"a2a", "rest"}:
+            raise ValueError("GHOST_CARRIER_PROTOCOL must be a2a or rest")
         if settings.dataset not in {"builtin", "collected"}:
             raise ValueError("GHOST_DATASET must be builtin or collected")
         if settings.mode == "live":
