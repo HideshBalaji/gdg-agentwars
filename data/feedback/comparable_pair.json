@@ -1,0 +1,62 @@
+{
+  "comparison_id": "CMP-001",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "observation_kind": "synthetic_expected_comparison_not_actual_agent_runs",
+  "incident_ref": "../scenarios/breakdown.json#/incident",
+  "identical_inputs": [
+    "Replay2026-10-17T02:00:00+05:30",
+    "SHP-001 600kg",
+    "03:00 cold-control deadline",
+    "09:00 business delivery deadline",
+    "TN-10 scripted unavailable",
+    "TN-02 INR18500 cold02:35 delivery07:35",
+    "TN-03 INR12000 cold02:50 delivery08:50"
+  ],
+  "only_changed_input": "Presence of explicitly scoped user preference memory RULE-PREF-001",
+  "before": {
+    "case_id": "CMP-001-BEFORE",
+    "preference_memory": [],
+    "expected_selection": "TN-02",
+    "expected_delivery_complete_at": "2026-10-17T07:35:00+05:30",
+    "expected_cold_control_restored_at": "2026-10-17T02:35:00+05:30",
+    "expected_cost_inr": 18500,
+    "illustrative_user_feedback": {
+      "rating": 2,
+      "scale_max": 5,
+      "text": "For this simulated account I would trade up to90 minutes of delivery time to save at least INR5000, but never miss cold or business deadlines."
+    }
+  },
+  "after": {
+    "case_id": "CMP-001-AFTER",
+    "preference_memory": [
+      "RULE-PREF-001"
+    ],
+    "expected_selection": "TN-03",
+    "expected_delivery_complete_at": "2026-10-17T08:50:00+05:30",
+    "expected_cold_control_restored_at": "2026-10-17T02:50:00+05:30",
+    "expected_cost_inr": 12000,
+    "illustrative_user_feedback": {
+      "rating": 5,
+      "scale_max": 5,
+      "text": "This hypothetical cheaper plan matches my stated preference and still meets both deadlines."
+    }
+  },
+  "expected_deltas": {
+    "saving_inr": 6500,
+    "delivery_delay_min": 75,
+    "cold_restoration_delay_min": 15,
+    "cheaper_cold_deadline_slack_min": 10,
+    "cheaper_business_deadline_slack_min": 10,
+    "more_than_60_min_demonstration": "75min delivery delay, NOT thermal slack. Baseline has60min total thermal headroom and cheaper plan only10min thermal margin."
+  },
+  "expected_outcomes": {
+    "invariant": "Hard validation first; preference can only rank eligible candidates.",
+    "successful_execution_recorded": false,
+    "ratings": "Invented demonstration feedback, not empirical product evaluation or measured improvement."
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "asset_id": "backup_reefer_truck",
+  "path": "data/photos/backup_reefer_truck.jpg",
+  "download_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/20220908_Volvo_FM_refrigerated_truck.jpg",
+  "original_url": "https://upload.wikimedia.org/wikipedia/commons/a/ab/20220908_Volvo_FM_refrigerated_truck.jpg",
+  "sha256": "1d95212cd72a09dcbd0708fc828f0c3c83fdb40b49d424bf01b825f5f82c8699",
+  "bytes": 2280914,
+  "content_type": "image/jpeg",
+  "title": "20220908 Volvo FM refrigerated truck.jpg",
+  "creator": "Windmemories",
+  "creator_url": "https://commons.wikimedia.org/wiki/User:Windmemories",
+  "source_page": "https://commons.wikimedia.org/wiki/File:20220908_Volvo_FM_refrigerated_truck.jpg",
+  "license": "CC-BY-SA-4.0",
+  "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "expected_visible_facts": [
+    "A truck and refrigerated box trailer are visible."
+  ],
+  "not_supported": [
+    "Availability for booking",
+    "Carrier or driver identity in our seed",
+    "Remaining capacity",
+    "Mechanical condition",
+    "A location in India"
+  ],
+  "original_location": "Zhengzhou, China; not India",
+  "changes": "None; original file bytes retained under a local filename.",
+  "classification": "external_illustrative_photo",
+  "accessed_on": "2026-10-17",
+  "scenario_binding": "Illustrative only; no claim this depicts any synthetic seed entity."
+}

@@ -1,0 +1,32 @@
+{
+  "asset_id": "damaged_carton",
+  "path": "data/photos/damaged_carton.jpg",
+  "download_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Damaged_Cardboard_Box_Labelled_Fragile.jpg",
+  "original_url": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Damaged_Cardboard_Box_Labelled_Fragile.jpg",
+  "sha256": "c5eb3b53de80c42bd5374bb3b45a99b36daf0e9552758bf0a6b94a1028656146",
+  "bytes": 3003386,
+  "content_type": "image/jpeg",
+  "title": "Damaged Cardboard Box Labelled Fragile.jpg",
+  "creator": "Meanwell Packaging",
+  "creator_url": "https://meanwell-packaging.co.uk/",
+  "source_page": "https://commons.wikimedia.org/wiki/File:Damaged_Cardboard_Box_Labelled_Fragile.jpg",
+  "original_source": "https://www.flickr.com/photos/195311218@N08/52160346520/",
+  "license": "CC-BY-2.0",
+  "license_url": "https://creativecommons.org/licenses/by/2.0/",
+  "expected_visible_facts": [
+    "Cardboard shipping carton.",
+    "Fragile label.",
+    "Crumpled or damaged outer corner."
+  ],
+  "not_supported": [
+    "Damage to contents",
+    "Vaccine cargo",
+    "A particular shipment identity",
+    "Cause or time of damage",
+    "Claim liability"
+  ],
+  "changes": "None; original file bytes retained under a local filename.",
+  "classification": "external_illustrative_photo",
+  "accessed_on": "2026-10-17",
+  "scenario_binding": "Illustrative only; no claim this depicts any synthetic seed entity."
+}

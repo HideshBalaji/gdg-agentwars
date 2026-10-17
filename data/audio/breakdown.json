@@ -1,0 +1,33 @@
+{
+  "asset_id": "breakdown",
+  "path": "data/audio/breakdown.wav",
+  "transcript_path": "data/audio/breakdown.txt",
+  "classification": "synthetic_speech",
+  "engine": "eSpeak NG 1.52.0 via espeakng-loader 0.2.4",
+  "voice": "en",
+  "words_per_minute": 155,
+  "sample_rate_hz": 22050,
+  "channels": 1,
+  "sample_width_bytes": 2,
+  "duration_seconds": 33.134,
+  "sha256": "dd0aae82ea5e74766be97718e7f3267a1221e08d3500c9d34eb290299322fbc3",
+  "license": "CC0-1.0 for original scenario text and generated output; no voice cloning, engine binaries not redistributed",
+  "generator_source": "https://github.com/espeak-ng/espeak-ng",
+  "recorded_human": false,
+  "scenario_clock": "2026-10-17T02:00:00+05:30",
+  "expected_extraction": {
+    "truck_id": "TN-07",
+    "driver_id": "DRV-007",
+    "shipment_id": "SHP-001",
+    "mass_kg": 600,
+    "location_text": "near Hosur",
+    "probe_temp_c": 6.5,
+    "reported_at": "2026-10-17T02:00:00+05:30",
+    "reported_failure": "engine failed and refrigeration stopped",
+    "mechanical_diagnosis": "unknown"
+  },
+  "not_supported": [
+    "Actual driver report",
+    "Real cargo safety or mechanical diagnosis"
+  ]
+}

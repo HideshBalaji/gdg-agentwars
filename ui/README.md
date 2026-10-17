@@ -19,3 +19,12 @@ All carrier/Google actions in demo mode are simulated and labelled as such.
 ## Backend contract
 
 The UI renders `GhostEvent`s defined in `src/lib/contract.ts` (snake_case, mirrors Pydantic). The live backend should stream them over SSE; the demo engine (`src/lib/demo/`) emits the same events.
+
+## Live mode (real backend)
+
+```bash
+make setup && make api      # FastAPI on 127.0.0.1:8000 (token ghost-demo)
+cd ui && npm install && npm run dev
+```
+
+Click the **DEMO ⇄** badge to switch to **LIVE**. The dev server proxies `/api` and `/health` to the backend. **Truck breakdown** then creates an incident, streams `/api/incidents/{id}/events`, plans and executes it. Chat goes to `/api/conversations`, the carrier buttons call `/api/demo/carriers/{id}/kill|revive`, and the rating posts to `/feedback`.

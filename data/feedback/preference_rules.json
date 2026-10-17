@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "rules": [
+    {
+      "rule_id": "RULE-PREF-001",
+      "type": "conditional_user_preference",
+      "scope": {
+        "customer_id": "CUS-001",
+        "cargo_profile_id": "CG-VACCINE-TRAINING",
+        "currency": "INR"
+      },
+      "source": {
+        "comparison_id": "CMP-001",
+        "case_id": "CMP-001-BEFORE",
+        "synthetic_rating": 2,
+        "synthetic_rating_max": 5,
+        "source_kind": "invented demo feedback, not observed user history"
+      },
+      "if": {
+        "all_hard_validations_pass": true,
+        "cold_control_before_deadline": true,
+        "delivery_complete_before_deadline": true,
+        "confirmed_available_required_before_dispatch": true,
+        "savings_vs_fastest_eligible_inr_at_least": 5000,
+        "delivery_delay_vs_fastest_eligible_min_at_most": 90
+      },
+      "then": "Rank lower total rescue cost ahead of earliest delivery; explain accepted delivery delay. This is not permission to miss either deadline.",
+      "unless": [
+        "Customer withdraws or changes preference",
+        "Thermal or timing estimates become stale or unknown",
+        "Quote expires or provider cannot confirm",
+        "Any physical eligibility fails"
+      ],
+      "learned_at": "2026-10-17T02:00:00+05:30",
+      "valid_until": "2026-10-18T02:00:00+05:30",
+      "application_note": "Apply only in explicitly enabled after-memory scenario, not automatically in baseline."
+    }
+  ]
+}

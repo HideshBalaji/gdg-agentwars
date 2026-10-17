@@ -1,0 +1,435 @@
+{
+  "schema_version": "1.0",
+  "collected_on": "2026-10-17",
+  "root": "repository",
+  "self_excluded": true,
+  "file_count_excluding_this_manifest": 69,
+  "total_bytes_excluding_this_manifest": 14148959,
+  "folder_file_counts": {
+    "index": 2,
+    "audio": 13,
+    "documents": 5,
+    "feedback": 3,
+    "photos": 11,
+    "references": 4,
+    "scenarios": 13,
+    "seed": 11,
+    "sensors": 7
+  },
+  "files": [
+    {
+      "path": "data/README.md",
+      "classification": "collection_documentation_or_validation",
+      "bytes": 6607,
+      "sha256": "86e9b88d35f9ab11a81b79114c404472327d3437d99c07d44359256794cd8efa"
+    },
+    {
+      "path": "data/audio/README.md",
+      "classification": "collection_documentation_or_validation",
+      "bytes": 1540,
+      "sha256": "723845620b02fb1902d81858640a2d6f02a32951c4d371efbeea2619a8eb2a65"
+    },
+    {
+      "path": "data/audio/breakdown.json",
+      "classification": "asset_provenance_and_expected_extraction",
+      "bytes": 1155,
+      "sha256": "c76b242e1e000707b9f0ef71d7b301356a012f32b4efc63905c5d520eecc857f"
+    },
+    {
+      "path": "data/audio/breakdown.txt",
+      "classification": "synthetic_media_or_asset_annotation",
+      "bytes": 478,
+      "sha256": "949a245832e6a47f51677db3125b4f211301ed58be743badbac7d86bb0353cfb"
+    },
+    {
+      "path": "data/audio/breakdown.wav",
+      "classification": "synthetic_media_or_asset_annotation",
+      "bytes": 1461264,
+      "sha256": "dd0aae82ea5e74766be97718e7f3267a1221e08d3500c9d34eb290299322fbc3"
+    },
+    {
+      "path": "data/audio/damaged_delivery.json",
+      "classification": "asset_provenance_and_expected_extraction",
+      "bytes": 1046,
+      "sha256": "75a42f958f42b9f93d929f81525583e1bf809072977fc8d3ebf31421b28bede0"
+    },
+    {
+      "path": "data/audio/damaged_delivery.txt",
+      "classification": "synthetic_media_or_asset_annotation",
+      "bytes": 306,
+      "sha256": "ef74e6a27e54601eee0a75eb39f618b44e3950ff3c5ffc4818202615fa545fd0"
+    },
+    {
+      "path": "data/audio/damaged_delivery.wav",
+      "classification": "synthetic_media_or_asset_annotation",
+      "bytes": 884322,
+      "sha256": "c41d7eedccbef711046d277ed20a982e3635b3ad85c7bb2a77b63779ea0dc0ba"
+    },
+    {
+      "path": "data/audio/fridge_warning.json",
+      "classification": "asset_provenance_and_expected_extraction",
+      "bytes": 1007,
+      "sha256": "e979361b13b4bb8ee70e168ce3a4ed0674bc596499c3cbaba9c30b8f68020468"
+    },
+    {
+      "path": "data/audio/fridge_warning.txt",
+      "classification": "synthetic_media_or_asset_annotation",
+      "bytes": 367,
+      "sha256": "2db7576aeaa72ac869b2510950f7d9e60ba8d4ffe03106e125c8b8d67a2ad13b"
+    },
+    {
+      "path": "data/audio/fridge_warning.wav",
+      "classification": "synthetic_media_or_asset_annotation",
+      "bytes": 1052172,
+      "sha256": "03cae5a6274ed83b23f0bbe41110d24f47172970a9641652f58f95e8e0267f19"
+    },
+    {
+      "path": "data/audio/unclear_report.json",
+      "classification": "asset_provenance_and_expected_extraction",
+      "bytes": 1112,
+      "sha256": "cb4a7f3c09f0aae5a44e2e31ac6522bd73c3f3b28d1799dcb890e179d993a5f8"
+    },
+    {
+      "path": "data/audio/unclear_report.txt",
+      "classification": "synthetic_media_or_asset_annotation",
+      "bytes": 265,
+      "sha256": "0af4d2ee44e37dc7917e5ef9b322535a33d5476869f7fa41ca353d24451a8598"
+    },
+    {
+      "path": "data/audio/unclear_report.wav",
+      "classification": "synthetic_media_or_asset_annotation",
+      "bytes": 747678,
+      "sha256": "171b1ebf2ca697b567bb5cd79e1934ab572c12738dbd1cb95ede212cf7425e7d"
+    },
+    {
+      "path": "data/documents/README.md",
+      "classification": "collection_documentation_or_validation",
+      "bytes": 1126,
+      "sha256": "187d90e30780472b76a0823d9fb849e195dbcb0066482ab3c872f15c7b9f802b"
+    },
+    {
+      "path": "data/documents/SHP-001_delivery_slip.json",
+      "classification": "asset_provenance_and_expected_extraction",
+      "bytes": 1501,
+      "sha256": "583f0f65b1d27c1935d071a8d8ed65a3f31d0f1ce6fbeafef5281e6b1952302a"
+    },
+    {
+      "path": "data/documents/SHP-001_delivery_slip.pdf",
+      "classification": "synthetic_media_or_asset_annotation",
+      "bytes": 2514,
+      "sha256": "f9ff600a762dd45194b9dc820b06bc6915b2d4bad8ad764949f4ad40dd0a9f54"
+    },
+    {
+      "path": "data/documents/SHP-001_manifest.json",
+      "classification": "asset_provenance_and_expected_extraction",
+      "bytes": 1654,
+      "sha256": "20525f6825a69816ca2c9f99e7a8396f49eb4be40f3f200274426a1fc4a334fb"
+    },
+    {
+      "path": "data/documents/SHP-001_manifest.pdf",
+      "classification": "synthetic_media_or_asset_annotation",
+      "bytes": 2764,
+      "sha256": "f34e2224d6effc6b118b3c15c9d42339a50261f19b818e113e142170777b2515"
+    },
+    {
+      "path": "data/feedback/comparable_pair.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 2551,
+      "sha256": "51a3154bcceb6638b619517ef5200659eb7c777b25148a35914adc29ea604e36"
+    },
+    {
+      "path": "data/feedback/preference_rules.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 1792,
+      "sha256": "af01df5ef511b7dd31dc691eae04ee0157a78c6fcfe4f5a34c2bafe073f084da"
+    },
+    {
+      "path": "data/feedback/provider_healing.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 2214,
+      "sha256": "026f4eea4881dd60052f60f91908a385008091ed8564dedac1ef807d7c95a2a1"
+    },
+    {
+      "path": "data/photos/README.md",
+      "classification": "collection_documentation_or_validation",
+      "bytes": 2724,
+      "sha256": "cda6ea3b753b8dfc748d2e173bae304ed4dfcb177420d32a0d597490c7438df2"
+    },
+    {
+      "path": "data/photos/backup_reefer_truck.jpg",
+      "classification": "external_illustrative_photo",
+      "bytes": 2280914,
+      "sha256": "1d95212cd72a09dcbd0708fc828f0c3c83fdb40b49d424bf01b825f5f82c8699"
+    },
+    {
+      "path": "data/photos/backup_reefer_truck.json",
+      "classification": "asset_provenance_and_expected_extraction",
+      "bytes": 1388,
+      "sha256": "6f49fcde748d310b0b7899c5918f03c3ed0b437dfb22154473d2d8ed1a85a09f"
+    },
+    {
+      "path": "data/photos/damaged_carton.jpg",
+      "classification": "external_illustrative_photo",
+      "bytes": 3003386,
+      "sha256": "c5eb3b53de80c42bd5374bb3b45a99b36daf0e9552758bf0a6b94a1028656146"
+    },
+    {
+      "path": "data/photos/damaged_carton.json",
+      "classification": "asset_provenance_and_expected_extraction",
+      "bytes": 1414,
+      "sha256": "eb61479cc31de3eb17068a9993dea2e18be0959f749d339ed4334c6c09f96943"
+    },
+    {
+      "path": "data/photos/reefer_truck.jpg",
+      "classification": "external_illustrative_photo",
+      "bytes": 2807772,
+      "sha256": "34b6ec7f5324c52e017a9a94ea20ec4329e5db15d835fbc4bc49d46cdc67129f"
+    },
+    {
+      "path": "data/photos/reefer_truck.json",
+      "classification": "asset_provenance_and_expected_extraction",
+      "bytes": 1377,
+      "sha256": "63d052f65de7440026d8840be83e10bbb69f1ba3a3d96dd8f79b2cbb09debac1"
+    },
+    {
+      "path": "data/photos/roadside_breakdown.jpg",
+      "classification": "external_illustrative_photo",
+      "bytes": 87977,
+      "sha256": "49f10cbe30201dc7af9fe22037a56558f9bd035d5009ca0ec0e26a0e8613f653"
+    },
+    {
+      "path": "data/photos/roadside_breakdown.json",
+      "classification": "asset_provenance_and_expected_extraction",
+      "bytes": 1571,
+      "sha256": "f1c0e56f2ed0ba1519d74495c5947023b8f7febfa44ee21a41716541cbdd2a03"
+    },
+    {
+      "path": "data/photos/synthetic_temperature_display.json",
+      "classification": "asset_provenance_and_expected_extraction",
+      "bytes": 694,
+      "sha256": "e6383a3949c31cf33735d5cb9b081c62d229e7506c079c4019bd5484ee7e5e24"
+    },
+    {
+      "path": "data/photos/synthetic_temperature_display.png",
+      "classification": "synthetic_media_or_asset_annotation",
+      "bytes": 44103,
+      "sha256": "80f0c58e70644decc858710bd59ff3eba4f4c300c2588ff7ad4e1575a72e980d"
+    },
+    {
+      "path": "data/references/README.md",
+      "classification": "public_reference_catalog_and_provenance",
+      "bytes": 7660,
+      "sha256": "d7ae956f2df5a648d0d10949d53141ec39d3d5340a5fada1586682da259f063a"
+    },
+    {
+      "path": "data/references/cdc_vaccine_storage_handling_toolkit.pdf",
+      "classification": "downloaded_authoritative_reference",
+      "bytes": 1593615,
+      "sha256": "f540ead5f32c8711a1a8b4b0c7dfca4273fc3b869b3dd6045d613b668c899c9c"
+    },
+    {
+      "path": "data/references/download_provenance.json",
+      "classification": "public_reference_catalog_and_provenance",
+      "bytes": 2068,
+      "sha256": "f6c159b9ba93864e3674470fe3b1e25626be2d05f4bd38ae51e5f02a2f02d87c"
+    },
+    {
+      "path": "data/references/source_catalog.json",
+      "classification": "public_reference_catalog_and_provenance",
+      "bytes": 22681,
+      "sha256": "84d99e1d298c3e049edc5ec94fd491f6590b2a5d63b3c83503243a8400f7768f"
+    },
+    {
+      "path": "data/scenarios/breakdown.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 3409,
+      "sha256": "b42e3dd2a3c5ec6bc804d41d223c102730ad1d7e8415f1fce0c22da8f8cf24b2"
+    },
+    {
+      "path": "data/scenarios/capacity_rejection.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 977,
+      "sha256": "efddc7ca59c609c00bb99db54d403cd92ec7d29f0e97601acefe10501378b394"
+    },
+    {
+      "path": "data/scenarios/carrier_control.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 1290,
+      "sha256": "6f37836554555acbfe28386f80f9510751aecc409758eace0795ee1f14f4ac79"
+    },
+    {
+      "path": "data/scenarios/feedback_comparison.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 1529,
+      "sha256": "1075caaec64bfd891716f7873416010461273a61173183c264a33f141a17abba"
+    },
+    {
+      "path": "data/scenarios/gmail_pending_booking.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 1571,
+      "sha256": "5a788364aa001b9a7d4fb38823cba5bd6843175a4c3c0fbd3be3756615b30862"
+    },
+    {
+      "path": "data/scenarios/hours_rejection.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 1022,
+      "sha256": "3d6e78ddcfc21855286b391ef0e449fa30cb3ee08c2b005b3c38cbcfc31bd48b"
+    },
+    {
+      "path": "data/scenarios/learned_provider_workaround.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 1379,
+      "sha256": "890280fabef525f3f284ebd6c685a6202d5b241089a6b00e9724f290df103e4a"
+    },
+    {
+      "path": "data/scenarios/no_reefer_rejection.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 930,
+      "sha256": "870159922433e93da7e9e66f61a2f062ffa96adbe78511485d466dcd2153283e"
+    },
+    {
+      "path": "data/scenarios/optional_incident_inputs.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 2258,
+      "sha256": "3a89aeb6a7c883f5ee75bf6e39e05092448dbcb7896b3de99be63c12efb8a8b7"
+    },
+    {
+      "path": "data/scenarios/outage_fallback.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 1605,
+      "sha256": "5d0c1cacd266e291216575108b3c7336773c66161dadecef7fbfa59f6223584d"
+    },
+    {
+      "path": "data/scenarios/retry.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 1685,
+      "sha256": "b44635affd897ea5f7fd26cfe7689431738028468e989287d6ca68bef60ab97b"
+    },
+    {
+      "path": "data/scenarios/thermal_variants.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 1675,
+      "sha256": "59e753260bc769fcd8b79fcadbb44cd6c2f8986732357662a5ec57e41f85bb48"
+    },
+    {
+      "path": "data/scenarios/tool_arg_repair.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 1791,
+      "sha256": "04399d134add10707f79f72e5fefec9a280e5181826fc6f0def914a2a97a25da"
+    },
+    {
+      "path": "data/seed/README.md",
+      "classification": "collection_documentation_or_validation",
+      "bytes": 8004,
+      "sha256": "7db2f28f675baa3850f4e0dc1ed7a5099d83b6466ea6a5b9cf4c98104268688f"
+    },
+    {
+      "path": "data/seed/assignments.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 6676,
+      "sha256": "70219e9d0fd8eb575f81355b0f3e4a4302e0ec59cde156c71d331cec8d684b07"
+    },
+    {
+      "path": "data/seed/cargo_profiles.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 1434,
+      "sha256": "d175f3fc22f960839ef3d66042e517733cc0610025ef5c10404ce42e0c8e3474"
+    },
+    {
+      "path": "data/seed/carriers.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 2013,
+      "sha256": "2f73274c8bf2d77e9f3efd5011f25bf59690cdb0ef0a083544e20113cdbb6362"
+    },
+    {
+      "path": "data/seed/customers.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 2406,
+      "sha256": "162b6d8f301a4266b29822fce6b354ec7ac7c3a93086b364965c86d397d402f1"
+    },
+    {
+      "path": "data/seed/drivers.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 4646,
+      "sha256": "7f4b621c15f1a894a70e731119e16ee6a058d3bdcb172cd7fb1005231593916a"
+    },
+    {
+      "path": "data/seed/mock_tools.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 1549,
+      "sha256": "1c8aa133b73b5ddfb70e6dbda078d55d092bb8c0d0fcd25454fd54727c3a9f7c"
+    },
+    {
+      "path": "data/seed/rescue_options.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 5570,
+      "sha256": "e87c55c0dff56e08b9a5d458234e7253311c575524cafaa1036a31fdc1663253"
+    },
+    {
+      "path": "data/seed/shipments.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 20709,
+      "sha256": "ac26ff626dfcf601dfc6ab97bf169f3e6b9589ce522e78e7d409b4e54f059483"
+    },
+    {
+      "path": "data/seed/trucks.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 10401,
+      "sha256": "5353a7f3821a319edc0fa940c9d73a7ed17dd3ab6d77a15d8f38a881bc7ac072"
+    },
+    {
+      "path": "data/seed/warehouses.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 7910,
+      "sha256": "862327cba43411b8a55e2610921a6ac559cc1fb4a2427881728c816abfd20bc9"
+    },
+    {
+      "path": "data/sensors/already_out_of_range.csv",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 1937,
+      "sha256": "5e203a21dce78f891516c5f9bc4149d70e7c38ef27c3924f8542d948e5f82e08"
+    },
+    {
+      "path": "data/sensors/catalog.json",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 5478,
+      "sha256": "c426c0886969c31b73242ca383f49d8875b3e29a778bfcb6334b002243fb95f4"
+    },
+    {
+      "path": "data/sensors/gradual_rise.csv",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 1937,
+      "sha256": "1c8f0d31ca601b3ae945b356cc65ec2aa2b3f86666e58bcbbe675006ac4eb449"
+    },
+    {
+      "path": "data/sensors/missing_noisy.csv",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 1910,
+      "sha256": "87ff562f28302f32a06ad63c373f6cd4d1df979bed1cf48a840955c9f30848a5"
+    },
+    {
+      "path": "data/sensors/rapid_rise.csv",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 1937,
+      "sha256": "8263fac7c723d436d5d489a175bb91c570a515a97edf72fb9f8eb04f9fe25427"
+    },
+    {
+      "path": "data/sensors/recovery_after_transfer.csv",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 1937,
+      "sha256": "66f7d37ca73f117d666fa6c410476e80653f59d40352e9475436fe52e513d1f2"
+    },
+    {
+      "path": "data/sensors/stable.csv",
+      "classification": "synthetic_operational_fixture",
+      "bytes": 1937,
+      "sha256": "92400a0d6d733cc95dbd052378dc3af4b4bb67429d2963b14e5b17265f52b314"
+    },
+    {
+      "path": "data/validation_report.json",
+      "classification": "collection_documentation_or_validation",
+      "bytes": 4668,
+      "sha256": "fe4e067b7ff75a97cbcdb3eced99868753e0dd6c11e9edd7b11534dd5c3136a9"
+    }
+  ]
+}

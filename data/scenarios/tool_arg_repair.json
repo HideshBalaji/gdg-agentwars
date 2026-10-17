@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "fixture_id": "TOOL-ARG-REPAIR",
+  "execution_status": "not_executed",
+  "scripted_responses_are": "Invented provider scripts, NOT actual tool or agent-run observations.",
+  "incident_ref": "breakdown.json#/incident",
+  "schema_source": "data/seed/mock_tools.json",
+  "scripted_provider_results": [
+    {
+      "sequence": 1,
+      "tool": "get_quote",
+      "arguments": {
+        "shipmentId": "SHP-001",
+        "truckId": "TN-03",
+        "distance": "340km"
+      },
+      "result": {
+        "http_status": 400,
+        "error": "invalid_arguments",
+        "missing": [
+          "shipment_id",
+          "truck_id",
+          "rescue_route_km"
+        ],
+        "unknown": [
+          "shipmentId",
+          "truckId",
+          "distance"
+        ]
+      }
+    },
+    {
+      "sequence": 2,
+      "tool": "get_quote",
+      "arguments": {
+        "shipment_id": "SHP-001",
+        "truck_id": "TN-03",
+        "rescue_route_km": 340
+      },
+      "result": {
+        "http_status": 200,
+        "quote_id": "Q-CHEAP-001",
+        "amount": 12000,
+        "currency": "INR",
+        "expires_at": "2026-10-17T02:15:00+05:30"
+      }
+    }
+  ],
+  "expected_outcomes": {
+    "repair": "Use declared snake_case fields and numeric km; remove unknown fields.",
+    "attempt_limit": 2,
+    "booking_state": "not_booked",
+    "do_not": "Do not silently convert cargo mass to route distance or invent a successful booking."
+  }
+}

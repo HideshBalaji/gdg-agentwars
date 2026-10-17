@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "tools": [
+    {
+      "name": "get_quote",
+      "endpoint": "https://dispatch.invalid/mock/quote",
+      "required_arguments": {
+        "shipment_id": "string",
+        "truck_id": "string",
+        "rescue_route_km": "number"
+      },
+      "unknown_arguments": "reject",
+      "response_fields": [
+        "quote_id",
+        "amount",
+        "currency",
+        "expires_at"
+      ]
+    },
+    {
+      "name": "reserve_truck",
+      "endpoint": "https://dispatch.invalid/mock/reservations",
+      "required_arguments": {
+        "shipment_id": "string",
+        "truck_id": "string",
+        "quote_id": "string",
+        "idempotency_key": "string"
+      },
+      "unknown_arguments": "reject",
+      "response_fields": [
+        "reservation_id",
+        "status"
+      ]
+    },
+    {
+      "name": "send_booking_email",
+      "endpoint": "https://mail.invalid/mock/send",
+      "required_arguments": {
+        "to": "string ending .invalid",
+        "shipment_id": "string",
+        "truck_id": "string"
+      },
+      "response_fields": [
+        "message_id",
+        "booking_status"
+      ],
+      "note": "Email sent or message ID is not a confirmed reservation."
+    }
+  ]
+}

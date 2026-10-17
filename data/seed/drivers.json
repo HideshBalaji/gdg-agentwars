@@ -1,0 +1,121 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "classification": "synthetic",
+    "generator": "hand-authored deterministic Ghost Dispatcher training dataset",
+    "replay_at": "2026-10-17T02:00:00+05:30",
+    "notice": "Fictional entities and simulated measurements; not real fleet, bookings, medical guidance, or actual agent-run observations."
+  },
+  "records": [
+    {
+      "driver_id": "DRV-001",
+      "display_name": "Synthetic Driver 01",
+      "truck_id": "TN-01",
+      "contact_email": "driver1@driver.invalid",
+      "availability": "available",
+      "remaining_duty_hours": 8.0,
+      "duty_window_end": "2026-10-17T10:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "hours_note": "Invented dispatch shift budget, not legal driving-hour guidance."
+    },
+    {
+      "driver_id": "DRV-002",
+      "display_name": "Synthetic Driver 02",
+      "truck_id": "TN-02",
+      "contact_email": "driver2@driver.invalid",
+      "availability": "available",
+      "remaining_duty_hours": 7.5,
+      "duty_window_end": "2026-10-17T09:30:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "hours_note": "Invented dispatch shift budget, not legal driving-hour guidance."
+    },
+    {
+      "driver_id": "DRV-003",
+      "display_name": "Synthetic Driver 03",
+      "truck_id": "TN-03",
+      "contact_email": "driver3@driver.invalid",
+      "availability": "available",
+      "remaining_duty_hours": 8.0,
+      "duty_window_end": "2026-10-17T10:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "hours_note": "Invented dispatch shift budget, not legal driving-hour guidance."
+    },
+    {
+      "driver_id": "DRV-004",
+      "display_name": "Synthetic Driver 04",
+      "truck_id": "TN-04",
+      "contact_email": "driver4@driver.invalid",
+      "availability": "available",
+      "remaining_duty_hours": 8.0,
+      "duty_window_end": "2026-10-17T10:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "hours_note": "Invented dispatch shift budget, not legal driving-hour guidance."
+    },
+    {
+      "driver_id": "DRV-005",
+      "display_name": "Synthetic Driver 05",
+      "truck_id": "TN-05",
+      "contact_email": "driver5@driver.invalid",
+      "availability": "available",
+      "remaining_duty_hours": 8.0,
+      "duty_window_end": "2026-10-17T10:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "hours_note": "Invented dispatch shift budget, not legal driving-hour guidance."
+    },
+    {
+      "driver_id": "DRV-006",
+      "display_name": "Synthetic Driver 06",
+      "truck_id": "TN-06",
+      "contact_email": "driver6@driver.invalid",
+      "availability": "available",
+      "remaining_duty_hours": 0.5,
+      "duty_window_end": "2026-10-17T02:30:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "hours_note": "Invented dispatch shift budget, not legal driving-hour guidance."
+    },
+    {
+      "driver_id": "DRV-007",
+      "display_name": "Synthetic Driver 07",
+      "truck_id": "TN-07",
+      "contact_email": "driver7@driver.invalid",
+      "availability": "unavailable_vehicle_breakdown",
+      "remaining_duty_hours": 8.0,
+      "duty_window_end": "2026-10-17T10:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "hours_note": "Invented dispatch shift budget, not legal driving-hour guidance."
+    },
+    {
+      "driver_id": "DRV-008",
+      "display_name": "Synthetic Driver 08",
+      "truck_id": "TN-08",
+      "contact_email": "driver8@driver.invalid",
+      "availability": "off_duty",
+      "remaining_duty_hours": 8.0,
+      "duty_window_end": "2026-10-17T10:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "hours_note": "Invented dispatch shift budget, not legal driving-hour guidance."
+    },
+    {
+      "driver_id": "DRV-009",
+      "display_name": "Synthetic Driver 09",
+      "truck_id": "TN-09",
+      "contact_email": "driver9@driver.invalid",
+      "availability": "available",
+      "remaining_duty_hours": 8.0,
+      "duty_window_end": "2026-10-17T10:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "hours_note": "Invented dispatch shift budget, not legal driving-hour guidance."
+    },
+    {
+      "driver_id": "DRV-010",
+      "display_name": "Synthetic Driver 10",
+      "truck_id": "TN-10",
+      "contact_email": "driver10@driver.invalid",
+      "availability": "available",
+      "remaining_duty_hours": 8.0,
+      "duty_window_end": "2026-10-17T10:00:00+05:30",
+      "observed_at": "2026-10-17T02:00:00+05:30",
+      "hours_note": "Invented dispatch shift budget, not legal driving-hour guidance."
+    }
+  ]
+}
