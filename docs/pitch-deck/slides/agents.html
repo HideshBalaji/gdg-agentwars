@@ -1,0 +1,58 @@
+<section id="agents" data-transition="fade" style="background:#F3F1EA;color:#3E4A55;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#0B6B63">Multi-agent orchestration</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#0E1A24">A dispatcher and seven specialists</h2>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:20px">
+<div style="display:flex;flex-direction:column;gap:8px;background:#0E1A24;border-radius:12px;padding:24px 28px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F3F1EA">Dispatcher</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#F2A541">Gemini Pro</p>
+<p style="font-size:24px;line-height:1.35;color:#B9C7D2">Owns the incident, delegates, picks the plan</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:24px 28px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Intake</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">Gemini Flash</p>
+<p style="font-size:24px;line-height:1.35">Photo, voice, PDF, sensors to typed facts</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:24px 28px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Route &amp; Risk</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">Gemini Flash</p>
+<p style="font-size:24px;line-height:1.35">Routes, rescue window, candidate ranking</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:24px 28px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Validator</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">Code + Flash</p>
+<p style="font-size:24px;line-height:1.35">Hard checks before any action</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:24px 28px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Negotiator</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">Gemini Flash</p>
+<p style="font-size:24px;line-height:1.35">Carrier booking, delivery windows</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:24px 28px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Watchdog</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">Code + Flash</p>
+<p style="font-size:24px;line-height:1.35">Failure detection, recovery, Healing Log</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:24px 28px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Comms</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">Gemini Flash</p>
+<p style="font-size:24px;line-height:1.35">Sheets, Calendar, Gmail updates</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:24px 28px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Critic</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">Gemini Flash</p>
+<p style="font-size:24px;line-height:1.35">Ratings to constrained preferences</p>
+</div>
+</div>
+<div style="display:flex;gap:20px">
+<p style="flex:1;font-size:26px;line-height:1.35;color:#0E1A24;background:#E7E3D6;border-radius:12px;padding:20px 24px">Peer handovers via ADK agent transfer, capped at 4 per message</p>
+<p style="flex:1;font-size:26px;line-height:1.35;color:#0E1A24;background:#E7E3D6;border-radius:12px;padding:20px 24px">Plan and validate run in a LoopAgent, at most 3 tries</p>
+<p style="flex:1;font-size:26px;line-height:1.35;color:#0E1A24;background:#E7E3D6;border-radius:12px;padding:20px 24px">Conversation ownership survives a server restart</p>
+</div>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#5E6B76">Ghost Dispatcher</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5E6B76">07</p>
+</div>
+<aside>This is real ADK orchestration, not one prompt pretending to be eight agents. The Dispatcher runs on Gemini Pro and hands the conversation to specialists on Flash using ADK’s agent transfer. Whoever owns the conversation answers the user directly — ask “why this vehicle?” and Route &amp; Risk answers. Handovers are capped at four per message, planning and validation run in a bounded LoopAgent of at most three tries, and ownership is stored in the ADK session so it survives restarts. Validator and Watchdog lean on deterministic code, not the model.</aside>
+</section>

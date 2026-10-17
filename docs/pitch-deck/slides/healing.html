@@ -1,0 +1,34 @@
+<section id="healing" data-transition="fade" style="background:#0E1A24;color:#E8EEF2;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#4FD1C5">Self-healing</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#F3F1EA">We kill the carrier mid-booking. It finishes anyway.</h2>
+</div>
+<div style="display:flex;gap:12px;align-items:center">
+<p style="flex:1;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;line-height:1.35;text-align:center;color:#F3F1EA;background:#5A2A1E;border-radius:12px;padding:24px 12px">Retry ×3 fails</p>
+<x-shape kind="arrow-right" style="width:44px;height:26px;background:#4FD1C5"></x-shape>
+<p style="flex:1;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;line-height:1.35;text-align:center;color:#F3F1EA;background:#5A2A1E;border-radius:12px;padding:24px 12px">Circuit opens</p>
+<x-shape kind="arrow-right" style="width:44px;height:26px;background:#4FD1C5"></x-shape>
+<p style="flex:1;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;line-height:1.35;text-align:center;color:#F3F1EA;background:#13283A;border-radius:12px;padding:24px 12px">Re-plan without it</p>
+<x-shape kind="arrow-right" style="width:44px;height:26px;background:#4FD1C5"></x-shape>
+<p style="flex:1;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;line-height:1.35;text-align:center;color:#0E1A24;background:#4FD1C5;border-radius:12px;padding:24px 12px">Booked via backup</p>
+</div>
+<div style="display:flex;gap:24px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#13283A;border-radius:12px;padding:32px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F2A541">Never double-booked</h3>
+<p style="font-size:26px;line-height:1.4;color:#B9C7D2">Idempotency keys. Uncertain timeouts are reconciled, not resent.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#13283A;border-radius:12px;padding:32px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F2A541">Tool-call repair</h3>
+<p style="font-size:26px;line-height:1.4;color:#B9C7D2">One corrected retry after a schema error, never invented IDs.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#13283A;border-radius:12px;padding:32px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F2A541">Learned workaround</h3>
+<p style="font-size:26px;line-height:1.4;color:#B9C7D2">An unhealthy carrier is skipped until it is probed again.</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#7F93A3">Every step appears live in the Healing Log</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#7F93A3">10</p>
+</div>
+<aside>You saw this in the demo. When the carrier API dies mid-booking, the Watchdog retries with backoff, opens a circuit on that carrier for 60 seconds, re-plans without it, and books the next feasible truck through a backup carrier. The subtle part is safety: bookings carry idempotency keys, and if a timeout leaves the outcome unknown we reconcile by booking ID rather than resending, so we never book two trucks. Tool-call errors get exactly one corrected retry, and the system remembers which carriers are unhealthy.</aside>
+</section>

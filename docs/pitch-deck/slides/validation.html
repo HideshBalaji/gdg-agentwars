@@ -1,0 +1,33 @@
+<section id="validation" data-transition="fade" style="background:#F3F1EA;color:#3E4A55;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#0B6B63">Validation</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#0E1A24">Agents propose. Code decides.</h2>
+</div>
+<div style="display:flex;gap:48px">
+<table style="flex:1;font-size:28px;color:#0E1A24">
+<tr><th style="width:30%;color:#0B6B63">Truck · carrier</th><th style="width:18%;color:#0B6B63">Cost</th><th style="width:52%;color:#0B6B63">Verdict</th></tr>
+<tr><td>TN-22 · own fleet</td><td>₹3,900</td><td><span style="color:#A33A1E">Rejected:</span> dry van, no reefer</td></tr>
+<tr><td>KA-19 · ColdLine</td><td>₹11,600</td><td><span style="color:#A33A1E">Rejected:</span> 150 kg free, needs 420</td></tr>
+<tr><td>KA-27 · FrostFleet</td><td>₹6,800</td><td><span style="color:#A33A1E">Rejected:</span> 0.4 h driver hours left</td></tr>
+<tr><td>KA-11 · ColdLine</td><td>₹18,400</td><td><span style="color:#0B6B63">Passes</span> all checks</td></tr>
+<tr><td>KA-04 · FrostFleet</td><td>₹11,200</td><td><span style="color:#0B6B63">Passes</span> all checks</td></tr>
+<tr><td>KA-08 · PolarRoute</td><td>₹22,600</td><td><span style="color:#0B6B63">Passes</span> all checks</td></tr>
+</table>
+<div style="width:460px;display:flex;flex-direction:column;gap:16px;background:#0E1A24;border-radius:16px;padding:36px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F3F1EA">Hard checks</h3>
+<ul style="font-size:28px;line-height:1.6;color:#B9C7D2">
+<li>Refrigeration</li>
+<li>Free capacity</li>
+<li>Cold-restore deadline</li>
+<li>Delivery deadline</li>
+<li>Driver hours</li>
+</ul>
+<p style="font-size:24px;line-height:1.4;color:#F2A541">No prompt or preference can relax them.</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#5E6B76">Demo scenario: six candidates, three rejected on attempt 2 of 3</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5E6B76">09</p>
+</div>
+<aside>This is the most important design decision. The model suggests plans; deterministic Python decides whether they are allowed. Of six candidates, the cheapest is a dry van, one doesn’t have the capacity, one driver is out of hours — all rejected with a reason the UI shows. Learned preferences can only re-rank plans that already pass. Nothing an agent says, and nothing in a driver’s message, can turn off a hard check.</aside>
+</section>

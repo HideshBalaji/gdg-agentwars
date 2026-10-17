@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ghost Dispatcher — Finals</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+* { margin: 0; box-sizing: border-box; }
+html, body { height: 100%; background: #05090D; overflow: hidden; }
+#stage { position: absolute; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: center; }
+section { position: absolute; inset: 0; width: 1920px; height: 1080px; display: flex; flex-direction: column; overflow: hidden; }
+section:not(.active) { display: none !important; }
+div:not([style*="display"]) { display: flex; flex-direction: column; }
+h1, h2, h3, p, li { overflow-wrap: break-word; }
+h3 { line-height: 1.2; }
+ul { padding-left: 1.2em; }
+table { border-collapse: collapse; }
+th, td { padding: 0.35em 0.6em; text-align: left; border-bottom: 1px solid rgba(127,127,127,0.35); vertical-align: top; }
+th { font-weight: 600; }
+x-shape { display: block; flex: none; }
+x-shape[kind=ellipse] { border-radius: 50%; }
+x-shape[kind=arrow-right] { clip-path: polygon(0 30%, 60% 30%, 60% 0, 100% 50%, 60% 100%, 60% 70%, 0 70%); }
+x-icon { display: block; flex: none; border-radius: 50%; border: 3px solid currentColor; opacity: 0.8; }
+aside.notes { display: none; }
+#notes { position: fixed; left: 0; right: 0; bottom: 0; max-height: 35vh; overflow: auto; padding: 16px 24px; background: rgba(5,9,13,0.92); color: #E8EEF2; font: 18px/1.5 Arial, sans-serif; display: none; }
+body.show-notes #notes { display: block; }
+#hint { position: fixed; right: 16px; top: 12px; color: #7F93A3; font: 14px Arial, sans-serif; }
+</style>
+</head>
+<body>
+<div id="stage">
+<section id="cover" data-transition="fade" style="background:radial-gradient(circle at 78% 42%, #17324A 0%, #0E1A24 55%);color:#E8EEF2;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:center;gap:40px">
+<x-shape kind="ellipse" style="position:absolute;left:1240px;top:220px;width:560px;height:560px;background:transparent;border:2px solid #24465F"></x-shape>
+<x-shape kind="ellipse" style="position:absolute;left:1360px;top:340px;width:320px;height:320px;background:transparent;border:2px solid #2E5A78"></x-shape>
+<x-shape kind="ellipse" style="position:absolute;left:1490px;top:470px;width:60px;height:60px;background:#F2A541;border:none"></x-shape>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#4FD1C5">GDG Agent Wars · Finals · Logistics Handler</p>
+<h1 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:160px;font-weight:700;line-height:1;letter-spacing:-4px;color:#F3F1EA;width:1100px">Ghost Dispatcher</h1>
+<p style="font-size:44px;line-height:1.3;color:#B9C7D2;width:1050px">When a vaccine truck breaks down at 2 AM, a self-healing team of AI agents rescues the load before a human dispatcher wakes up.</p>
+<div style="display:flex;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0E1A24;background:#4FD1C5;padding:10px 20px;border-radius:999px">Google ADK</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0E1A24;background:#4FD1C5;padding:10px 20px;border-radius:999px">Gemini Pro + Flash</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0E1A24;background:#4FD1C5;padding:10px 20px;border-radius:999px">MCP</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0E1A24;background:#4FD1C5;padding:10px 20px;border-radius:999px">Maps · Sheets · Calendar · Gmail</p>
+</div>
+<aside class="notes">Hi, we’re the Ghost Dispatcher team. Our problem statement is Logistics Handler. In one line: when a refrigerated truck carrying vaccines breaks down in the middle of the night, our agents find a replacement truck, book it, re-route the cargo and notify everyone — and keep going when their own tools fail. Everything you’ll see is built on Google ADK and Gemini, with an MCP server for logistics data.</aside>
+</section>
+<section id="problem" data-transition="fade" style="background:#0E1A24;color:#E8EEF2;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#4FD1C5">The problem</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#F3F1EA">Cold-chain failures don’t wait for office hours</h2>
+</div>
+<div style="display:flex;gap:48px;flex:1">
+<div style="flex:1;display:flex;flex-direction:column;gap:24px">
+<div style="display:flex;flex-direction:column;gap:12px;background:#13283A;padding:36px;border-radius:16px;border-left:6px solid #F2A541">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#F2A541">Mendocino County, CA · Jan 2021</p>
+<p style="font-size:32px;line-height:1.4;color:#E8EEF2">A freezer failed around <b>2 a.m.</b> <b>830</b> vaccine doses had about two hours left. Staff scrambled by phone to find people to vaccinate.</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px;background:#13283A;padding:36px;border-radius:16px;border-left:6px solid #F2A541">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#F2A541">Maine · Jan 2021</p>
+<p style="font-size:32px;line-height:1.4;color:#E8EEF2"><b>4,400</b> doses bound for 35 sites went out of range <b>in transit</b>. Sensors flagged it; people re-planned and reshipped by hand.</p>
+</div>
+</div>
+<div style="width:620px;display:flex;flex-direction:column;justify-content:center;gap:48px">
+<div style="display:flex;flex-direction:column;gap:8px">
+<p style="font-family:'Space Grotesk', Arial, sans-serif;font-size:120px;font-weight:700;line-height:1;color:#4FD1C5">$35B</p>
+<p style="font-size:32px;line-height:1.4;color:#B9C7D2">estimated yearly biopharma loss from temperature-controlled logistics failures</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<p style="font-family:'Space Grotesk', Arial, sans-serif;font-size:120px;font-weight:700;line-height:1;color:#4FD1C5">Up to 50%</p>
+<p style="font-size:32px;line-height:1.4;color:#B9C7D2">of vaccines wasted globally, with cold-chain failure a main cause</p>
+</div>
+</div>
+</div>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#7F93A3">Sources: NPR via KISU (5 Jan 2021); Boston Globe (20 Jan 2021); IQVIA Institute 2019 cold-chain survey (est.); WHO via UNEP</p>
+<aside class="notes">These are real incidents. In Mendocino County a hospital freezer failed around 2 a.m. and 830 doses had roughly two hours. In Maine, 4,400 Moderna doses went out of range in transit; sensors caught it, but the response — re-planning, reshipping — was manual. Industry-wide, IQVIA estimates about 35 billion dollars a year lost to temperature-controlled logistics failures, and the WHO estimates up to half of vaccines are wasted, with the cold chain a main cause. Be honest: the Mendocino case was a storage freezer, not a truck.</aside>
+</section>
+<section id="statement" data-transition="fade" style="background:#F2A541;color:#0E1A24;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:center;gap:56px">
+<p style="font-size:44px;line-height:1.35;color:#2A2416;width:1500px">Today: one dispatcher, 30–50 drivers, a phone, and the middle of the night.</p>
+<h1 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:112px;font-weight:700;line-height:1.05;letter-spacing:-2px;color:#0E1A24;width:1600px">Ghost Dispatcher rescues the load before anyone wakes up.</h1>
+<aside class="notes">Today this is a human job: a dispatcher at a large carrier can be looking after 30 to 50 drivers, and the response happens by phone, at night, under a hard spoilage deadline. Ghost Dispatcher turns that into an automated loop — and the important word is “self-healing”: it keeps going even when the systems it depends on fail.</aside>
+</section>
+<section id="loop" data-transition="fade" style="background:#F3F1EA;color:#3E4A55;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#0B6B63">The solution</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#0E1A24">One incident loop, owned end to end by agents</h2>
+</div>
+<div style="display:flex;gap:16px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;border:1px solid #DDD8CC;border-top:6px solid #0B6B63;border-radius:12px;padding:24px 20px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">01</p>
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Detect</h3>
+<p style="font-size:24px;line-height:1.35">Breakdown, sensor alert</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#8A5A12">Dispatcher</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;border:1px solid #DDD8CC;border-top:6px solid #0B6B63;border-radius:12px;padding:24px 20px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">02</p>
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Understand</h3>
+<p style="font-size:24px;line-height:1.35">Photo, voice, PDF to facts</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#8A5A12">Intake</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;border:1px solid #DDD8CC;border-top:6px solid #0B6B63;border-radius:12px;padding:24px 20px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">03</p>
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Re-plan</h3>
+<p style="font-size:24px;line-height:1.35">Candidate trucks, routes</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#8A5A12">Route &amp; Risk</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;border:1px solid #DDD8CC;border-top:6px solid #0B6B63;border-radius:12px;padding:24px 20px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">04</p>
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Validate</h3>
+<p style="font-size:24px;line-height:1.35">Hard checks in code</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#8A5A12">Validator</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;border:1px solid #DDD8CC;border-top:6px solid #0B6B63;border-radius:12px;padding:24px 20px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">05</p>
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Act</h3>
+<p style="font-size:24px;line-height:1.35">Book, reassign, dock</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#8A5A12">Negotiator</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;border:1px solid #DDD8CC;border-top:6px solid #0B6B63;border-radius:12px;padding:24px 20px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">06</p>
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Notify</h3>
+<p style="font-size:24px;line-height:1.35">Sheets, Calendar, Gmail</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#8A5A12">Comms</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;border:1px solid #DDD8CC;border-top:6px solid #F2A541;border-radius:12px;padding:24px 20px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">07</p>
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Learn</h3>
+<p style="font-size:24px;line-height:1.35">Rating to preference</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#8A5A12">Critic</p>
+</div>
+</div>
+<div style="display:flex;gap:24px;align-items:center;background:#E7E3D6;border-radius:12px;padding:28px 36px">
+<x-icon name="Wrench" style="color:#0B6B63;width:48px;height:48px"></x-icon>
+<p style="font-size:32px;line-height:1.35;color:#0E1A24">Watchdog runs across every step: when a tool fails, it retries, falls back and finishes.</p>
+</div>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#5E6B76">Ghost Dispatcher</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5E6B76">04</p>
+</div>
+<aside class="notes">Every incident runs through the same seven-stage loop: detect, understand, re-plan, validate, act, notify, learn. Each stage has a specialist agent that owns it, shown in amber. The Watchdog sits across all of them. The same agents can handle other incident types — fridge failure, a customer who isn’t there to receive — the loop doesn’t change.</aside>
+</section>
+<section id="demo" data-transition="fade" style="background:#0E1A24;color:#E8EEF2;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#F2A541">Live demo · 3 minutes</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#F3F1EA">TN-07 breaks down near Hosur at 2 AM</h2>
+</div>
+<table style="font-size:28px;color:#E8EEF2;width:1664px">
+<tr><th style="width:12%;color:#4FD1C5;font-family:'JetBrains Mono', 'Courier New', monospace">Time</th><th style="width:88%;color:#4FD1C5">What you will see</th></tr>
+<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace">0:00</td><td>Breakdown: 420 kg of vaccine demo cargo, a rescue-window countdown starts</td></tr>
+<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace">0:20</td><td>Driver photo and voice note become typed incident facts</td></tr>
+<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace">0:50</td><td>Six candidate trucks, three rejected by code, specialist handover</td></tr>
+<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace">1:30</td><td>We hit KILL NOW on the carrier mid-booking: retries, fallback, recovered</td></tr>
+<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace">2:10</td><td>Rate it “too expensive”, rerun: the cheaper feasible carrier wins</td></tr>
+<tr><td style="font-family:'JetBrains Mono', 'Courier New', monospace">2:40</td><td>Receipts: booking, reassignment, dock slot, Sheets, Calendar, Gmail</td></tr>
+</table>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#7F93A3">All cargo, bookings and notifications in the demo are synthetic and labelled simulated</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#7F93A3">05</p>
+</div>
+<aside class="notes">Switch to the control room now. Keys: 1 starts the breakdown, K kills the first carrier while it flashes KILL NOW, then rate “Needs work” with the too-expensive reason and press 1 again. Keep the backup recording ready. Say out loud that cargo and bookings are simulated — we never claim real vaccines were saved.</aside>
+</section>
+<section id="architecture" data-transition="fade" style="background:#F3F1EA;color:#3E4A55;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#0B6B63">Architecture</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#0E1A24">From control room to carrier in five layers</h2>
+</div>
+<div style="display:flex;gap:12px;align-items:center">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:28px 24px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Control room</h3>
+<p style="font-size:24px;line-height:1.4">React + Vite. Map, plans, Healing Log, chat, rating</p>
+</div>
+<x-shape kind="arrow-right" style="width:48px;height:28px;background:#0B6B63"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:28px 24px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">FastAPI</h3>
+<p style="font-size:24px;line-height:1.4">REST + event stream. Bearer auth, PII guardrail</p>
+</div>
+<x-shape kind="arrow-right" style="width:48px;height:28px;background:#0B6B63"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#0E1A24;border-radius:12px;padding:28px 24px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F3F1EA">ADK team</h3>
+<p style="font-size:24px;line-height:1.4;color:#B9C7D2">Dispatcher + 7 specialists on Gemini Pro and Flash</p>
+</div>
+<x-shape kind="arrow-right" style="width:48px;height:28px;background:#0B6B63"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:28px 24px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Services</h3>
+<p style="font-size:24px;line-height:1.4">Plan, validate, execute. Retry, circuit, fallback. SQLite</p>
+</div>
+<x-shape kind="arrow-right" style="width:48px;height:28px;background:#0B6B63"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:28px 24px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Outside world</h3>
+<p style="font-size:24px;line-height:1.4">logistics-mcp, carrier API, Maps, Sheets, Calendar, Gmail</p>
+</div>
+</div>
+<div style="display:flex;gap:24px">
+<div style="flex:1;display:flex;gap:20px;align-items:center;background:#E7E3D6;border-radius:12px;padding:28px 32px">
+<x-icon name="Activity" style="color:#0B6B63;width:44px;height:44px"></x-icon>
+<p style="font-size:28px;line-height:1.35;color:#0E1A24">Every step streams typed events to the UI, replayable by ID</p>
+</div>
+<div style="flex:1;display:flex;gap:20px;align-items:center;background:#E7E3D6;border-radius:12px;padding:28px 32px">
+<x-icon name="Lock" style="color:#0B6B63;width:44px;height:44px"></x-icon>
+<p style="font-size:28px;line-height:1.35;color:#0E1A24">Offline mode: same agents and tools, no keys, fully reproducible</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#5E6B76">Ghost Dispatcher</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5E6B76">06</p>
+</div>
+<aside class="notes">Left to right: the React control room talks to a FastAPI backend over REST and a server-sent event stream. The backend runs an ADK team — a Dispatcher plus seven specialists. Agents never touch the world directly: they call deterministic services that plan, validate and execute, with retry, circuit-breaker and fallback logic, and persist to SQLite. Those services reach the outside world: our logistics MCP server, the carrier API and Google Maps, Sheets, Calendar and Gmail. Offline mode swaps Gemini for a deterministic model double, so judges can reproduce every run without API keys.</aside>
+</section>
+<section id="agents" data-transition="fade" style="background:#F3F1EA;color:#3E4A55;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#0B6B63">Multi-agent orchestration</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#0E1A24">A dispatcher and seven specialists</h2>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:20px">
+<div style="display:flex;flex-direction:column;gap:8px;background:#0E1A24;border-radius:12px;padding:24px 28px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F3F1EA">Dispatcher</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#F2A541">Gemini Pro</p>
+<p style="font-size:24px;line-height:1.35;color:#B9C7D2">Owns the incident, delegates, picks the plan</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:24px 28px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Intake</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">Gemini Flash</p>
+<p style="font-size:24px;line-height:1.35">Photo, voice, PDF, sensors to typed facts</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:24px 28px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Route &amp; Risk</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">Gemini Flash</p>
+<p style="font-size:24px;line-height:1.35">Routes, rescue window, candidate ranking</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:24px 28px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Validator</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">Code + Flash</p>
+<p style="font-size:24px;line-height:1.35">Hard checks before any action</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:24px 28px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Negotiator</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">Gemini Flash</p>
+<p style="font-size:24px;line-height:1.35">Carrier booking, delivery windows</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:24px 28px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Watchdog</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">Code + Flash</p>
+<p style="font-size:24px;line-height:1.35">Failure detection, recovery, Healing Log</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:24px 28px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Comms</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">Gemini Flash</p>
+<p style="font-size:24px;line-height:1.35">Sheets, Calendar, Gmail updates</p>
+</div>
+<div style="display:flex;flex-direction:column;gap:8px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:24px 28px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">Critic</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">Gemini Flash</p>
+<p style="font-size:24px;line-height:1.35">Ratings to constrained preferences</p>
+</div>
+</div>
+<div style="display:flex;gap:20px">
+<p style="flex:1;font-size:26px;line-height:1.35;color:#0E1A24;background:#E7E3D6;border-radius:12px;padding:20px 24px">Peer handovers via ADK agent transfer, capped at 4 per message</p>
+<p style="flex:1;font-size:26px;line-height:1.35;color:#0E1A24;background:#E7E3D6;border-radius:12px;padding:20px 24px">Plan and validate run in a LoopAgent, at most 3 tries</p>
+<p style="flex:1;font-size:26px;line-height:1.35;color:#0E1A24;background:#E7E3D6;border-radius:12px;padding:20px 24px">Conversation ownership survives a server restart</p>
+</div>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#5E6B76">Ghost Dispatcher</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5E6B76">07</p>
+</div>
+<aside class="notes">This is real ADK orchestration, not one prompt pretending to be eight agents. The Dispatcher runs on Gemini Pro and hands the conversation to specialists on Flash using ADK’s agent transfer. Whoever owns the conversation answers the user directly — ask “why this vehicle?” and Route &amp; Risk answers. Handovers are capped at four per message, planning and validation run in a bounded LoopAgent of at most three tries, and ownership is stored in the ADK session so it survives restarts. Validator and Watchdog lean on deterministic code, not the model.</aside>
+</section>
+<section id="intake" data-transition="fade" style="background:#F3F1EA;color:#3E4A55;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#0B6B63">Multimodal intake</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#0E1A24">Messy evidence becomes typed incident facts</h2>
+</div>
+<div style="display:flex;gap:48px">
+<div style="width:440px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;gap:16px;align-items:center;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:20px 24px">
+<x-icon name="Search" style="color:#0B6B63;width:40px;height:40px"></x-icon>
+<p style="font-size:28px;color:#0E1A24">Driver photo</p>
+</div>
+<div style="display:flex;gap:16px;align-items:center;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:20px 24px">
+<x-icon name="Chat" style="color:#0B6B63;width:40px;height:40px"></x-icon>
+<p style="font-size:28px;color:#0E1A24">Voice note</p>
+</div>
+<div style="display:flex;gap:16px;align-items:center;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:20px 24px">
+<x-icon name="Book" style="color:#0B6B63;width:40px;height:40px"></x-icon>
+<p style="font-size:28px;color:#0E1A24">Delivery slip PDF</p>
+</div>
+<div style="display:flex;gap:16px;align-items:center;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:20px 24px">
+<x-icon name="Chart" style="color:#0B6B63;width:40px;height:40px"></x-icon>
+<p style="font-size:28px;color:#0E1A24">Temperature feed</p>
+</div>
+<div style="display:flex;gap:16px;align-items:center;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:20px 24px">
+<x-icon name="Database" style="color:#0B6B63;width:40px;height:40px"></x-icon>
+<p style="font-size:28px;color:#0E1A24">Shipment via MCP</p>
+</div>
+</div>
+<table style="flex:1;font-size:28px;color:#0E1A24">
+<tr><th style="width:24%;color:#0B6B63">Fact</th><th style="width:52%;color:#0B6B63">Value</th><th style="width:24%;color:#0B6B63">Source</th></tr>
+<tr><td>Vehicle</td><td>TN-07, plate read from photo</td><td>photo · 98%</td></tr>
+<tr><td>Failure</td><td>Engine overheat, smoke visible</td><td>photo · 86%</td></tr>
+<tr><td>Reefer</td><td>On battery, about 2 h left</td><td>voice · 90%</td></tr>
+<tr><td>Cargo</td><td>420 kg vaccines, +2 to +8 °C</td><td>MCP</td></tr>
+<tr><td>Temperature</td><td>5.1 °C, rising 0.9 °C/h</td><td>sensor</td></tr>
+<tr><td>Window</td><td>3 h 52 m to rescue</td><td>model</td></tr>
+</table>
+</div>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#5E6B76">Demo scenario, synthetic cargo. Every fact keeps its source and confidence.</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5E6B76">08</p>
+</div>
+<aside class="notes">Gemini Flash reads the driver’s photo, transcribes the voice note, and pulls the shipment and temperature history through our MCP server. The result is not prose — it’s a typed incident where every fact carries its source and confidence. That matters later: the evaluation suite checks that agents only cite facts that came from these tools. In offline mode we never pretend media was interpreted.</aside>
+</section>
+<section id="validation" data-transition="fade" style="background:#F3F1EA;color:#3E4A55;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#0B6B63">Validation</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#0E1A24">Agents propose. Code decides.</h2>
+</div>
+<div style="display:flex;gap:48px">
+<table style="flex:1;font-size:28px;color:#0E1A24">
+<tr><th style="width:30%;color:#0B6B63">Truck · carrier</th><th style="width:18%;color:#0B6B63">Cost</th><th style="width:52%;color:#0B6B63">Verdict</th></tr>
+<tr><td>TN-22 · own fleet</td><td>₹3,900</td><td><span style="color:#A33A1E">Rejected:</span> dry van, no reefer</td></tr>
+<tr><td>KA-19 · ColdLine</td><td>₹11,600</td><td><span style="color:#A33A1E">Rejected:</span> 150 kg free, needs 420</td></tr>
+<tr><td>KA-27 · FrostFleet</td><td>₹6,800</td><td><span style="color:#A33A1E">Rejected:</span> 0.4 h driver hours left</td></tr>
+<tr><td>KA-11 · ColdLine</td><td>₹18,400</td><td><span style="color:#0B6B63">Passes</span> all checks</td></tr>
+<tr><td>KA-04 · FrostFleet</td><td>₹11,200</td><td><span style="color:#0B6B63">Passes</span> all checks</td></tr>
+<tr><td>KA-08 · PolarRoute</td><td>₹22,600</td><td><span style="color:#0B6B63">Passes</span> all checks</td></tr>
+</table>
+<div style="width:460px;display:flex;flex-direction:column;gap:16px;background:#0E1A24;border-radius:16px;padding:36px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F3F1EA">Hard checks</h3>
+<ul style="font-size:28px;line-height:1.6;color:#B9C7D2">
+<li>Refrigeration</li>
+<li>Free capacity</li>
+<li>Cold-restore deadline</li>
+<li>Delivery deadline</li>
+<li>Driver hours</li>
+</ul>
+<p style="font-size:24px;line-height:1.4;color:#F2A541">No prompt or preference can relax them.</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#5E6B76">Demo scenario: six candidates, three rejected on attempt 2 of 3</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5E6B76">09</p>
+</div>
+<aside class="notes">This is the most important design decision. The model suggests plans; deterministic Python decides whether they are allowed. Of six candidates, the cheapest is a dry van, one doesn’t have the capacity, one driver is out of hours — all rejected with a reason the UI shows. Learned preferences can only re-rank plans that already pass. Nothing an agent says, and nothing in a driver’s message, can turn off a hard check.</aside>
+</section>
+<section id="healing" data-transition="fade" style="background:#0E1A24;color:#E8EEF2;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#4FD1C5">Self-healing</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#F3F1EA">We kill the carrier mid-booking. It finishes anyway.</h2>
+</div>
+<div style="display:flex;gap:12px;align-items:center">
+<p style="flex:1;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;line-height:1.35;text-align:center;color:#F3F1EA;background:#5A2A1E;border-radius:12px;padding:24px 12px">Retry ×3 fails</p>
+<x-shape kind="arrow-right" style="width:44px;height:26px;background:#4FD1C5"></x-shape>
+<p style="flex:1;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;line-height:1.35;text-align:center;color:#F3F1EA;background:#5A2A1E;border-radius:12px;padding:24px 12px">Circuit opens</p>
+<x-shape kind="arrow-right" style="width:44px;height:26px;background:#4FD1C5"></x-shape>
+<p style="flex:1;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;line-height:1.35;text-align:center;color:#F3F1EA;background:#13283A;border-radius:12px;padding:24px 12px">Re-plan without it</p>
+<x-shape kind="arrow-right" style="width:44px;height:26px;background:#4FD1C5"></x-shape>
+<p style="flex:1;font-family:'JetBrains Mono', 'Courier New', monospace;font-size:26px;line-height:1.35;text-align:center;color:#0E1A24;background:#4FD1C5;border-radius:12px;padding:24px 12px">Booked via backup</p>
+</div>
+<div style="display:flex;gap:24px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#13283A;border-radius:12px;padding:32px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F2A541">Never double-booked</h3>
+<p style="font-size:26px;line-height:1.4;color:#B9C7D2">Idempotency keys. Uncertain timeouts are reconciled, not resent.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#13283A;border-radius:12px;padding:32px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F2A541">Tool-call repair</h3>
+<p style="font-size:26px;line-height:1.4;color:#B9C7D2">One corrected retry after a schema error, never invented IDs.</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#13283A;border-radius:12px;padding:32px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F2A541">Learned workaround</h3>
+<p style="font-size:26px;line-height:1.4;color:#B9C7D2">An unhealthy carrier is skipped until it is probed again.</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#7F93A3">Every step appears live in the Healing Log</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#7F93A3">10</p>
+</div>
+<aside class="notes">You saw this in the demo. When the carrier API dies mid-booking, the Watchdog retries with backoff, opens a circuit on that carrier for 60 seconds, re-plans without it, and books the next feasible truck through a backup carrier. The subtle part is safety: bookings carry idempotency keys, and if a timeout leaves the outcome unknown we reconcile by booking ID rather than resending, so we never book two trucks. Tool-call errors get exactly one corrected retry, and the system remembers which carriers are unhealthy.</aside>
+</section>
+<section id="learning" data-transition="fade" style="background:#F3F1EA;color:#3E4A55;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#0B6B63">Feedback loop</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#0E1A24">One rating changes the next decision</h2>
+</div>
+<div style="display:flex;gap:40px;align-items:center">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5E6B76">Before · TN-02 via CAR-001</p>
+<p style="font-family:'Space Grotesk', Arial, sans-serif;font-size:120px;font-weight:700;line-height:1;color:#5E6B76;text-decoration:line-through">₹18,500</p>
+</div>
+<x-shape kind="arrow-right" style="width:96px;height:48px;background:#F2A541"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#0B6B63">After · TN-03 via CAR-002</p>
+<p style="font-family:'Space Grotesk', Arial, sans-serif;font-size:120px;font-weight:700;line-height:1;color:#0B6B63">₹12,000</p>
+</div>
+</div>
+<div style="display:flex;gap:24px">
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:28px 32px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">The rating</h3>
+<p style="font-size:26px;line-height:1.4">“Too expensive, we had slack”</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:28px 32px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">The stored rule</h3>
+<p style="font-size:26px;line-height:1.4">Save ≥ ₹5,000 for ≤ 90 min later, within both deadlines</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:12px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:28px 32px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#0E1A24">The limits</h3>
+<p style="font-size:26px;line-height:1.4">Scoped, expiring, ranking only. Text is never run as instructions</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#5E6B76">Reproduced on every CI run by make demo</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5E6B76">11</p>
+</div>
+<aside class="notes">The Critic turns a human rating into a typed preference: if we can save at least five thousand rupees by arriving at most ninety minutes later, still inside both deadlines, prefer the cheaper carrier. It’s scoped to the customer and cargo profile, it expires, and it only re-ranks plans that already passed every hard check. Free-text feedback is stored as data, never executed. The cost drop from 18,500 to 12,000 rupees on a comparable incident is reproduced by make demo on every CI run.</aside>
+</section>
+<section id="mcp" data-transition="fade" style="background:#F3F1EA;color:#3E4A55;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#0B6B63">MCP and Google products</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#0E1A24">Real tools, real APIs, one contract</h2>
+</div>
+<div style="display:flex;gap:40px">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#0E1A24;border-radius:16px;padding:36px 40px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F3F1EA">logistics-mcp · 8 tools</h3>
+<div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:12px 32px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4FD1C5">get_shipment</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4FD1C5">list_trucks_near</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4FD1C5">get_temperature_history</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4FD1C5">find_cold_hubs_near</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4FD1C5">list_carriers</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4FD1C5">assign_load</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4FD1C5">book_dock_slot</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4FD1C5">log_incident</p>
+</div>
+<p style="font-size:26px;line-height:1.4;color:#B9C7D2">Official MCP Python SDK, streamable HTTP, bearer-token auth. Agents discover tools at runtime.</p>
+</div>
+<div style="width:600px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;justify-content:space-between;align-items:center;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:18px 28px"><p style="font-size:28px;color:#0E1A24">Google ADK</p><p style="font-size:24px;color:#5E6B76">agents</p></div>
+<div style="display:flex;justify-content:space-between;align-items:center;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:18px 28px"><p style="font-size:28px;color:#0E1A24">Gemini Pro + Flash</p><p style="font-size:24px;color:#5E6B76">reasoning</p></div>
+<div style="display:flex;justify-content:space-between;align-items:center;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:18px 28px"><p style="font-size:28px;color:#0E1A24">Maps Routes</p><p style="font-size:24px;color:#5E6B76">ETAs</p></div>
+<div style="display:flex;justify-content:space-between;align-items:center;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:18px 28px"><p style="font-size:28px;color:#0E1A24">Sheets</p><p style="font-size:24px;color:#5E6B76">fleet board</p></div>
+<div style="display:flex;justify-content:space-between;align-items:center;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:18px 28px"><p style="font-size:28px;color:#0E1A24">Calendar</p><p style="font-size:24px;color:#5E6B76">dock slots</p></div>
+<div style="display:flex;justify-content:space-between;align-items:center;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:18px 28px"><p style="font-size:28px;color:#0E1A24">Gmail</p><p style="font-size:24px;color:#5E6B76">notifications</p></div>
+</div>
+</div>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#5E6B76">Each external system has an offline twin, so every run is reproducible</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5E6B76">12</p>
+</div>
+<aside class="notes">Our logistics data lives behind an MCP server built on the official Python SDK, with eight tools, served over streamable HTTP with bearer auth. The Intake and Route &amp; Risk agents discover those tools at runtime; write tools forward to the API so they stay validated and replay-safe. On the Google side: ADK for agents, Gemini Pro and Flash, Maps Routes for ETAs, and Sheets, Calendar and Gmail for the fleet board, dock slots and notifications. Every adapter has an offline twin that labels its output as simulated.</aside>
+</section>
+<section id="guardrails" data-transition="fade" style="background:#0E1A24;color:#E8EEF2;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#4FD1C5">Guardrails</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#F3F1EA">Personal data never reaches the model or the logs</h2>
+</div>
+<div style="display:flex;gap:12px;align-items:center">
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#13283A;border-radius:12px;padding:24px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:30px;font-weight:600;color:#F3F1EA">Input</h3>
+<p style="font-size:24px;line-height:1.35;color:#B9C7D2">Incident, chat, feedback</p>
+</div>
+<x-shape kind="arrow-right" style="width:44px;height:26px;background:#4FD1C5"></x-shape>
+<div style="flex:1.4;display:flex;flex-direction:column;gap:8px;background:#F2A541;border-radius:12px;padding:24px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:30px;font-weight:600;color:#0E1A24">PII redaction</h3>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;line-height:1.35;color:#2A2416">phone · Aadhaar · PAN · card · email → [PHONE]</p>
+</div>
+<x-shape kind="arrow-right" style="width:44px;height:26px;background:#4FD1C5"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#13283A;border-radius:12px;padding:24px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:30px;font-weight:600;color:#F3F1EA">Store + Gemini</h3>
+<p style="font-size:24px;line-height:1.35;color:#B9C7D2">Only redacted text</p>
+</div>
+<x-shape kind="arrow-right" style="width:44px;height:26px;background:#4FD1C5"></x-shape>
+<div style="flex:1;display:flex;flex-direction:column;gap:8px;background:#13283A;border-radius:12px;padding:24px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:30px;font-weight:600;color:#F3F1EA">Output filter</h3>
+<p style="font-size:24px;line-height:1.35;color:#B9C7D2">Agent replies re-checked</p>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:20px">
+<div style="display:flex;gap:20px;align-items:center;background:#13283A;border-radius:12px;padding:24px 28px">
+<x-icon name="Warning" style="color:#F2A541;width:40px;height:40px"></x-icon>
+<p style="font-size:26px;line-height:1.35;color:#E8EEF2">Evidence and feedback are data, never instructions</p>
+</div>
+<div style="display:flex;gap:20px;align-items:center;background:#13283A;border-radius:12px;padding:24px 28px">
+<x-icon name="Key" style="color:#F2A541;width:40px;height:40px"></x-icon>
+<p style="font-size:26px;line-height:1.35;color:#E8EEF2">Bearer auth on every API and MCP call</p>
+</div>
+<div style="display:flex;gap:20px;align-items:center;background:#13283A;border-radius:12px;padding:24px 28px">
+<x-icon name="Verified" style="color:#F2A541;width:40px;height:40px"></x-icon>
+<p style="font-size:26px;line-height:1.35;color:#E8EEF2">Every simulated action is labelled simulated</p>
+</div>
+<div style="display:flex;gap:20px;align-items:center;background:#13283A;border-radius:12px;padding:24px 28px">
+<x-icon name="Lock" style="color:#F2A541;width:40px;height:40px"></x-icon>
+<p style="font-size:26px;line-height:1.35;color:#E8EEF2">Redaction events log the type, never the value</p>
+</div>
+</div>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#7F93A3">Deterministic redaction, tested against both SQLite stores and the event stream</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#7F93A3">13</p>
+</div>
+<aside class="notes">Drivers and customers type real things into chat — phone numbers, ID numbers. A deterministic redaction layer runs at the API boundary before anything is stored, and again in an ADK callback before any text reaches Gemini, so the model never sees raw personal data. Agent replies are filtered on the way out too. We redact Indian and international phone numbers, Aadhaar, PAN, Luhn-checked card numbers and emails, and log only the type that was redacted. Tests assert the raw values never appear in either database or the event stream — and that logistics IDs like TN-07 aren’t falsely redacted.</aside>
+</section>
+<section id="evaluation" data-transition="fade" style="background:#0E1A24;color:#E8EEF2;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:56px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#4FD1C5">Agent evaluation</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#F3F1EA">Every claim traces back to a tool result</h2>
+</div>
+<div style="display:flex;gap:24px">
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#13283A;border-top:6px solid #4FD1C5;border-radius:12px;padding:32px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F3F1EA">Groundedness</h3>
+<p style="font-size:26px;line-height:1.4;color:#B9C7D2">Every truck ID, cost and time in a reply must appear in that turn’s tool outputs</p>
+<p style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1;color:#4FD1C5">[__%]</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#13283A;border-top:6px solid #4FD1C5;border-radius:12px;padding:32px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F3F1EA">Truthfulness</h3>
+<p style="font-size:26px;line-height:1.4;color:#B9C7D2">No “booked” without a receipt. Simulated output always says so</p>
+<p style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1;color:#4FD1C5">[__] errors</p>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:16px;background:#13283A;border-top:6px solid #4FD1C5;border-radius:12px;padding:32px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F3F1EA">Tool trajectory</h3>
+<p style="font-size:26px;line-height:1.4;color:#B9C7D2">Expected handovers and tool calls per scenario: breakdown, outage, rejections</p>
+<p style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:700;line-height:1;color:#4FD1C5">[__/__]</p>
+</div>
+</div>
+<div style="display:flex;gap:24px">
+<p style="flex:1;font-size:26px;line-height:1.4;color:#E8EEF2;background:#13283A;border-radius:12px;padding:20px 28px"><b>Offline:</b> deterministic checks run in CI on every push</p>
+<p style="flex:1;font-size:26px;line-height:1.4;color:#E8EEF2;background:#13283A;border-radius:12px;padding:20px 28px"><b>Live:</b> ADK eval sets plus an LLM-judge hallucination rubric</p>
+</div>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#7F93A3">Scenarios from data/scenarios · run with make eval</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#7F93A3">14</p>
+</div>
+<aside class="notes">We don’t just ask the model not to hallucinate; we measure it. Groundedness: we extract every truck ID, rupee amount and time from an agent’s reply and check each one appears in the tool results from that same turn. Truthfulness: an agent may never say “booked” unless the execute tool returned a receipt, and offline output must be labelled simulated. Trajectory: for each scenario — breakdown, carrier outage, the rejection cases — we assert the expected handovers and tool calls. The offline suite runs in CI on every push; in live mode the same scenarios run as ADK eval sets with an LLM-judge rubric. FILL IN the bracketed results from the latest make eval run before presenting.</aside>
+</section>
+<section id="criteria" data-transition="fade" style="background:#F3F1EA;color:#3E4A55;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#0B6B63">Judging criteria</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#0E1A24">Every criterion, with evidence you can run</h2>
+</div>
+<table style="font-size:26px;color:#0E1A24;width:1664px">
+<tr><th style="width:28%;color:#0B6B63">Criterion</th><th style="width:72%;color:#0B6B63">Evidence</th></tr>
+<tr><td>Multi-model, multimodal</td><td>Gemini Pro + Flash; photo, voice, PDF and sensor intake</td></tr>
+<tr><td>Conversational agents</td><td>Specialist ownership, peer handovers, “Why this vehicle?”</td></tr>
+<tr><td>API calls</td><td>FastAPI contract, carrier API, Maps, Sheets, Calendar, Gmail</td></tr>
+<tr><td>MCP integration</td><td>logistics-mcp, 8 tools, tested over the real transport</td></tr>
+<tr><td>Feedback loop</td><td>Rating → scoped preference → ₹18,500 becomes ₹12,000</td></tr>
+<tr><td>Self-healing</td><td>Carrier killed mid-booking → retry, circuit, fallback, recovered</td></tr>
+<tr><td>Safety and evaluation</td><td>PII redaction in and out; groundedness and trajectory evals</td></tr>
+<tr><td>A–Z instructions</td><td>make setup, make verify, CI, Docker; no API keys needed</td></tr>
+</table>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#5E6B76">github.com/HideshBalaji/gdg-agentwars</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5E6B76">15</p>
+</div>
+<aside class="notes">For the judges, here’s every criterion mapped to something you can run yourself. Clone the repo, run make setup and make verify — lint, the test and evaluation suites, the offline agent demo and the UI build — with no API keys. The same checks run in CI and in Docker.</aside>
+</section>
+<section id="limits" data-transition="fade" style="background:#F3F1EA;color:#3E4A55;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#0B6B63">Honest limits and what’s next</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#0E1A24">Built for a demo, designed for a fleet</h2>
+</div>
+<div style="display:flex;gap:40px">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:16px;padding:40px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:36px;font-weight:600;color:#0E1A24">Today</h3>
+<ul style="font-size:28px;line-height:1.6">
+<li>Synthetic cargo, bookings and notifications</li>
+<li>Live Google adapters need a credentialed rehearsal</li>
+<li>Single operator: one worker, SQLite</li>
+<li>Stylised corridor map, not tiled</li>
+</ul>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#0E1A24;border-radius:16px;padding:40px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:36px;font-weight:600;color:#F2A541">Next</h3>
+<ul style="font-size:28px;line-height:1.6;color:#E8EEF2">
+<li>Failing fridge: cold-hub transfer</li>
+<li>Customer unavailable: new window</li>
+<li>Damaged delivery: claim draft</li>
+<li>Gemini Live voice for drivers</li>
+<li>Real carrier and telematics feeds</li>
+</ul>
+</div>
+</div>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#5E6B76">Nothing here is a medical or legal determination</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5E6B76">16</p>
+</div>
+<aside class="notes">We want to be straight about what this is. All cargo and bookings are synthetic. The Gemini and Google Workspace adapters are implemented but still need a credentialed rehearsal. It’s a single-operator demo on SQLite. Because the loop is generic, the next incident types — a failing fridge, a customer who can’t receive, a damaged delivery — reuse the same agents. After that: driver voice with Gemini Live and real carrier and telematics integrations.</aside>
+</section>
+<section id="close" data-transition="fade" style="background:radial-gradient(circle at 78% 42%, #17324A 0%, #0E1A24 55%);color:#E8EEF2;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px;display:flex;flex-direction:column;justify-content:center;gap:40px">
+<x-shape kind="ellipse" style="position:absolute;left:1240px;top:220px;width:560px;height:560px;background:transparent;border:2px solid #24465F"></x-shape>
+<x-shape kind="ellipse" style="position:absolute;left:1360px;top:340px;width:320px;height:320px;background:transparent;border:2px solid #2E5A78"></x-shape>
+<x-shape kind="ellipse" style="position:absolute;left:1490px;top:470px;width:60px;height:60px;background:#4FD1C5;border:none"></x-shape>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#4FD1C5">Thank you · Questions</p>
+<h1 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:120px;font-weight:700;line-height:1.05;letter-spacing:-3px;color:#F3F1EA;width:1050px">The 2 AM dispatcher that heals itself.</h1>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:32px;color:#F2A541">github.com/HideshBalaji/gdg-agentwars</p>
+<p style="font-size:32px;line-height:1.4;color:#B9C7D2;width:1050px">[Team name] · Hidesh · Prethish · Sanjay Kumar V · Shobhan Karthish</p>
+<aside class="notes">Ghost Dispatcher: a team of Gemini agents on Google ADK that turns a 2 AM breakdown into a validated, booked rescue, survives its own tool failures, keeps personal data out of the model, measures its own groundedness, and gets better with every rating. Everything is in the repo and runs without keys. Thank you — happy to take questions or show any part of it again live.</aside>
+</section>
+</div>
+<div id="notes"></div>
+<p id="hint">← → navigate · N notes · F fullscreen</p>
+<script>
+const slides = [...document.querySelectorAll('#stage > section')];
+let i = Math.max(0, slides.findIndex(s => '#' + s.id === location.hash));
+function fit() {
+  const k = Math.min(innerWidth / 1920, innerHeight / 1080);
+  document.getElementById('stage').style.transform = `translate(-50%, -50%) scale(${k})`;
+}
+function show(n) {
+  i = Math.min(slides.length - 1, Math.max(0, n));
+  slides.forEach((s, j) => s.classList.toggle('active', j === i));
+  const a = slides[i].querySelector('aside.notes');
+  document.getElementById('notes').textContent = `${i + 1} / ${slides.length} — ` + (a ? a.textContent : '');
+  history.replaceState(null, '', '#' + slides[i].id);
+}
+addEventListener('keydown', e => {
+  if (['ArrowRight', 'PageDown', ' '].includes(e.key)) show(i + 1);
+  if (['ArrowLeft', 'PageUp'].includes(e.key)) show(i - 1);
+  if (e.key === 'Home') show(0);
+  if (e.key === 'End') show(slides.length - 1);
+  if (e.key.toLowerCase() === 'n') document.body.classList.toggle('show-notes');
+  if (e.key.toLowerCase() === 'f') document.documentElement.requestFullscreen?.();
+});
+addEventListener('click', e => show(e.clientX > innerWidth / 2 ? i + 1 : i - 1));
+addEventListener('resize', fit);
+addEventListener('hashchange', () => {
+  const n = slides.findIndex(s => '#' + s.id === location.hash);
+  if (n >= 0 && n !== i) show(n);
+});
+fit(); show(i);
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<section id="mcp" data-transition="fade" style="background:#F3F1EA;color:#3E4A55;font-family:'IBM Plex Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:48px">
+<div style="display:flex;flex-direction:column;gap:16px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;letter-spacing:4px;text-transform:uppercase;color:#0B6B63">MCP and Google products</p>
+<h2 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:72px;font-weight:600;line-height:1.1;color:#0E1A24">Real tools, real APIs, one contract</h2>
+</div>
+<div style="display:flex;gap:40px">
+<div style="flex:1;display:flex;flex-direction:column;gap:20px;background:#0E1A24;border-radius:16px;padding:36px 40px">
+<h3 style="font-family:'Space Grotesk', Arial, sans-serif;font-size:32px;font-weight:600;color:#F3F1EA">logistics-mcp · 8 tools</h3>
+<div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:12px 32px">
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4FD1C5">get_shipment</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4FD1C5">list_trucks_near</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4FD1C5">get_temperature_history</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4FD1C5">find_cold_hubs_near</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4FD1C5">list_carriers</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4FD1C5">assign_load</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4FD1C5">book_dock_slot</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#4FD1C5">log_incident</p>
+</div>
+<p style="font-size:26px;line-height:1.4;color:#B9C7D2">Official MCP Python SDK, streamable HTTP, bearer-token auth. Agents discover tools at runtime.</p>
+</div>
+<div style="width:600px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;justify-content:space-between;align-items:center;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:18px 28px"><p style="font-size:28px;color:#0E1A24">Google ADK</p><p style="font-size:24px;color:#5E6B76">agents</p></div>
+<div style="display:flex;justify-content:space-between;align-items:center;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:18px 28px"><p style="font-size:28px;color:#0E1A24">Gemini Pro + Flash</p><p style="font-size:24px;color:#5E6B76">reasoning</p></div>
+<div style="display:flex;justify-content:space-between;align-items:center;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:18px 28px"><p style="font-size:28px;color:#0E1A24">Maps Routes</p><p style="font-size:24px;color:#5E6B76">ETAs</p></div>
+<div style="display:flex;justify-content:space-between;align-items:center;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:18px 28px"><p style="font-size:28px;color:#0E1A24">Sheets</p><p style="font-size:24px;color:#5E6B76">fleet board</p></div>
+<div style="display:flex;justify-content:space-between;align-items:center;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:18px 28px"><p style="font-size:28px;color:#0E1A24">Calendar</p><p style="font-size:24px;color:#5E6B76">dock slots</p></div>
+<div style="display:flex;justify-content:space-between;align-items:center;background:#FBFAF6;border:1px solid #DDD8CC;border-radius:12px;padding:18px 28px"><p style="font-size:28px;color:#0E1A24">Gmail</p><p style="font-size:24px;color:#5E6B76">notifications</p></div>
+</div>
+</div>
+<div style="position:absolute;left:128px;bottom:64px;width:1664px;display:flex;justify-content:space-between">
+<p style="font-size:24px;color:#5E6B76">Each external system has an offline twin, so every run is reproducible</p>
+<p style="font-family:'JetBrains Mono', 'Courier New', monospace;font-size:24px;color:#5E6B76">12</p>
+</div>
+<aside>Our logistics data lives behind an MCP server built on the official Python SDK, with eight tools, served over streamable HTTP with bearer auth. The Intake and Route &amp; Risk agents discover those tools at runtime; write tools forward to the API so they stay validated and replay-safe. On the Google side: ADK for agents, Gemini Pro and Flash, Maps Routes for ETAs, and Sheets, Calendar and Gmail for the fleet board, dock slots and notifications. Every adapter has an offline twin that labels its output as simulated.</aside>
+</section>

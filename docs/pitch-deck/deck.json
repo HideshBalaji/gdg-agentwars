@@ -1,0 +1,20 @@
+{
+  "v": 4,
+  "createdOnFiles": {"v": 1, "at": "2026-10-17T11:20:00Z"},
+  "lists": "css",
+  "title": "Ghost Dispatcher — Finals",
+  "order": ["cover", "problem", "statement", "loop", "demo", "architecture", "agents", "intake", "validation", "healing", "learning", "mcp", "guardrails", "evaluation", "criteria", "limits", "close"],
+  "sections": {
+    "why": {"description": "Why: cold-chain failures at 2 AM are still handled by phone.", "start": "cover"},
+    "what": {"description": "What: one self-healing incident loop, shown live.", "start": "loop"},
+    "how": {"description": "How: ADK agents, code-checked plans, self-healing, learning and MCP.", "start": "architecture"},
+    "trust": {"description": "Trust: PII guardrails and a groundedness evaluation suite.", "start": "guardrails"},
+    "proof": {"description": "Proof: judging criteria mapped to evidence, honest limits, and the close.", "start": "criteria"}
+  },
+  "faces": {
+    "space-grotesk": {"family": "Space Grotesk", "href": "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&display=swap"},
+    "ibm-plex-sans": {"family": "IBM Plex Sans", "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap"},
+    "jetbrains-mono": {"family": "JetBrains Mono", "href": "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap"}
+  },
+  "designSystems": []
+}
