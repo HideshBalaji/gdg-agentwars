@@ -8,6 +8,7 @@ import { fmtInr, fmtTime, uid } from './format';
 import { MAP_H, MAP_W, project } from './geo';
 import { addGuardrail, apply, attachEvaluation, nowIso, recordRating, resetIncident, toast, useStore, type Choice } from './store';
 import { takeReady, uploading } from './evidence';
+import { redactPii } from './pii';
 
 const TOKEN = import.meta.env.VITE_API_TOKEN || 'ghost-demo';
 const BASE = import.meta.env.VITE_API_URL || '';
@@ -33,8 +34,6 @@ function advance(stage: Stage) {
 let compareBaseline: Choice | null = null;
 /** Evaluations that arrived before the reply they score, keyed by agent. */
 const pendingEval = new Map<AgentId, Evaluation>();
-const piiBlocked = (e: unknown) => /^pii_blocked:/.test((e as Error).message ?? '');
-const blockedNote = (e: unknown) => (e as Error).message.replace(/^pii_blocked:\s*/, '');
 
 async function api<T = any>(path: string, init: RequestInit = {}): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
@@ -477,8 +476,9 @@ export async function liveSend(text: string, silent = false) {
   apply({ type: 'agent.status', agent: asked, status: 'thinking' });
   try {
     const reply = await api<any>(`/api/conversations/${conversationId}/messages`, { method: 'POST', body: JSON.stringify({ text, evidence_ids: evidenceIds }) });
-    // Shown only after the backend accepted it, so text refused by the PII guardrail never appears.
-    apply({ type: 'message', message: { id: uid('msg'), at: nowIso(), role: 'user', text: silent ? `${text} (auto)` : text, attachments: evidence.length ? evidence : undefined } });
+    // Echoed with the same redaction the backend applied, so personal data never appears.
+    const shown = redactPii(text).text;
+    apply({ type: 'message', message: { id: uid('msg'), at: nowIso(), role: 'user', text: silent ? `${shown} (auto)` : shown, attachments: evidence.length ? evidence : undefined } });
     for (const e of evidence) apply({ type: 'incident.evidence', evidence: e });
     apply({ type: 'agent.status', agent: asked, status: 'idle' });
     apply({ type: 'agent.handover', to: agentOf(reply.active_agent), reason: 'Specialist owns the conversation' });
@@ -486,19 +486,18 @@ export async function liveSend(text: string, silent = false) {
     apply({ type: 'agent.status', agent: agentOf(reply.active_agent), status: 'idle' });
   } catch (e) {
     apply({ type: 'agent.status', agent: asked, status: 'idle' });
-    if (piiBlocked(e)) {
-      apply({ type: 'message', message: { id: uid('msg'), at: nowIso(), role: 'system', text: `PII guardrail blocked your message: ${blockedNote(e)}` } });
-      toast({ tone: 'info', title: 'Message not sent', body: 'It contained personal information' });
-    } else toast({ tone: 'bad', title: 'Chat failed', body: (e as Error).message });
+    toast({ tone: 'bad', title: 'Chat failed', body: (e as Error).message });
   }
 }
 
-export async function liveRate(thumbs: 'up' | 'down', reason: string) {
+export async function liveRate(thumbs: 'up' | 'down', typed: string) {
   try {
-    await api(`/api/incidents/${incidentId}/feedback`, {
+    const stored = await api<{ reason: string }>(`/api/incidents/${incidentId}/feedback`, {
       method: 'POST',
-      body: JSON.stringify({ rating: thumbs, reason, prefer_cheaper_when_slack: /expens|cost|cheap|price/i.test(reason) }),
+      body: JSON.stringify({ rating: thumbs, reason: typed, prefer_cheaper_when_slack: /expens|cost|cheap|price/i.test(typed) }),
     });
+    // The backend returns the reason as stored, with personal data redacted.
+    const reason = stored.reason ?? redactPii(typed).text;
     recordRating({ thumbs, reason });
     apply({ type: 'message', message: { id: uid('m'), at: nowIso(), role: 'user', text: `${thumbs === 'up' ? 'Good call' : 'Needs work'}: ${reason}` } });
     apply({ type: 'agent.handover', to: 'critic', reason: 'Learn from the rating' });
@@ -514,10 +513,7 @@ export async function liveRate(thumbs: 'up' | 'down', reason: string) {
       },
     });
   } catch (e) {
-    if (piiBlocked(e)) {
-      apply({ type: 'message', message: { id: uid('msg'), at: nowIso(), role: 'system', text: `PII guardrail blocked the feedback: ${blockedNote(e)}` } });
-      toast({ tone: 'info', title: 'Feedback not saved', body: 'Remove the personal information and rate again' });
-    } else toast({ tone: 'bad', title: 'Feedback failed', body: (e as Error).message });
+    toast({ tone: 'bad', title: 'Feedback failed', body: (e as Error).message });
   }
 }
 

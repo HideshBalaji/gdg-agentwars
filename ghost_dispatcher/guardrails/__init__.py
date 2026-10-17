@@ -1,5 +1,7 @@
-"""Guardrails: personal information is refused at entry and redacted before any model,
-tool result or reply. The log records only types and counts, never the values."""
+"""Guardrails: personal information in text is redacted at entry and before any model, tool
+call, tool result or reply, so requests still go through without it. Evidence files, which
+cannot be redacted safely, are refused. The log records only types and counts, never the
+values."""
 
 import json
 from datetime import UTC, datetime
@@ -60,20 +62,16 @@ class Guardrails:
 
     # ---- entry points ------------------------------------------------------------------
 
-    def screen_input(self, text, *, surface, incident_id=None):
-        """Refuse user-entered personal information; nothing is stored or sent to a model."""
+    def redact_input(self, text, *, surface, incident_id=None):
+        """Redact user-entered personal information before it is stored or sent to a model.
+
+        Returns the text with each finding replaced by a [REDACTED:<TYPE>] marker."""
         if not text:
-            return
-        types = [f.type for f in self.detector.scan(text)]
+            return text
+        redacted, types = redact_text(self.detector, text)
         if types:
-            self._record(incident_id, surface, "blocked", types)
-            raise DomainError(
-                "pii_blocked",
-                "Personal information is not accepted ("
-                + ", ".join(sorted(set(types)))
-                + "). Remove it and refer to people by ID, e.g. DRV-007 or CUS-001.",
-                422,
-            )
+            self._record(incident_id, surface, "redacted", types)
+        return redacted
 
     def redact(self, value, *, surface, incident_id=None):
         """Redact personal information from text or JSON-like data before it moves on."""
@@ -163,18 +161,17 @@ class Guardrails:
         return None
 
     def before_tool(self, tool, args, tool_context):
-        """Refuse tool calls that would write personal information (e.g. feedback text)."""
+        """Redact personal information from tool arguments (e.g. feedback text) in place,
+        so the tool still runs but never writes the values."""
         types = []
-        for value in (args or {}).values():
+        for key, value in (args or {}).items():
             if isinstance(value, str):
-                types += [f.type for f in self.detector.scan(value)]
+                args[key], found = redact_text(self.detector, value)
+                types += found
         if types:
-            self._record(self._incident(tool_context), f"tool_args:{tool.name}", "blocked", types)
-            return {
-                "code": "pii_blocked",
-                "message": "Tool input contained personal information; refer to people by ID.",
-            }
-        return None
+            self._record(
+                self._incident(tool_context), f"tool_args:{tool.name}", "redacted", types
+            )
 
     def after_tool(self, tool, args, tool_context, tool_response):
         redacted, types = redact_data(self.detector, tool_response)

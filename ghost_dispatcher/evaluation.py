@@ -5,7 +5,7 @@ the UI uses (guardrails, A2A carrier agent, quality monitor). Scored with:
 
 * ADK TrajectoryEvaluator: expected tool calls, handovers and A2A calls, in order;
 * the live quality monitor: groundedness, truthfulness, hallucination per reply;
-* case expectations: incident status, fallback carrier, guardrail blocks;
+* case expectations: incident status, fallback carrier, guardrail redaction;
 * optional ADK HallucinationsV1 LLM judge on Gemini (--judge, needs GOOGLE_API_KEY).
 
 Offline mode needs no keys and is deterministic; exits non-zero if any case fails."""
@@ -61,7 +61,7 @@ async def run_case(case, settings, judge=None):
             )
         )
         conversations = Conversations(service)
-        actual, blocked = [], []
+        actual, blocked, sent = [], [], []
         try:
             conversation = await conversations.create(incident.id)
             for number, expected in enumerate(case.conversation, start=1):
@@ -75,6 +75,7 @@ async def run_case(case, settings, judge=None):
                     responses.extend(event.get_function_responses())
 
                 text = _text(expected.user_content)
+                sent.append(text)
                 try:
                     reply = await conversations.send(
                         conversation["id"], Message(text=text), observer=observe
@@ -126,6 +127,23 @@ async def run_case(case, settings, judge=None):
             checks["preference_saved"] = bool(service.store.list("preference"))
         if "blocked" in expect:
             checks["guardrail_blocked"] = expect["blocked"] in blocked
+        if expect.get("redacted"):
+            # The turn went through, a redaction was logged, and no raw value was kept.
+            raw = [t[f.start : f.end] for t in sent for f in service.guardrails.detector.scan(t)]
+            kept = json.dumps(
+                [e.data for e in service.store.events(incident.id)]
+                + service.store.list("conversation"),
+                default=str,
+            )
+            checks["guardrail_redacted"] = (
+                bool(raw)
+                and not blocked
+                and any(
+                    g["incident_id"] == incident.id and g["action"] == "redacted"
+                    for g in service.store.list("guardrail")
+                )
+                and not any(value in kept for value in raw)
+            )
         if expect.get("a2a"):
             checks["a2a_exchange"] = any(
                 e.type == "a2a" and e.data["direction"] == "response"
