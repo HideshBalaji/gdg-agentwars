@@ -1,0 +1,7 @@
+services:
+  app:
+    build: .
+    image: ghost-dispatcher
+    env_file:
+      - path: .env
+        required: false
