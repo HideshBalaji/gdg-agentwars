@@ -160,12 +160,13 @@ Label the output **demo rescue-window estimate**, not actual vaccine usability. 
 
 ## 11. Stack and layout
 
-Python 3.12, Google ADK, Pydantic, SQLite, FastMCP, FastAPI, and Gemini via AI Studio. Use `adk web` for local demo chat/traces and API/terminal access for repeatable checks. Optional Gemini Live is browser voice, not real phone calls; uploaded voice-note intake remains core even if Live is cut.
+Python 3.12, Google ADK, Pydantic, SQLite, FastMCP, FastAPI, and Gemini via AI Studio. A dedicated UI owner builds the browser control room; `adk web` remains a development/debugging tool. The UI connects to the backend for conversations, uploads, incident state, and streamed action/healing events. Optional Gemini Live is browser voice, not real phone calls; uploaded voice-note intake remains core even if Live is cut.
 
 Google products: Maps Routes/Places/Weather, Sheets, Calendar, Gmail; optional Firestore and Cloud Run. Cloud Run requires authentication and durable storage. Do not present a development UI as production hosting. Pin dependencies and retain a lockfile. Runtime models remain Gemini-only even if coding assistants use other providers.
 
 ```text
 gdg-agentwars/
+├── ui/                   # browser control room; dedicated UI owner
 ├── ghost_dispatcher/
 │   ├── __init__.py
 │   ├── agent.py          # ADK discovery: root_agent
@@ -203,37 +204,44 @@ Keep credentials, OAuth tokens, operational databases, and real customer/cargo d
 
 ## 13. Team split and milestones
 
-Target roughly two days with 3–4 people; estimates overlap across owners and are not a promised completion time.
+Plan for four people, with **one dedicated to UI and one dedicated to collecting/preparing data**. The remaining two own agents and backend integrations. Target roughly two days; estimates overlap and are not a promised completion time.
 
 | Person | Ownership | Deliverable |
 | --- | --- | --- |
-| A: agents lead | Dispatcher, intake, route/risk, negotiator chat, handovers, critic, memory | Complete incident orchestration and visible feedback-driven second decision |
-| B: integrations lead | Shared models/services, seed data, MCP, Google adapters, comms agent | Stable tool contracts, data, and live Sheet/Calendar/Gmail demo resources |
-| C: reliability lead | Validator, watchdog, recovery service, mock carriers/sensors, reliability tests | Kill/revive recovery, invalid-plan rejection, Healing Log, duplicate protection |
-| D: demo/delivery lead | Scripts, documentation, CI, demo UI wiring, optional Live adapter, backup recording | One-command clean-clone demo and submission-ready README/video |
+| A: UI | Browser control room, chat/media upload, active-agent and handover display, incident timeline, route/vehicle options, Healing Log, rating controls | A user can trigger the breakdown, converse with specialists, inspect recovery, and rate the outcome through the UI |
+| B: data collection | Truck/shipment/hub/carrier JSON, sample photos/audio/PDFs, sensor traces, expected scenario outcomes, source/license manifest | A consistent, documented demo dataset: 10 trucks, 20 shipments, 3 hubs, 3 carriers, plus evidence and failure/feedback scenarios |
+| C: agents and reasoning | All ADK agent definitions, conversation ownership/transfers, multimodal parsing, planning/validation orchestration, watchdog policy, critic and preference rules | The complete agent loop, bounded replanning/recovery, and a visible feedback-driven second decision |
+| D: backend and integrations | Shared schemas, database, HTTP/event API, MCP, Google adapters, mock carrier/sensor services, deterministic validation/math, retries/idempotency, startup scripts and CI | Working tools and APIs with durable state, kill/revive recovery mechanisms, and Google demo updates |
 
-Separate branches: `feat/agents`, `feat/integrations`, `feat/recovery`, `feat/demo-docs`. B owns schema changes; A coordinates orchestration changes. C owns validator/watchdog modules; B owns comms; D agrees negotiator integration with A before editing it. Each person includes focused tests. Merge small PRs after the shared smoke scenario passes.
+**Ownership boundaries:** A owns `ui/`; B owns `data/` and its source/scenario notes; C owns `ghost_dispatcher/agents/`, the ADK entrypoint, and preference policy; D owns schemas, storage, services, API/MCP, Google tools, mocks, and scripts. C owns the validator/watchdog agent logic; D owns the deterministic checks and recovery functions those agents invoke. B prepares records to the agreed schema; D implements the loader. Each owner supplies focused verification and their README section. A assembles the demo recording; all rehearse and review the final README.
 
-**First handoff:** agree `Incident`, `Plan`, `ToolResult`, `HealingEvent`, seed IDs, ports, and tool contracts. B publishes fixtures/contracts; A uses fixture tools; C builds mock carrier and validator; D prepares reproducible startup instructions. Integrate the photo-to-Sheet vertical slice before extras.
+Use `feat/ui`, `feat/data`, `feat/agents`, and `feat/platform` branches with small PRs. D owns schema/API changes and agrees them with A/C before changes; B keeps fixture references aligned. Do not wait for a workstream to finish before integrating.
 
-| Phase | Estimate | Work / exit condition | Owner |
-| --- | --- | --- | --- |
-| 0 | 2h | Registration, repo, keys, schemas, seed IDs, contracts | All |
-| 1 | 8h | Photo + voice note → incident → valid plan → simulated assignment → live Sheet | A + B |
-| 2 | 4h | Calendar rebooking and Gmail demo notification | B |
-| 3 | 6h | Kill/revive recovery, validator loop, Healing Log | C |
-| 4 | 4h | Rating changes next comparable decision | A |
-| 5 | 3h | Up to three extra incidents using existing agents | B + C |
-| 6 | 4h | Optional browser Live negotiation | D |
-| 7 | 4h | Clean-clone rehearsal, README, diagram, backup video, team submission | All |
+### First-hour agreement and handoffs
 
-With three people, split D's documentation/scripts across B/C and let A handle optional voice. With two, one owns agents/feedback and the other owns data/integrations/recovery; share docs and cut optional voice/extras.
+Agree `Incident`, `Plan`, `ToolResult`, `HealingEvent`, shared record IDs, startup commands, and ports together. D publishes the contracts plus one example incident immediately; B expands that example into the dataset. A builds against example responses while C builds against fixture tools.
 
-**Cut order:** Live voice → extras → comms polish. Never cut core loop, real MCP usage, healing, feedback, or README. Submit the working core early and confirm organizer rules for subsequent updates.
+The UI/backend contract must support incident creation/read, evidence upload, conversation messages, active-owner/handover events, plan/action/healing updates, ratings, and demo-only carrier kill/revive controls. D provides example event payloads; A renders them. Keep credentials and direct Google calls in the backend.
+
+B supplies timestamped sensor traces and scenarios with at least two feasible carriers for the feedback comparison, plus no-reefer, insufficient-capacity, deadline-miss, and API-outage cases. Use synthetic or permitted media with documented provenance. Collection is preparation of operational/demo evidence, not model training.
+
+### Parallel milestones
+
+| Phase | Estimate | UI — A | Data — B | Agents — C | Backend — D |
+| --- | --- | --- | --- | --- | --- |
+| Contracts | First hour | Agree screens and event rendering | Deliver one internally consistent sample | Agree agent/tool inputs and outputs | Publish schemas, API/event examples, ports |
+| Working skeleton | First 3–4h | Chat, upload, incident view using examples | Deliver main breakdown evidence and fleet records | Dispatcher/intake plus specialist transfer | Storage, seed loader, basic API/MCP and mocks |
+| Core integration | Rest of day 1 | Connect live backend, show plans and actions | Validate IDs, timestamps, capacities and expected candidates | Evidence → validated plan → tool execution | Booking/assignment plus live Sheet update |
+| Reliability and feedback | First half of day 2 | Healing timeline, kill/revive and rating controls | Supply outage, invalid-plan and comparable feedback fixtures | Watchdog, three-attempt validation loop, critic/preferences | Bounded retries, fallback, receipts, duplicate protection |
+| Finish and submit | Remaining time | End-to-end UI polish and demo recording | Source manifest and scenario instructions | Agent evaluations and architecture notes | Google comms, clean-clone scripts, API tests and CI |
+
+**First shared milestone:** from the UI, upload photo + voice note → parsed incident → feasible rescue plan → simulated carrier booking → live Sheet update. Finish this together before adding extras. D's workload is the critical path: prioritize MCP, the carrier mock, persistence, and Sheets; add Calendar/Gmail after the core is integrated. C can build recovery policies and agent evaluations independently against D's agreed error contracts.
+
+Optional live voice is a joint A/C task only after the main flow passes. Extras reuse B's additional fixtures and C/D's existing loop. **Cut order:** live voice → extras → comms polish. Keep the UI focused on the required demo; defer advanced maps, authentication screens, and analytics. Never cut core loop, real MCP usage, healing, feedback, or README. Submit the working core early and confirm organizer rules for updates.
 
 ## 14. Three-minute demo
 
-ADK chat/traces and Healing Log on the left; live fleet Sheet on the right.
+Ghost Dispatcher browser UI with chat, incident timeline and Healing Log on the left; live fleet Sheet on the right. Keep ADK traces available for technical inspection.
 
 | Time | Action |
 | --- | --- |
@@ -250,6 +258,7 @@ Optional 20-second browser voice negotiation. Keep a recorded backup video. Desc
 
 - Multimodal fixture parsing, evidence provenance, missing-data clarification.
 - Specialist follow-ups, peer transfers, return to dispatcher, explicit switching, restart-safe ownership, loop limits.
+- UI evidence upload, streamed status/handover/healing events, rating submission, reconnect behavior, and visible error states against the actual backend.
 - Non-reefer, overload, insufficient capacity, unavailable slot, stale plan, and deadline rejection; include transfer/loading time.
 - Temperature simulation with stale/noisy/insufficient/already-out-of-range readings.
 - MCP discovery/calls, typed API behavior, unauthorized-write rejection.
@@ -287,7 +296,7 @@ Run automated domain/integration checks and ADK evaluations; record exact comman
 | Late submission | Early working core; confirm update rules |
 | Misleading temperature certainty | Clearly labeled simulation, no medical-use decisions |
 
-Confirm final team size/hours, dedicated demo account, submission deadline/update policy, and organizer interpretation of multi-model versus multimodal. This design covers both interpretations and uses Gemini-only runtime.
+Confirm member names against the four dedicated roles, available hours, dedicated demo account, submission deadline/update policy, and organizer interpretation of multi-model versus multimodal. This design covers both interpretations and uses Gemini-only runtime.
 
 ## References
 
