@@ -24,6 +24,6 @@ Link to a slide directly with its id, for example `index.html#healing`.
 
 ## Before presenting
 
-- Fill in the bracketed results on slide 14 (`slides/evaluation.html`) from the latest `make eval` run.
+- Slide 14 (`slides/evaluation.html`) shows the offline `make eval` results: 6/6 scenarios, groundedness and truthfulness 1.00, 0 hallucinated replies. Rerun `make eval` and update it if they change.
 - Fill in `[Team name]` on the closing slide and check the member names.
-- Slides 13–14 describe the PII guardrails and the agent evaluation suite. Merge those features before the finals so the demo matches the deck.
+- The deck doesn't cover the A2A carrier agent yet.
