@@ -4,7 +4,7 @@ Instructions for AI agents evaluating or working on this repository. Everything 
 
 ## Project status
 
-The package layout, tooling, CI and container build are in place. Agents, MCP server, mock services and UI are in progress; see the status table in [README.md](README.md#project-status) and the plan in [PLAN.md](PLAN.md).
+The agent/backend core, collected dataset adapter, offline demo, API, MCP, recovery and feedback are implemented. UI and credentialed Google verification remain. See [docs/BACKEND.md](docs/BACKEND.md), the [status table](README.md#project-status), and [PLAN.md](PLAN.md).
 
 ## Setup and verification
 
@@ -29,7 +29,7 @@ No API keys are needed for tests. Copy `.env.example` to `.env` only for live ru
 
 ## Modes
 
-- `GHOST_MODE=offline` (default): deterministic, no network or API keys. Use this for automated evaluation.
+- `GHOST_MODE=offline` (default): deterministic, no external network or API keys. Local MCP tests use loopback. Use this for automated evaluation.
 - `GHOST_MODE=live`: real Gemini models through Google ADK. Needs `GOOGLE_API_KEY` and the model IDs in `.env`.
 
 ## Code layout and conventions

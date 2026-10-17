@@ -4,7 +4,9 @@
 
 A self-healing, multi-agent control room for **cold-chain logistics**, built with **Google ADK, Python, and Gemini only**. This replaces the earlier TypeScript/eve proposal and retains specialist conversation ownership and handovers.
 
-**Status: planning only.** No application or live integration is implemented yet. The first version uses synthetic cargo and simulated commercial actions; real medical disposition, carrier purchases, and production fleet operation are outside the submission.
+**Status:** the agent/backend core and offline demonstration are implemented; UI and credentialed Google verification remain. See [backend contracts and setup](docs/BACKEND.md) for exact implemented behavior. All cargo/carrier actions remain simulated; real medical disposition, carrier purchases, and production fleet operation are outside the submission.
+
+**Collected-data contract:** [data/seed/README.md](data/seed/README.md) defines the canonical replay. Cold control must be restored by 03:00, independently of delivery completion by 09:00; its baseline does not add the excursion allowance. The collected feedback case permits at most 90 minutes later delivery for at least INR 5,000 savings after all constraints pass. Earlier >60-minute-slack examples below describe a separate developer fixture, not the canonical collected case.
 
 ## 1. Agent Wars context
 

@@ -25,6 +25,8 @@ jobs:
         run: ruff check ghost_dispatcher mcp_server mock_services tests
       - name: Test
         run: pytest -q
+      - name: Offline agent demo
+        run: ghost-demo
 
   docker:
     name: Container build

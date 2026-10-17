@@ -16,6 +16,11 @@ venv/
 runs/
 memory/*.db
 *.log
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*client_secret*.json
+*oauth_token*.json
 
 # OS / editors
 .DS_Store
